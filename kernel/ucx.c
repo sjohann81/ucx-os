@@ -21,7 +21,9 @@ void dispatcher(void)
 {
 	if (!setjmp(tcb_p->context)) {
 		tcb_p->state = TASK_READY;
-		tcb_p = tcb_p->tcb_next;
+		do {
+			tcb_p = tcb_p->tcb_next;
+		} while (tcb_p->state != TASK_READY);
 		tcb_p->state = TASK_RUNNING;
 		ctx_switches++;
 		_interrupt_tick();
@@ -33,7 +35,7 @@ static void idle_task()
 {
 	volatile char stack[256];
 
-	memset((void *)stack, 0, sizeof(stack));
+	memset((void *)stack, 0x69, sizeof(stack));
 	
 	if (!setjmp(tcb_p->context)) {
 		_timer_enable();
@@ -68,13 +70,9 @@ int32_t ucx_task_add(void *task)
 {
 	struct tcb_s *tcb_last = tcb_p;
 	
-	if (tcb_first == 0) {
-		tcb_first = (struct tcb_s *)malloc(sizeof(struct tcb_s));
-		tcb_p = tcb_first;
-
-	} else {
-		tcb_p = (struct tcb_s *)malloc(sizeof(struct tcb_s));
-	}
+	tcb_p = (struct tcb_s *)malloc(sizeof(struct tcb_s));
+	if (tcb_first == 0)
+		tcb_first = tcb_p;
 
 	if (!tcb_p)
 		return -1;
@@ -89,7 +87,7 @@ int32_t ucx_task_add(void *task)
 
 void ucx_task_init(char *stack, uint16_t stack_size)
 {
-	memset(stack, 0, stack_size);
+	memset(stack, 0x69, stack_size);
 	
 	if (!setjmp(tcb_p->context)) {
 		tcb_p->state = TASK_READY;
@@ -103,7 +101,9 @@ void ucx_task_yield()
 {
 	if (!setjmp(tcb_p->context)) {
 		tcb_p->state = TASK_READY;
-		tcb_p = tcb_p->tcb_next;
+		do {
+			tcb_p = tcb_p->tcb_next;
+		} while (tcb_p->state != TASK_READY);
 		tcb_p->state = TASK_RUNNING;
 		ctx_switches++;
 		longjmp(tcb_p->context, 1);
