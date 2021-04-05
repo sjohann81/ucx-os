@@ -10,18 +10,21 @@ static int32_t ispowerof2(uint32_t x){
 	return x && !(x & (x - 1));
 }
 
-int32_t pipe_init(volatile struct pipe_s *pipe, uint16_t size)
+int32_t pipe_init(struct pipe_s *pipe, uint16_t size)
 {
 	if (!ispowerof2(size)) return -1;
 	
 	pipe->mask = size - 1;
 	pipe->data = (int8_t *)malloc(size);
 	if (!pipe->data) return -1;
+	pipe->head = 0;
+	pipe->tail = 0;
+	pipe->size = 0;
 	
 	return 0;
 }
 
-int32_t pipe_finish(volatile struct pipe_s *pipe)
+int32_t pipe_finish(struct pipe_s *pipe)
 {
 	if (!pipe->data) return -1;
 	
@@ -31,19 +34,19 @@ int32_t pipe_finish(volatile struct pipe_s *pipe)
 	return 0;
 }
 
-void pipe_flush(volatile struct pipe_s *pipe)
+void pipe_flush(struct pipe_s *pipe)
 {
 	pipe->head = 0;
 	pipe->tail = 0;
 	pipe->size = 0;
 }
 
-int32_t pipe_size(volatile struct pipe_s *pipe)
+int32_t pipe_size(struct pipe_s *pipe)
 {
 	return pipe->size;
 }
 
-int8_t pipe_get(volatile struct pipe_s *pipe)
+int8_t pipe_get(struct pipe_s *pipe)
 {
 	int32_t head;
 
@@ -57,7 +60,7 @@ int8_t pipe_get(volatile struct pipe_s *pipe)
 	return pipe->data[head];
 }
 
-int32_t pipe_put(volatile struct pipe_s *pipe, int8_t data)
+int32_t pipe_put(struct pipe_s *pipe, int8_t data)
 {
 	int32_t tail;
 
@@ -72,26 +75,46 @@ int32_t pipe_put(volatile struct pipe_s *pipe, int8_t data)
 	return 0;
 }
 
-
-int32_t pipe_read(volatile struct pipe_s *pipe, int8_t *data, uint16_t size)
+/* this routine is blocking and must be called inside a task. */
+int32_t pipe_read(struct pipe_s *pipe, int8_t *data, uint16_t size)
 {
-	uint16_t i;
+	uint16_t i = 0;
+	int8_t byte;
 	
-	for (i = 0; i < size; i++) {
-		data[i] = pipe_get(pipe);
-		if (data[i] == '\0') break;
+	while (i < size) {
+		ucx_enter_critical();
+		byte = pipe_get(pipe);
+		ucx_leave_critical();
+		if (byte == '\0') {
+			ucx_task_yield();
+			delay_ms(1);
+			continue;
+		}
+		data[i] = byte;
+		i++;
 	}
 	
 	return i;
 	
 }
 
-int32_t pipe_write(volatile struct pipe_s *pipe, int8_t *data, uint16_t size)
+/* this routine is blocking and must be called inside a task. */
+int32_t pipe_write(struct pipe_s *pipe, int8_t *data, uint16_t size)
 {
-	uint16_t i;
+	uint16_t i = 0;
+	int32_t res;
 	
-	for (i = 0; i < size; i++)
-		if (pipe_put(pipe, data[i]) == -1) break;
-	
+	while (i < size) {
+		ucx_enter_critical();
+		res = pipe_put(pipe, data[i]);
+		ucx_leave_critical();
+		if (res == -1) {
+			ucx_task_yield();
+			delay_ms(1);
+			continue;
+		}
+		i++;
+	}
+
 	return i;
 }
