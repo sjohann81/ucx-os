@@ -40,6 +40,9 @@ hello: hal ucx
 	$(CC) $(CFLAGS) -o hello.o app/hello.c
 	@$(MAKE) --no-print-directory link
 
+pipes: hal ucx
+	$(CC) $(CFLAGS) -o pipes.o app/pipes.c
+	@$(MAKE) --no-print-directory link
+
 clean:
 	rm -rf *.o *~ *.elf *.bin *.cnt *.lst *.sec *.txt *.map
-
