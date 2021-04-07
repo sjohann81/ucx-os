@@ -43,9 +43,13 @@ hello: hal ucx
 hello_p: hal ucx
 	$(CC) $(CFLAGS) -o hello_preempt.o app/hello_preempt.c
 	@$(MAKE) --no-print-directory link
-
+	
 pipes: hal ucx
 	$(CC) $(CFLAGS) -o pipes.o app/pipes.c
+	@$(MAKE) --no-print-directory link
+
+progress: hal ucx
+	$(CC) $(CFLAGS) -o progress.o app/progress.c
 	@$(MAKE) --no-print-directory link
 
 clean:
