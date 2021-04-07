@@ -10,6 +10,7 @@ struct tcb_s {
 	struct tcb_s *tcb_next;
 	void (*task)(void);
 	jmp_buf context;
+	uint16_t id;
 	uint8_t state;
 };
 
@@ -57,6 +58,7 @@ int32_t main(void)
 int32_t ucx_task_add(void *task)
 {
 	struct tcb_s *tcb_last = tcb_p;
+	static uint16_t id = 0;
 	
 	tcb_p = (struct tcb_s *)malloc(sizeof(struct tcb_s));
 	if (tcb_first == 0)
@@ -68,6 +70,7 @@ int32_t ucx_task_add(void *task)
 	tcb_last->tcb_next = tcb_p;
 	tcb_p->tcb_next = tcb_first;
 	tcb_p->task = task;
+	tcb_p->id = id++;
 	tcb_p->state = TASK_STOPPED;
 	
 	return 0;
@@ -99,6 +102,11 @@ void ucx_task_yield()
 		ctx_switches++;
 		longjmp(tcb_p->context, 1);
 	}
+}
+
+uint16_t ucx_task_id()
+{
+	return tcb_p->id;
 }
 
 void ucx_task_wfi()
