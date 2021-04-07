@@ -31,19 +31,23 @@ void dispatcher(void)
 	}
 }
 
-static void sched_init()
+static void sched_init(int32_t preemptive)
 {
 	tcb_p = tcb_first;
+	if (preemptive)
+		_timer_enable();
 	(*tcb_p->task)();
 }
 
 int32_t main(void)
 {
+	int32_t pr;
+	
 	_hardware_init();
 	heap_init((uint32_t *)&_heap_start, (uint32_t)&_heap_size);
-	app_main();
+	pr = app_main();
 	printf("\nUCX/OS boot\n");
-	sched_init();
+	sched_init(pr);
 	
 	return 0;
 }
@@ -76,7 +80,6 @@ void ucx_task_init(char *guard, uint16_t guard_size)
 		tcb_p->state = TASK_READY;
 		if (tcb_p->tcb_next == tcb_first) {
 			tcb_p->state = TASK_RUNNING;
-			_timer_enable();
 		} else {
 			tcb_p = tcb_p->tcb_next;
 			tcb_p->state = TASK_RUNNING;
