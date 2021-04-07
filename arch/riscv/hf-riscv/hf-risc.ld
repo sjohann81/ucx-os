@@ -9,7 +9,7 @@ MEMORY
 ENTRY(_entry)
 
 /* Defines beginning and ending of stack. */
-_stack_size  = 8K;
+_stack_size  = 16K;
 _stack = _stack_start;
 _stack_start = ORIGIN(RAM) + LENGTH(RAM);
 _stack_end   = _stack_start - _stack_size;
