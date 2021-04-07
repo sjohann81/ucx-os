@@ -4,10 +4,10 @@ struct pipe_s pipe1, pipe2, pipe3;
 
 void task3(void)
 {
-	char stack[1024];
+	char guard[1024];
 	int8_t data[128];
 
-	ucx_task_init(stack, sizeof(stack));
+	ucx_task_init(guard, sizeof(guard));
 
 	while (1) {
 		printf("Waiting data from task0... ");
@@ -19,10 +19,10 @@ void task3(void)
 
 void task2(void)
 {
-	char stack[1024];
+	char guard[1024];
 	int8_t data[50] = "hello from task 2!";
 
-	ucx_task_init(stack, sizeof(stack));
+	ucx_task_init(guard, sizeof(guard));
 
 	while (1) {
 		/* write pipe - write size must be less than buffer size */
@@ -32,10 +32,10 @@ void task2(void)
 
 void task1(void)
 {
-	char stack[1024];
+	char guard[1024];
 	int8_t data[50] = "hello from task 1!";
 
-	ucx_task_init(stack, sizeof(stack));
+	ucx_task_init(guard, sizeof(guard));
 
 	while (1) {
 		/* write pipe - write size must be less than buffer size */
@@ -45,12 +45,12 @@ void task1(void)
 
 void task0(void)
 {
-	char stack[1024];
+	char guard[1024];
 	int8_t data1[128];	/* data buffer 1 */
 	int8_t data2[50];	/* data buffer 2 */
 	int8_t hello[64] = "hi!";
 
-	ucx_task_init(stack, sizeof(stack));
+	ucx_task_init(guard, sizeof(guard));
 
 	while (1) {
 		/* read pipe - read size must be less than buffer size */

@@ -69,9 +69,9 @@ int32_t ucx_task_add(void *task)
 	return 0;
 }
 
-void ucx_task_init(char *stack, uint16_t stack_size)
+void ucx_task_init(char *guard, uint16_t guard_size)
 {
-	memset(stack, 0x69, stack_size);
+	memset(guard, 0x69, guard_size);
 	if (!setjmp(tcb_p->context)) {
 		tcb_p->state = TASK_READY;
 		if (tcb_p->tcb_next == tcb_first) {
