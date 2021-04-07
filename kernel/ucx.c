@@ -69,13 +69,6 @@ int32_t ucx_task_add(void *task)
 	return 0;
 }
 
-void _fix_stack(uint16_t stack_size)
-{
-	printf("#%08x ", tcb_p->context[12]);
-	tcb_p->context[12] -= stack_size;
-	printf("#%08x", tcb_p->context[12]);
-}
-
 void ucx_task_init(char *stack, uint16_t stack_size)
 {
 	memset(stack, 0x69, stack_size);
