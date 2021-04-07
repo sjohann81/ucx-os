@@ -9,7 +9,7 @@
 enum {TASK_STOPPED, TASK_READY, TASK_RUNNING, TASK_BLOCKED, TASK_INTERRUPTED};
 
 int32_t ucx_task_add(void *task);
-void ucx_task_init(char *stack, uint16_t stack_size);
+void ucx_task_init(char *guard, uint16_t guard_size);
 void ucx_task_yield();
 uint16_t ucx_task_id();
 void ucx_task_wfi();
