@@ -74,5 +74,6 @@ int32_t app_main(void)
 	pipe_init(&pipe2, 64);		/* pipe buffer, 64 bytes - powers of two */
 	pipe_init(&pipe3, 64);		/* pipe buffer, 64 bytes - powers of two */
 
-	return 0;
+	// start UCX/OS, preemptive mode
+	return 1;
 }

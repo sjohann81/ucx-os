@@ -1,65 +1,41 @@
 #include <ucx.h>
 
-void task4(void)
-{
-	char stack[512];
-
-	ucx_task_init(stack, sizeof(stack));
-
-	while (1) {
-		printf(".");
-	}
-}
-
-void task3(void)
-{
-	char stack[512];	/* reserve some stack space */
-	int32_t cnt = 400000;
-
-	ucx_task_init(stack, sizeof(stack));
-
-	while (1) {			/* thread body */
-		printf("[task 3 %d]\n", cnt++);
-		ucx_task_wfi();		/* wait for the next context switch */
-	}
-}
-
 void task2(void)
 {
-	char stack[512];
+	char guard[512];	/* reserve some guard space. the last thread (task1) may need this! */
 	int32_t cnt = 300000;
 
-	ucx_task_init(stack, sizeof(stack));
+	ucx_task_init(guard, sizeof(guard));
 
 	while (1) {
 		printf("[task 2 %d]\n", cnt++);
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 
 void task1(void)
 {
-	char stack[512];
+	char guard[512];
 	int32_t cnt = 200000;
 
-	ucx_task_init(stack, sizeof(stack));
+	ucx_task_init(guard, sizeof(guard));
 
 	while (1) {
 		printf("[task 1 %d]\n", cnt++);
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 
 void task0(void)
 {
-	char stack[512];
+	char guard[512];
 	int32_t cnt = 100000;
 
-	ucx_task_init(stack, sizeof(stack));
+	ucx_task_init(guard, sizeof(guard));
 
 	while (1) {
 		printf("[task 0 %d]\n", cnt++);
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 
@@ -68,10 +44,9 @@ int32_t app_main(void)
 	ucx_task_add(task0);
 	ucx_task_add(task1);
 	ucx_task_add(task2);
-	ucx_task_add(task3);
-	ucx_task_add(task4);
 
 	printf("hello world!\n");
 
+	// start UCX/OS
 	return 0;
 }
