@@ -31,21 +31,6 @@ void dispatcher(void)
 	}
 }
 
-static void idle_task()
-{
-	volatile char stack[256];
-
-	memset((void *)stack, 0x69, sizeof(stack));
-	
-	if (!setjmp(tcb_p->context)) {
-		_timer_enable();
-	}
-	
-	while (1) {
-		ucx_task_yield();
-	}
-}
-
 static void sched_init()
 {
 	tcb_p = tcb_first;
@@ -57,7 +42,6 @@ int32_t main(void)
 	_hardware_init();
 	heap_init((uint32_t *)&_heap_start, (uint32_t)&_heap_size);
 	app_main();
-	ucx_task_add(idle_task);
 	printf("\nUCX/OS boot\n");
 	sched_init();
 	
@@ -85,15 +69,26 @@ int32_t ucx_task_add(void *task)
 	return 0;
 }
 
+void _fix_stack(uint16_t stack_size)
+{
+	printf("#%08x ", tcb_p->context[12]);
+	tcb_p->context[12] -= stack_size;
+	printf("#%08x", tcb_p->context[12]);
+}
+
 void ucx_task_init(char *stack, uint16_t stack_size)
 {
 	memset(stack, 0x69, stack_size);
-	
 	if (!setjmp(tcb_p->context)) {
 		tcb_p->state = TASK_READY;
-		tcb_p = tcb_p->tcb_next;
-		tcb_p->state = TASK_RUNNING;
-		(*tcb_p->task)();
+		if (tcb_p->tcb_next == tcb_first) {
+			tcb_p->state = TASK_RUNNING;
+			_timer_enable();
+		} else {
+			tcb_p = tcb_p->tcb_next;
+			tcb_p->state = TASK_RUNNING;
+			(*tcb_p->task)();
+		}
 	}
 }
 
