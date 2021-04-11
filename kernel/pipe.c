@@ -10,26 +10,39 @@ static int32_t ispowerof2(uint32_t x){
 	return x && !(x & (x - 1));
 }
 
-int32_t pipe_init(struct pipe_s *pipe, uint16_t size)
+struct pipe_s *pipe_create(uint16_t size)
 {
-	if (!ispowerof2(size)) return -1;
+	struct pipe_s *pipe;
+	
+	if (!ispowerof2(size))
+		return 0;
+		
+	pipe = (struct pipe_s *)malloc(sizeof(struct pipe_s));
+	
+	if (!pipe)
+		return 0;
 	
 	pipe->mask = size - 1;
 	pipe->data = (int8_t *)malloc(size);
-	if (!pipe->data) return -1;
+	if (!pipe->data) {
+		free(pipe);
+		return 0;
+	}
 	pipe->head = 0;
 	pipe->tail = 0;
 	pipe->size = 0;
 	
-	return 0;
+	return pipe;
 }
 
-int32_t pipe_finish(struct pipe_s *pipe)
+int32_t pipe_destroy(struct pipe_s *pipe)
 {
-	if (!pipe->data) return -1;
+	if (!pipe->data)
+		return -1;
 	
 	pipe->mask = 0;
 	free(pipe->data);
+	free(pipe);
 	
 	return 0;
 }

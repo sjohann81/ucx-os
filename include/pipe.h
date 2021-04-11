@@ -4,8 +4,8 @@ struct pipe_s {
 	volatile int32_t head, tail, size;
 };
 
-int32_t pipe_init(struct pipe_s *pipe, uint16_t size);
-int32_t pipe_finish(struct pipe_s *pipe);
+struct pipe_s *pipe_create(uint16_t size);
+int32_t pipe_destroy(struct pipe_s *pipe);
 void pipe_flush(struct pipe_s *pipe);
 int32_t pipe_size(struct pipe_s *pipe);
 int8_t pipe_get(struct pipe_s *pipe);
