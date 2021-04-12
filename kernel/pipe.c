@@ -59,12 +59,12 @@ int32_t pipe_size(struct pipe_s *pipe)
 	return pipe->size;
 }
 
-int8_t pipe_get(struct pipe_s *pipe)
+int32_t pipe_get(struct pipe_s *pipe)
 {
 	int32_t head;
 
 	if (pipe->head == pipe->tail)
-		return 0;
+		return -1;
 
 	head = pipe->head;
 	pipe->head = (pipe->head + 1) & pipe->mask;
@@ -92,13 +92,13 @@ int32_t pipe_put(struct pipe_s *pipe, int8_t data)
 int32_t pipe_read(struct pipe_s *pipe, int8_t *data, uint16_t size)
 {
 	uint16_t i = 0;
-	int8_t byte;
+	int32_t byte;
 	
 	while (i < size) {
 		ucx_enter_critical();
 		byte = pipe_get(pipe);
 		ucx_leave_critical();
-		if (byte == '\0') {
+		if (byte == -1) {
 			ucx_task_yield();
 			delay_ms(1);
 			continue;
