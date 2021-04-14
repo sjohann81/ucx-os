@@ -379,6 +379,7 @@ void timer1ctc_handler(void)
 
 void _hardware_init(void)
 {
+	_di();
 	TIMER1PRE = TIMERPRE_DIV16;
 
 	/* unlock TIMER1 for reset */
@@ -401,5 +402,5 @@ void _timer_disable(void)
 
 void _interrupt_tick(void)
 {
-	_interrupt_set(1);
+	_ei(1);
 }

@@ -35,8 +35,10 @@ void dispatcher(void)
 static void sched_init(int32_t preemptive)
 {
 	tcb_p = tcb_first;
-	if (preemptive)
+	if (preemptive) {
+		_ei(1);
 		_timer_enable();
+	}
 	(*tcb_p->task)();
 }
 
