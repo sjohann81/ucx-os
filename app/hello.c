@@ -4,7 +4,7 @@ void task2(void)
 {
 	char guard[512];	/* reserve some guard space. the last thread (task1) may need this! */
 	int32_t cnt = 300000;
-
+	
 	ucx_task_init(guard, sizeof(guard));
 
 	while (1) {
