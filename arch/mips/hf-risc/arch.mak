@@ -14,7 +14,8 @@ LDFLAGS_STRIP = --gc-sections
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LINKER_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
 # remember the kernel, as well as the application, will be compiled using the *same* compiler and flags!
 ASFLAGS = -mips1 -msoft-float
-CFLAGS = -Wall -Os -c -mips2 -mno-branch-likely -mpatfree -mfix-r4000 -mno-check-zero-division -msoft-float -ffreestanding -nostdlib -fomit-frame-pointer -G 0 $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DBIG_ENDIAN $(CFLAGS_NO_HW_MULDIV) $(CFLAGS_STRIP) #-DDEBUG_PORT
+#CFLAGS = -Wall -Os -c -mips2 -mno-branch-likely -mpatfree -mfix-r4000 -mno-check-zero-division -msoft-float -ffreestanding -nostdlib -fomit-frame-pointer -G 0 $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DBIG_ENDIAN $(CFLAGS_NO_HW_MULDIV) $(CFLAGS_STRIP) #-DDEBUG_PORT
+CFLAGS = -Wall -O2 -c -mips1 -mno-check-zero-division -msoft-float -ffreestanding -nostdlib -G 0 $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DBIG_ENDIAN $(CFLAGS_STRIP) #-DDEBUG_PORT
 LDFLAGS = -mips1 $(LDFLAGS_STRIP)
 LDSCRIPT = $(ARCH_DIR)/hf-risc.ld
 
