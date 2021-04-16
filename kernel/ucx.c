@@ -48,8 +48,9 @@ int32_t main(void)
 	
 	_hardware_init();
 	heap_init((uint32_t *)&_heap_start, (uint32_t)&_heap_size);
+	printf("heap_init(), %d bytes free\n", (uint32_t)&_heap_size);
 	pr = app_main();
-	printf("\nUCX/OS boot\n");
+	printf("UCX/OS boot\n");
 	sched_init(pr);
 	
 	return 0;
@@ -81,6 +82,9 @@ int32_t ucx_task_add(void *task)
 void ucx_task_init(char *guard, uint16_t guard_size)
 {
 	memset(guard, 0x69, guard_size);
+	memset(guard, 0x33, 4);
+	memset((guard) + guard_size - 4, 0x33, 4);
+	printf("guard: %08x - %08x\n", (uint32_t)guard, ((uint32_t)guard) + guard_size);
 	if (!setjmp(tcb_p->context)) {
 		tcb_p->state = TASK_READY;
 		if (tcb_p->tcb_next == tcb_first) {
