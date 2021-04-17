@@ -99,7 +99,8 @@ int32_t pipe_read(struct pipe_s *pipe, int8_t *data, uint16_t size)
 		byte = pipe_get(pipe);
 		ucx_leave_critical();
 		if (byte == -1) {
-			ucx_task_yield();
+//			ucx_task_yield();
+			delay_ms(1);
 			continue;
 		}
 		data[i] = byte;
@@ -121,7 +122,8 @@ int32_t pipe_write(struct pipe_s *pipe, int8_t *data, uint16_t size)
 		res = pipe_put(pipe, data[i]);
 		ucx_leave_critical();
 		if (res == -1) {
-			ucx_task_yield();
+//			ucx_task_yield();
+			delay_ms(1);
 			continue;
 		}
 		i++;
