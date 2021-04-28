@@ -53,5 +53,9 @@ progress: hal ucx
 	$(CC) $(CFLAGS) -o progress.o app/progress.c
 	@$(MAKE) --no-print-directory link
 
+test_fixed: hal ucx
+	$(CC) $(CFLAGS) -o test_fixed.o app/test_fixed.c
+	@$(MAKE) --no-print-directory link
+
 clean:
 	rm -rf *.o *~ *.elf *.bin *.cnt *.lst *.sec *.txt *.map
