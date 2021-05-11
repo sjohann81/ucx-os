@@ -47,8 +47,8 @@ int32_t main(void)
 	int32_t pr;
 	
 	_hardware_init();
-	heap_init((uint32_t *)&_heap_start, (uint32_t)&_heap_size);
-	printf("heap_init(), %d bytes free\n", (uint32_t)&_heap_size);
+	heap_init((size_t *)&_heap_start, (size_t)&_heap_size);
+	printf("heap_init(), %d bytes free\n", (size_t)&_heap_size);
 	pr = app_main();
 	printf("UCX/OS boot\n");
 	sched_init(pr);
@@ -70,7 +70,8 @@ int32_t ucx_task_add(void *task)
 	if (!tcb_p)
 		return -1;
 
-	tcb_last->tcb_next = tcb_p;
+	if (tcb_last)
+		tcb_last->tcb_next = tcb_p;
 	tcb_p->tcb_next = tcb_first;
 	tcb_p->task = task;
 	tcb_p->id = id++;
@@ -84,7 +85,7 @@ void ucx_task_init(char *guard, uint16_t guard_size)
 	memset(guard, 0x69, guard_size);
 	memset(guard, 0x33, 4);
 	memset((guard) + guard_size - 4, 0x33, 4);
-	printf("guard: %08x - %08x\n", (uint32_t)guard, ((uint32_t)guard) + guard_size);
+	printf("guard: %08x - %08x\n", (size_t)guard, ((size_t)guard) + guard_size);
 	if (!setjmp(tcb_p->context)) {
 		tcb_p->state = TASK_READY;
 		if (tcb_p->tcb_next == tcb_first) {

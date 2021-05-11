@@ -57,7 +57,7 @@ void *malloc(uint32_t size)
 	return (void *)(p + 1);
 }
 
-void heap_init(uint32_t *zone, uint32_t len)
+void heap_init(size_t *zone, uint32_t len)
 {
 	void *heap = zone;
 	struct mem_block_s *p = (struct mem_block_s *)heap;

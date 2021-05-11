@@ -12,4 +12,4 @@ struct mem_block_s *last_free;
 
 void free(void *ptr);
 void *malloc(uint32_t size);
-void heap_init(uint32_t *zone, uint32_t len);
+void heap_init(size_t *zone, uint32_t len);
