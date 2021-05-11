@@ -1,5 +1,7 @@
-ARCH = riscv/hf-riscv
 #ARCH = mips/hf-risc
+#ARCH = riscv/hf-riscv
+#ARCH = riscv/riscv32-qemu
+ARCH = riscv/riscv64-qemu
 
 SERIAL_BAUD=57600
 SERIAL_DEVICE=/dev/ttyUSB0
@@ -18,7 +20,17 @@ load: serial
 
 debug: serial
 	cat ${SERIAL_DEVICE}
-	
+
+## RISC-V / Qemu
+run_riscv32:
+	echo "hit Ctrl+a x to quit"
+	qemu-system-riscv32 -machine virt -nographic -bios image.bin -serial mon:stdio
+
+run_riscv64:
+	echo "hit Ctrl+a x to quit"
+	qemu-system-riscv64 -machine virt -nographic -bios image.bin -serial mon:stdio
+
+## kernel
 ucx:
 	$(CC) $(CFLAGS) \
 		$(SRC_DIR)/lib/libc.c \
@@ -28,6 +40,7 @@ ucx:
 		$(SRC_DIR)/kernel/pipe.c \
 		$(SRC_DIR)/kernel/ucx.c
 
+## kernel + application link
 link:
 	$(LD) $(LDFLAGS) -T$(LDSCRIPT) -Map image.map -o image.elf *.o
 	$(DUMP) --disassemble --reloc image.elf > image.lst
@@ -37,6 +50,7 @@ link:
 	$(SIZE) image.elf
 	hexdump -v -e '4/1 "%02x" "\n"' image.bin > image.txt
 
+## applications
 hello: hal ucx
 	$(CC) $(CFLAGS) -o hello.o app/hello.c
 	@$(MAKE) --no-print-directory link
