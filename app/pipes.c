@@ -10,7 +10,7 @@ void log(void)
 	
 	while (1) {
 		delay_ms(1000);
-		hexdump((char *)(uint32_t)&_stack_end - 8192, 8192);
+		hexdump((char *)(size_t)&_stack_end - 8192, 8192);
 	}
 }
 

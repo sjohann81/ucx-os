@@ -1,7 +1,7 @@
 #ARCH = mips/hf-risc
-#ARCH = riscv/hf-riscv
+ARCH = riscv/hf-riscv
 #ARCH = riscv/riscv32-qemu
-ARCH = riscv/riscv64-qemu
+#ARCH = riscv/riscv64-qemu
 
 SERIAL_BAUD=57600
 SERIAL_DEVICE=/dev/ttyUSB0
