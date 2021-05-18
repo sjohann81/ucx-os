@@ -4,12 +4,13 @@ struct pipe_s *pipe1, *pipe2, *pipe3;
 
 void log(void)
 {
-	int32_t i;
 	char guard[512];
 	
 	ucx_task_init(guard, sizeof(guard));
 	
 	while (1) {
+		delay_ms(1000);
+		hexdump((char *)(uint32_t)&_stack_end - 8192, 8192);
 	}
 }
 
@@ -67,8 +68,6 @@ void task0(void)
 	ucx_task_init(guard, sizeof(guard));
 
 	while (1) {
-//		memset(data1, 0, sizeof(data1));
-//		memset(data2, 0, sizeof(data2));
 		/* read pipe - read size must be less than buffer size */
 		s = pipe_read(pipe1, data1, 127);
 		printf("pipe 1 (%d): %s\n", s, data1);

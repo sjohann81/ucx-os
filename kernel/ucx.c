@@ -10,6 +10,7 @@ struct tcb_s {
 	struct tcb_s *tcb_next;
 	void (*task)(void);
 	jmp_buf context;
+	uint32_t *check_addr;
 	uint16_t id;
 	uint8_t state;
 };
@@ -18,9 +19,21 @@ struct tcb_s *tcb_first = 0, *tcb_p;
 volatile uint32_t ctx_switches = 0;
 
 
+static void guard_check()
+{
+	uint32_t check = 0x33333333;
+	
+	if (*tcb_p->check_addr != check) {
+		printf("PANIC: guard check %08x\n", *tcb_p->check_addr);
+		for (;;);
+	}
+		
+}
+
 void dispatcher(void)
 {
 	if (!setjmp(tcb_p->context)) {
+		guard_check();
 		tcb_p->state = TASK_READY;
 		do {
 			tcb_p = tcb_p->tcb_next;
@@ -80,12 +93,32 @@ int32_t ucx_task_add(void *task)
 	return 0;
 }
 
+/*
+ * First four lines of code on ucx_task_init() are absurd. This is
+ * used by guard_check() to detect stack overflows (sometimes).
+ * We need the safety pig, just in case.
+                         _ 
+ _._ _..._ .-',     _.._(`)) 
+'-. `     '  /-._.-'    ',/ 
+   )         \            '. 
+  / _    _    |             \ 
+ |  a    a    /              | 
+ \   .-.                     ;   
+  '-('' ).-'       ,'       ; 
+     '-;           |      .' 
+        \           \    / 
+        | 7  .__  _.-\   \ 
+        | |  |  ``/  /`  / 
+       /,_|  |   /,_/   / 
+          /,_/      '`-' 
+*/
 void ucx_task_init(char *guard, uint16_t guard_size)
 {
 	memset(guard, 0x69, guard_size);
 	memset(guard, 0x33, 4);
 	memset((guard) + guard_size - 4, 0x33, 4);
-	printf("guard: %08x - %08x\n", (size_t)guard, ((size_t)guard) + guard_size);
+	tcb_p->check_addr = (uint32_t *)guard;
+	printf("task %d, guard: %08x - %08x\n", tcb_p->id, (uint32_t)guard, ((uint32_t)guard) + guard_size);
 	if (!setjmp(tcb_p->context)) {
 		tcb_p->state = TASK_READY;
 		if (tcb_p->tcb_next == tcb_first) {
@@ -101,6 +134,7 @@ void ucx_task_init(char *guard, uint16_t guard_size)
 void ucx_task_yield()
 {
 	if (!setjmp(tcb_p->context)) {
+		guard_check();
 		tcb_p->state = TASK_READY;
 		do {
 			tcb_p = tcb_p->tcb_next;

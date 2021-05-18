@@ -2,8 +2,8 @@
 
 void task2(void)
 {
-	char guard[512];	/* reserve some guard space. the last thread (task1) may need this! */
 	int32_t cnt = 300000;
+	char guard[512];	/* reserve some guard space. the last thread (task1) may need this! */
 	
 	ucx_task_init(guard, sizeof(guard));
 
@@ -15,8 +15,8 @@ void task2(void)
 
 void task1(void)
 {
-	char guard[512];
 	int32_t cnt = 200000;
+	char guard[512];
 
 	ucx_task_init(guard, sizeof(guard));
 
@@ -28,8 +28,8 @@ void task1(void)
 
 void task0(void)
 {
-	char guard[512];
 	int32_t cnt = 100000;
+	char guard[512];
 
 	ucx_task_init(guard, sizeof(guard));
 

@@ -6,8 +6,8 @@ volatile uint32_t cnt[N_TASKS] = {[0 ... N_TASKS-1] = 0};
 
 void log(void)
 {
-	char guard[512];
 	int32_t i;
+	char guard[512];
 	
 	ucx_task_init(guard, sizeof(guard));
 	
@@ -21,8 +21,8 @@ void log(void)
 
 void task(void)
 {
-	char guard[512];
 	volatile uint32_t counter = 0;
+	char guard[512];
 
 	ucx_task_init(guard, sizeof(guard));
 
