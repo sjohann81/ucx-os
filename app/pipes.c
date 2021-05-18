@@ -10,7 +10,7 @@ void log(void)
 	
 	while (1) {
 		delay_ms(1000);
-		hexdump((char *)(size_t)&_stack_end - 8192, 8192);
+		hexdump((char *)((size_t)&_stack_end - 8192), 8192);
 	}
 }
 
@@ -84,7 +84,7 @@ int32_t app_main(void)
 	ucx_task_add(task1);
 	ucx_task_add(task2);
 	ucx_task_add(task3);
-//	ucx_task_add(log);
+	ucx_task_add(log);
 
 	pipe1 = pipe_create(128);		/* pipe buffer, 128 bytes - powers of two */
 	pipe2 = pipe_create(64);		/* pipe buffer, 64 bytes - powers of two */
