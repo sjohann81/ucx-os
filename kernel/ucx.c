@@ -118,7 +118,7 @@ void ucx_task_init(char *guard, uint16_t guard_size)
 	memset(guard, 0x33, 4);
 	memset((guard) + guard_size - 4, 0x33, 4);
 	tcb_p->check_addr = (uint32_t *)guard;
-	printf("task %d, guard: %08x - %08x\n", tcb_p->id, (uint32_t)guard, ((uint32_t)guard) + guard_size);
+	printf("task %d, guard: %08x - %08x\n", tcb_p->id, (size_t)guard, ((size_t)guard) + guard_size);
 	if (!setjmp(tcb_p->context)) {
 		tcb_p->state = TASK_READY;
 		if (tcb_p->tcb_next == tcb_first) {
