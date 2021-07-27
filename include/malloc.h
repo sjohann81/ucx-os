@@ -10,6 +10,10 @@ struct mem_block_s {
 struct mem_block_s *first_free;
 struct mem_block_s *last_free;
 
-void free(void *ptr);
-void *malloc(uint32_t size);
+void _free(void *ptr);
+void *_malloc(uint32_t size);
 void heap_init(size_t *zone, uint32_t len);
+
+#ifdef UCX_OS_HEAP_SIZE
+extern char _heap[UCX_OS_HEAP_SIZE];
+#endif

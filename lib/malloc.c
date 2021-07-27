@@ -9,7 +9,11 @@
 
 #include <ucx.h>
 
-void free(void *ptr)
+#ifdef UCX_OS_HEAP_SIZE
+char _heap[UCX_OS_HEAP_SIZE];
+#endif
+
+void _free(void *ptr)
 {
 	struct mem_block_s *p;
 	
@@ -18,7 +22,7 @@ void free(void *ptr)
 	last_free = first_free;
 }
 
-void *malloc(uint32_t size)
+void *_malloc(uint32_t size)
 {
 	struct mem_block_s *p, *q, *r, n;
 	
