@@ -12,29 +12,29 @@ libc basic I/O support
 */
 
 #ifndef DEBUG_PORT
-void putchar(char value){		// polled putchar()
+void _putchar(char value){		// polled putchar()
 	while (UARTCAUSE & MASK_UART0_WRITEBUSY);
 	UART0 = value;
 }
 
-int32_t kbhit(void){
+int32_t _kbhit(void){
 	return UARTCAUSE & MASK_UART0_DATAAVAIL;
 }
 
-int32_t getchar(void){			// polled getch()
-	while (!kbhit());
+int32_t _getchar(void){			// polled getch()
+	while (!_kbhit());
 	return UART0;
 }
 #else
-void putchar(char value){		// polled putchar()
+void _putchar(char value){		// polled putchar()
 	DEBUG_ADDR = value;
 }
 
-int32_t kbhit(void){
+int32_t _kbhit(void){
 	return 0;
 }
 
-int32_t getchar(void){			// polled getch()
+int32_t _getchar(void){			// polled getch()
 	return DEBUG_ADDR;
 }
 #endif
@@ -325,7 +325,7 @@ int64_t __divdi3(int64_t num, int64_t den){
 
 /* delay routines */
 
-void delay_ms(uint32_t msec)
+void _delay_ms(uint32_t msec)
 {
 	volatile uint32_t cur, last, delta, msecs;
 	uint32_t cycles_per_msec;
@@ -347,7 +347,7 @@ void delay_ms(uint32_t msec)
 	}
 }
 
-void delay_us(uint32_t usec)
+void _delay_us(uint32_t usec)
 {
 	volatile uint32_t cur, last, delta, usecs;
 	uint32_t cycles_per_usec;
