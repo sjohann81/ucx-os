@@ -3,36 +3,36 @@
 void task2(void)
 {
 	int32_t cnt = 300000;
-	char guard[512];	/* reserve some guard space. the last thread (task1) may need this! */
+	char guard[256];	/* reserve some guard space. the last thread (task1) may need this! */
 
 	ucx_task_init(guard, sizeof(guard));
 
 	while (1) {
-		printf("[task %d %d]\n", ucx_task_id(), cnt++);
+		_printf("[task %d %ld]\n", ucx_task_id(), cnt++);
 	}
 }
 
 void task1(void)
 {
 	int32_t cnt = 200000;
-	char guard[512];
+	char guard[256];
 
 	ucx_task_init(guard, sizeof(guard));
 
 	while (1) {
-		printf("[task %d %d]\n", ucx_task_id(), cnt++);
+		_printf("[task %d %ld]\n", ucx_task_id(), cnt++);
 	}
 }
 
 void task0(void)
 {
 	int32_t cnt = 100000;
-	char guard[512];
+	char guard[256];
 
 	ucx_task_init(guard, sizeof(guard));
 
 	while (1) {
-		printf("[task %d %d]\n", ucx_task_id(), cnt++);
+		_printf("[task %d %ld]\n", ucx_task_id(), cnt++);
 	}
 }
 
