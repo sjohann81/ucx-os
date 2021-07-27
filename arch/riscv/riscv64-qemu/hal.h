@@ -75,12 +75,12 @@ void longjmp(jmp_buf env, int32_t val);
 
 void dispatcher(void);
 
-void putchar(char value);
-int32_t kbhit(void);
-int32_t getchar(void);
+void _putchar(char value);
+int32_t _kbhit(void);
+int32_t _getchar(void);
 
-void delay_ms(uint32_t msec);
-void delay_us(uint32_t usec);
+void _delay_ms(uint32_t msec);
+void _delay_us(uint32_t usec);
 
 void _hardware_init(void);
 void _timer_enable(void);
