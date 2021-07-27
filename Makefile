@@ -1,7 +1,8 @@
+#ARCH = avr/atmega328p
 #ARCH = mips/hf-risc
-ARCH = riscv/hf-riscv
+#ARCH = riscv/hf-riscv
 #ARCH = riscv/riscv32-qemu
-#ARCH = riscv/riscv64-qemu
+ARCH = riscv/riscv64-qemu
 
 SERIAL_BAUD=57600
 SERIAL_DEVICE=/dev/ttyUSB0
@@ -42,13 +43,18 @@ ucx:
 
 ## kernel + application link
 link:
+ifeq ('$(ARCH)', 'avr/atmega328p')
+	$(LD) $(LDFLAGS) -o image.elf *.o
+else
 	$(LD) $(LDFLAGS) -T$(LDSCRIPT) -Map image.map -o image.elf *.o
+endif
 	$(DUMP) --disassemble --reloc image.elf > image.lst
 	$(DUMP) -h image.elf > image.sec
 	$(DUMP) -s image.elf > image.cnt
 	$(OBJ) -O binary image.elf image.bin
+	$(OBJ) -R .eeprom -O ihex image.elf image.hex
 	$(SIZE) image.elf
-	hexdump -v -e '4/1 "%02x" "\n"' image.bin > image.txt
+#	hexdump -v -e '4/1 "%02x" "\n"' image.bin > image.txt
 
 ## applications
 hello: hal ucx
@@ -61,6 +67,10 @@ hello_p: hal ucx
 	
 pipes: hal ucx
 	$(CC) $(CFLAGS) -o pipes.o app/pipes.c
+	@$(MAKE) --no-print-directory link
+
+pipes_s: hal ucx
+	$(CC) $(CFLAGS) -o pipes_small.o app/pipes_small.c
 	@$(MAKE) --no-print-directory link
 
 progress: hal ucx
