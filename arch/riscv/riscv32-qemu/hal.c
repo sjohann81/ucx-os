@@ -290,18 +290,18 @@ int64_t __divdi3(int64_t num, int64_t den){
 }
 
 /* hardware platform dependent stuff */
-void putchar(char value)		// polled putchar()
+void _putchar(char value)		// polled putchar()
 {
 	while (!((NS16550A_UART0_CTRL_ADDR(NS16550A_LSR) & NS16550A_LSR_RI)));
 	NS16550A_UART0_CTRL_ADDR(NS16550A_THR) = value;
 }
 
-int32_t kbhit(void)
+int32_t _kbhit(void)
 {
 	return 0;
 }
 
-int32_t getchar(void)
+int32_t _getchar(void)
 {
 	return 0;
 }
@@ -320,7 +320,7 @@ int32_t _interrupt_set(int32_t s)
 	return val;
 }
 
-void delay_ms(uint32_t msec)
+void _delay_ms(uint32_t msec)
 {
 	volatile uint32_t cur, last, delta, msecs;
 	uint32_t cycles_per_msec;
@@ -342,7 +342,7 @@ void delay_ms(uint32_t msec)
 	}
 }
 
-void delay_us(uint32_t usec)
+void _delay_us(uint32_t usec)
 {
 	volatile uint32_t cur, last, delta, usecs;
 	uint32_t cycles_per_usec;
@@ -388,7 +388,7 @@ void _irq_handler(uint32_t cause, uint32_t *stack)
 		mtimecmp_w(mtime_r() + 0x1ffff);
 		dispatcher();
 	} else {
-		printf("[%x]\n", val);
+		_printf("[%x]\n", val);
 		for (;;);
 	}
 
