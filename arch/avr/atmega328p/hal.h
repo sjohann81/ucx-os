@@ -10,6 +10,8 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
+#define __ARCH__	"ATMEGA328p"
+
 /* disable interrupts, return previous int status / enable interrupts */
 #define _di()				_interrupt_set(0)
 #define _ei(S)				_interrupt_set(S)
