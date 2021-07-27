@@ -166,7 +166,7 @@ void (*dac_vector[])(void) = {
 
 void dummy_handler(void)
 {
-	printf("irq!");
+	_printf("irq!");
 }
 
 void irq0_handler(void)
@@ -235,7 +235,7 @@ void irq0_handler(void)
 		case MASK_S0CAUSE_I2C:
 			break;
 		default:
-			printf("unknown irq source for S0CAUSE %08x\n", S0CAUSE);
+			_printf("unknown irq source for S0CAUSE %08x\n", S0CAUSE);
 			break;
 		}
 		k <<= 1;
@@ -277,7 +277,7 @@ void irq_handler(uint32_t cause, uint32_t *stack)
 int32_t exception_handler(int32_t service, int32_t arg0, int32_t arg1, int32_t arg2)
 {
 	/* for testing purposes, right now */
-	printf("syscall: %d, [arg0: %d, arg1: %d, arg2: %d]", service, arg0, arg1, arg2);
+	_printf("syscall: %d, [arg0: %d, arg1: %d, arg2: %d]", service, arg0, arg1, arg2);
 	
 	return -1;
 }
