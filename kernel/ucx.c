@@ -12,6 +12,7 @@ struct tcb_s {
 	jmp_buf context;
 	uint32_t *check_addr;
 	uint16_t id;
+	uint16_t delay;
 	uint8_t state;
 };
 
@@ -31,6 +32,8 @@ static void guard_check()
 
 void dispatcher(void)
 {
+	// [TODO] perform delay decrement on delayed tasks and change their state to TASK_READY from TASK_BLOCKED
+	
 	if (!setjmp(tcb_p->context)) {
 		guard_check();
 		tcb_p->state = TASK_READY;
@@ -54,24 +57,6 @@ static void sched_init(int32_t preemptive)
 	(*tcb_p->task)();
 }
 
-int32_t main(void)
-{
-	int32_t pr;
-	
-	_hardware_init();
-#ifndef UCX_OS_HEAP_SIZE
-	heap_init((size_t *)&_heap_start, (size_t)&_heap_size);
-	_printf("heap_init(), %d bytes free\n", (size_t)&_heap_size);
-#else
-	heap_init((size_t *)&_heap, UCX_OS_HEAP_SIZE);
-	_printf("heap_init(), %d bytes free\n", UCX_OS_HEAP_SIZE);
-#endif
-	pr = app_main();
-	_printf("UCX/OS boot\n");
-	sched_init(pr);
-	
-	return 0;
-}
 
 /* task management */
 
@@ -91,6 +76,7 @@ int32_t ucx_task_add(void *task)
 		tcb_last->tcb_next = tcb_p;
 	tcb_p->tcb_next = tcb_first;
 	tcb_p->task = task;
+	tcb_p->delay = 0;
 	tcb_p->id = id++;
 	tcb_p->state = TASK_STOPPED;
 	
@@ -98,9 +84,11 @@ int32_t ucx_task_add(void *task)
 }
 
 /*
- * First four lines of code on ucx_task_init() are absurd. This is
- * used by guard_check() to detect stack overflows (sometimes).
- * We need the safety pig, just in case.
+ * First following lines of code are absurd at best. Stack marks are
+ * used by guard_check() to detect stack overflows (sometimes). It is
+ * up to the user to define sufficient stack guard space (considering
+ * local thread allocation of the stack for variables, recursion and 
+ * context saving). We also need the safety pig, just in case.
                          _ 
  _._ _..._ .-',     _.._(`)) 
 '-. `     '  /-._.-'    ',/ 
@@ -150,6 +138,11 @@ void ucx_task_yield()
 	}
 }
 
+void ucx_task_delay(uint16_t ticks)
+{
+	// [TODO] set task to blocked state and configure delay time on TCB
+}
+
 uint16_t ucx_task_id()
 {
 	return tcb_p->id;
@@ -171,4 +164,24 @@ void ucx_enter_critical()
 void ucx_leave_critical()
 {
 	_timer_enable();
+}
+
+
+int32_t main(void)
+{
+	int32_t pr;
+	
+	_hardware_init();
+	_printf("UCX/OS boot on %s!\n", __ARCH__);
+#ifndef UCX_OS_HEAP_SIZE
+	heap_init((size_t *)&_heap_start, (size_t)&_heap_size);
+	_printf("heap_init(), %d bytes free\n", (size_t)&_heap_size);
+#else
+	heap_init((size_t *)&_heap, UCX_OS_HEAP_SIZE);
+	_printf("heap_init(), %d bytes free\n", UCX_OS_HEAP_SIZE);
+#endif
+	pr = app_main();
+	sched_init(pr);
+	
+	return 0;
 }

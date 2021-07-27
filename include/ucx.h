@@ -6,11 +6,12 @@
 #include <malloc.h>
 #include <stdarg.h>
 
-enum {TASK_STOPPED, TASK_READY, TASK_RUNNING, TASK_BLOCKED, TASK_INTERRUPTED};
+enum {TASK_STOPPED, TASK_READY, TASK_RUNNING, TASK_BLOCKED, TASK_SUSPENDED};
 
 int32_t ucx_task_add(void *task);
 void ucx_task_init(char *guard, uint16_t guard_size);
 void ucx_task_yield();
+void ucx_task_delay(uint16_t ticks);
 uint16_t ucx_task_id();
 void ucx_task_wfi();
 void ucx_enter_critical();
