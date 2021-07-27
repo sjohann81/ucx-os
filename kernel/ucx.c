@@ -18,13 +18,12 @@ struct tcb_s {
 struct tcb_s *tcb_first = 0, *tcb_p;
 volatile uint32_t ctx_switches = 0;
 
-
 static void guard_check()
 {
 	uint32_t check = 0x33333333;
 	
 	if (*tcb_p->check_addr != check) {
-		printf("PANIC: guard check %08x\n", *tcb_p->check_addr);
+		_printf("PANIC: guard check %08x\n", (int32_t)*tcb_p->check_addr);
 		for (;;);
 	}
 		
@@ -60,10 +59,15 @@ int32_t main(void)
 	int32_t pr;
 	
 	_hardware_init();
+#ifndef UCX_OS_HEAP_SIZE
 	heap_init((size_t *)&_heap_start, (size_t)&_heap_size);
-	printf("heap_init(), %d bytes free\n", (size_t)&_heap_size);
+	_printf("heap_init(), %d bytes free\n", (size_t)&_heap_size);
+#else
+	heap_init((size_t *)&_heap, UCX_OS_HEAP_SIZE);
+	_printf("heap_init(), %d bytes free\n", UCX_OS_HEAP_SIZE);
+#endif
 	pr = app_main();
-	printf("UCX/OS boot\n");
+	_printf("UCX/OS boot\n");
 	sched_init(pr);
 	
 	return 0;
@@ -76,7 +80,7 @@ int32_t ucx_task_add(void *task)
 	struct tcb_s *tcb_last = tcb_p;
 	static uint16_t id = 0;
 	
-	tcb_p = (struct tcb_s *)malloc(sizeof(struct tcb_s));
+	tcb_p = (struct tcb_s *)_malloc(sizeof(struct tcb_s));
 	if (tcb_first == 0)
 		tcb_first = tcb_p;
 
@@ -114,11 +118,12 @@ int32_t ucx_task_add(void *task)
 */
 void ucx_task_init(char *guard, uint16_t guard_size)
 {
-	memset(guard, 0x69, guard_size);
-	memset(guard, 0x33, 4);
-	memset((guard) + guard_size - 4, 0x33, 4);
+	_memset(guard, 0x69, guard_size);
+	_memset(guard, 0x33, 4);
+	_memset((guard) + guard_size - 4, 0x33, 4);
 	tcb_p->check_addr = (uint32_t *)guard;
-	printf("task %d, guard: %08x - %08x\n", tcb_p->id, (size_t)guard, ((size_t)guard) + guard_size);
+	_printf("task %d, guard: %08x - %08x\n", tcb_p->id, (int32_t)(size_t)guard, (int32_t)(((size_t)guard) + guard_size));
+	
 	if (!setjmp(tcb_p->context)) {
 		tcb_p->state = TASK_READY;
 		if (tcb_p->tcb_next == tcb_first) {

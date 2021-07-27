@@ -17,15 +17,15 @@ struct pipe_s *pipe_create(uint16_t size)
 	if (!ispowerof2(size))
 		return 0;
 		
-	pipe = (struct pipe_s *)malloc(sizeof(struct pipe_s));
+	pipe = (struct pipe_s *)_malloc(sizeof(struct pipe_s));
 	
 	if (!pipe)
 		return 0;
 	
 	pipe->mask = size - 1;
-	pipe->data = (int8_t *)malloc(size);
+	pipe->data = (char *)_malloc(size);
 	if (!pipe->data) {
-		free(pipe);
+		_free(pipe);
 		return 0;
 	}
 	pipe->head = 0;
@@ -41,8 +41,8 @@ int32_t pipe_destroy(struct pipe_s *pipe)
 		return -1;
 	
 	pipe->mask = 0;
-	free(pipe->data);
-	free(pipe);
+	_free(pipe->data);
+	_free(pipe);
 	
 	return 0;
 }
@@ -73,7 +73,7 @@ int32_t pipe_get(struct pipe_s *pipe)
 	return pipe->data[head];
 }
 
-int32_t pipe_put(struct pipe_s *pipe, int8_t data)
+int32_t pipe_put(struct pipe_s *pipe, char data)
 {
 	int32_t tail;
 
@@ -89,7 +89,7 @@ int32_t pipe_put(struct pipe_s *pipe, int8_t data)
 }
 
 /* this routine is blocking and must be called inside a task. */
-int32_t pipe_read(struct pipe_s *pipe, int8_t *data, uint16_t size)
+int32_t pipe_read(struct pipe_s *pipe, char *data, uint16_t size)
 {
 	uint16_t i = 0;
 	int32_t byte;
@@ -100,7 +100,7 @@ int32_t pipe_read(struct pipe_s *pipe, int8_t *data, uint16_t size)
 		ucx_leave_critical();
 		if (byte == -1) {
 //			ucx_task_yield();
-			delay_ms(1);
+			_delay_ms(1);
 			continue;
 		}
 		data[i] = byte;
@@ -112,7 +112,7 @@ int32_t pipe_read(struct pipe_s *pipe, int8_t *data, uint16_t size)
 }
 
 /* this routine is blocking and must be called inside a task. */
-int32_t pipe_write(struct pipe_s *pipe, int8_t *data, uint16_t size)
+int32_t pipe_write(struct pipe_s *pipe, char *data, uint16_t size)
 {
 	uint16_t i = 0;
 	int32_t res;
@@ -123,7 +123,7 @@ int32_t pipe_write(struct pipe_s *pipe, int8_t *data, uint16_t size)
 		ucx_leave_critical();
 		if (res == -1) {
 //			ucx_task_yield();
-			delay_ms(1);
+			_delay_ms(1);
 			continue;
 		}
 		i++;

@@ -10,7 +10,7 @@ struct list_s *list_create(void)
 {
 	struct list_s *lst;
 
-	lst = (struct list_s *)malloc(sizeof(struct list_s));
+	lst = (struct list_s *)_malloc(sizeof(struct list_s));
 
 	if (lst) {
 		lst->next = 0;
@@ -25,7 +25,7 @@ int32_t list_destroy(struct list_s *lst)
 	if (lst->next)
 		return -1;
 
-	free(lst);
+	_free(lst);
 
 	return 0;
 }
@@ -34,7 +34,7 @@ int32_t list_add(struct list_s *lst, void *item)
 {
 	struct list_s *t1, *t2;
 
-	t1 = (struct list_s *)malloc(sizeof(struct list_s));
+	t1 = (struct list_s *)_malloc(sizeof(struct list_s));
 
 	if (t1) {
 		t1->elem = item;
@@ -100,7 +100,7 @@ int32_t list_insert(struct list_s *lst, void *item, int32_t pos)
 	struct list_s *t1, *t2;
 	int32_t i = 0;
 
-	t1 = (struct list_s *)malloc(sizeof(struct list_s));
+	t1 = (struct list_s *)_malloc(sizeof(struct list_s));
 
 	if (t1) {
 		t1->elem = item;
@@ -132,7 +132,7 @@ int32_t list_remove(struct list_s *lst, int32_t pos)
 	while ((t1 = t1->next)) {
 		if (i++ == pos) {
 			t2->next = t1->next;
-			free(t1);
+			_free(t1);
 
 			return 0;
 		}

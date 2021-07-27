@@ -17,17 +17,17 @@ struct queue_s *queue_create(int32_t size)
 	if (!ispowerof2(size))
 		return 0;
 	
-	q = malloc(sizeof(struct queue_s));
+	q = _malloc(sizeof(struct queue_s));
 	
 	if (!q)
 		return 0;
 	
 	q->size = size;
 	q->mask = size - 1;
-	q->pdata = malloc(q->size * sizeof(void *));
+	q->pdata = _malloc(q->size * sizeof(void *));
 	
 	if (!q->pdata) {
-		free(q);
+		_free(q);
 		return 0;
 	}
 	q->head = q->tail = 0;
@@ -39,8 +39,8 @@ struct queue_s *queue_create(int32_t size)
 int32_t queue_destroy(struct queue_s *q)
 {
 	if (q->head == q->tail && !q->elem) {
-		free(q->pdata);
-		free(q);
+		_free(q->pdata);
+		_free(q);
 		
 		return 0;
 	}
