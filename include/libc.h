@@ -40,36 +40,32 @@
 
 #endif
 
-char *strcpy(char *dst, char *src);
-char *strncpy(char *s1, char *s2, int32_t n);
-char *strcat(char *dst, char *src);
-char *strncat(char *s1, char *s2, int32_t n);
-int32_t strcmp(char *s1, char *s2);
-int32_t strncmp(char *s1, char *s2, int32_t n);
-char *strstr(char *string, char *find);
-int32_t strlen(char *s);
-char *strchr(char *s, int32_t c);
-char *strpbrk(char *str, char *set);
-char *strsep(char **pp, char *delim);
-char *strtok(char *s, char *delim);
-void *memcpy(void *dst, void *src, uint32_t n);
-void *memmove(void *dst, void *src, uint32_t n);
-int32_t memcmp(void *cs, void *ct, uint32_t n);
-void *memset(void *s, int32_t c, uint32_t n);
-int32_t strtol(char *s, char **end, int32_t base);
-int32_t atoi(char *s);
-int32_t puts(char *str);
-char *gets(char *s);
-char *getline(char *s);
-int32_t random(void);
-int32_t abs(int32_t n);
-void putchar(char c);
-int32_t puts(char *str);
-char *gets(char *s);
-int32_t random(void);
-void srand(uint32_t seed);
+char *_strcpy(char *dst, char *src);
+char *_strncpy(char *s1, char *s2, int32_t n);
+char *_strcat(char *dst, char *src);
+char *_strncat(char *s1, char *s2, int32_t n);
+int32_t _strcmp(char *s1, char *s2);
+int32_t _strncmp(char *s1, char *s2, int32_t n);
+char *_strstr(char *string, char *find);
+int32_t _strlen(char *s);
+char *_strchr(char *s, int32_t c);
+char *_strpbrk(char *str, char *set);
+char *_strsep(char **pp, char *delim);
+char *_strtok(char *s, char *delim);
+void *_memcpy(void *dst, void *src, uint32_t n);
+void *_memmove(void *dst, void *src, uint32_t n);
+int32_t _memcmp(void *cs, void *ct, uint32_t n);
+void *_memset(void *s, int32_t c, uint32_t n);
+int32_t _strtol(char *s, char **end, int32_t base);
+int32_t _atoi(char *s);
+int32_t _abs(int32_t n);
+int32_t _random(void);
+void _srand(uint32_t seed);
+int32_t _puts(char *str);
+char *_gets(char *s);
+char *_getline(char *s);
+int32_t _printf(char *fmt, ...);
+int32_t _sprintf(char *out, char *fmt, ...);
+
 int32_t hexdump(char *buf, uint32_t size);
-uint16_t crc16(int8_t *data, uint32_t len);
-uint32_t crc32(int8_t *data, uint32_t len);
-int32_t printf(char *fmt, ...);
-int32_t sprintf(char *out, char *fmt, ...);
+
