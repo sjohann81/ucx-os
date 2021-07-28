@@ -36,8 +36,8 @@ ucx:
 	$(CC) $(CFLAGS) \
 		$(SRC_DIR)/lib/libc.c \
 		$(SRC_DIR)/lib/malloc.c \
-		$(SRC_DIR)/kernel/list.c \
-		$(SRC_DIR)/kernel/queue.c \
+		$(SRC_DIR)/lib/list.c \
+		$(SRC_DIR)/lib/queue.c \
 		$(SRC_DIR)/kernel/pipe.c \
 		$(SRC_DIR)/kernel/ucx.c
 
