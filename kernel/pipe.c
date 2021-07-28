@@ -10,7 +10,7 @@ static int32_t ispowerof2(uint32_t x){
 	return x && !(x & (x - 1));
 }
 
-struct pipe_s *pipe_create(uint16_t size)
+struct pipe_s *ucx_pipe_create(uint16_t size)
 {
 	struct pipe_s *pipe;
 	
@@ -35,7 +35,7 @@ struct pipe_s *pipe_create(uint16_t size)
 	return pipe;
 }
 
-int32_t pipe_destroy(struct pipe_s *pipe)
+int32_t ucx_pipe_destroy(struct pipe_s *pipe)
 {
 	if (!pipe->data)
 		return -1;
@@ -47,19 +47,19 @@ int32_t pipe_destroy(struct pipe_s *pipe)
 	return 0;
 }
 
-void pipe_flush(struct pipe_s *pipe)
+void ucx_pipe_flush(struct pipe_s *pipe)
 {
 	pipe->head = 0;
 	pipe->tail = 0;
 	pipe->size = 0;
 }
 
-int32_t pipe_size(struct pipe_s *pipe)
+int32_t ucx_pipe_size(struct pipe_s *pipe)
 {
 	return pipe->size;
 }
 
-int32_t pipe_get(struct pipe_s *pipe)
+int32_t ucx_pipe_get(struct pipe_s *pipe)
 {
 	int32_t head;
 
@@ -73,7 +73,7 @@ int32_t pipe_get(struct pipe_s *pipe)
 	return pipe->data[head];
 }
 
-int32_t pipe_put(struct pipe_s *pipe, char data)
+int32_t ucx_pipe_put(struct pipe_s *pipe, char data)
 {
 	int32_t tail;
 
@@ -89,17 +89,16 @@ int32_t pipe_put(struct pipe_s *pipe, char data)
 }
 
 /* this routine is blocking and must be called inside a task. */
-int32_t pipe_read(struct pipe_s *pipe, char *data, uint16_t size)
+int32_t ucx_pipe_read(struct pipe_s *pipe, char *data, uint16_t size)
 {
 	uint16_t i = 0;
 	int32_t byte;
 	
 	while (i < size) {
 		ucx_enter_critical();
-		byte = pipe_get(pipe);
+		byte = ucx_pipe_get(pipe);
 		ucx_leave_critical();
 		if (byte == -1) {
-//			ucx_task_yield();
 			_delay_ms(1);
 			continue;
 		}
@@ -112,17 +111,16 @@ int32_t pipe_read(struct pipe_s *pipe, char *data, uint16_t size)
 }
 
 /* this routine is blocking and must be called inside a task. */
-int32_t pipe_write(struct pipe_s *pipe, char *data, uint16_t size)
+int32_t ucx_pipe_write(struct pipe_s *pipe, char *data, uint16_t size)
 {
 	uint16_t i = 0;
 	int32_t res;
 	
 	while (i < size) {
 		ucx_enter_critical();
-		res = pipe_put(pipe, data[i]);
+		res = ucx_pipe_put(pipe, data[i]);
 		ucx_leave_critical();
 		if (res == -1) {
-//			ucx_task_yield();
 			_delay_ms(1);
 			continue;
 		}

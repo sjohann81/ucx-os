@@ -18,7 +18,7 @@ void task3(void)
 		_memset(data, 0, sizeof(data));
 		_printf("Waiting data from task0... ");
 		/* write pipe - write size must be less than buffer size */
-		s = pipe_read(pipe3, data, 127);
+		s = ucx_pipe_read(pipe3, data, 127);
 		_printf("pipe 3 (%d): %s\n", s, data);
 	}
 }
@@ -31,7 +31,7 @@ void task2(void)
 
 	while (1) {
 		/* write pipe - write size must be less than buffer size */
-		pipe_write(pipe2, data2, _strlen(data2));
+		ucx_pipe_write(pipe2, data2, _strlen(data2));
 	}
 }
 
@@ -43,7 +43,7 @@ void task1(void)
 
 	while (1) {
 		/* write pipe - write size must be less than buffer size */
-		pipe_write(pipe1, data1, _strlen(data1));
+		ucx_pipe_write(pipe1, data1, _strlen(data1));
 	}
 }
 
@@ -58,12 +58,12 @@ void task0(void)
 
 	while (1) {
 		/* read pipe - read size must be less than buffer size */
-		s = pipe_read(pipe1, data1, 127);
+		s = ucx_pipe_read(pipe1, data1, 127);
 		_printf("pipe 1 (%d): %s\n", s, data1);
-		s = pipe_read(pipe2, data2, 10);
+		s = ucx_pipe_read(pipe2, data2, 10);
 		_printf("pipe 2 (%d): %s\n", s, data2);
 		
-		pipe_write(pipe3, hello, _strlen(hello));
+		ucx_pipe_write(pipe3, hello, _strlen(hello));
 	}
 }
 
@@ -74,9 +74,9 @@ int32_t app_main(void)
 	ucx_task_add(task2);
 	ucx_task_add(task3);
 
-	pipe1 = pipe_create(128);		/* pipe buffer, 128 bytes - powers of two */
-	pipe2 = pipe_create(64);		/* pipe buffer, 64 bytes - powers of two */
-	pipe3 = pipe_create(64);		/* pipe buffer, 64 bytes - powers of two */
+	pipe1 = ucx_pipe_create(128);		/* pipe buffer, 128 bytes - powers of two */
+	pipe2 = ucx_pipe_create(64);		/* pipe buffer, 64 bytes - powers of two */
+	pipe3 = ucx_pipe_create(64);		/* pipe buffer, 64 bytes - powers of two */
 
 	// start UCX/OS, preemptive mode
 	return 1;
