@@ -51,7 +51,6 @@ static void sched_init(int32_t preemptive)
 {
 	tcb_p = tcb_first;
 	if (preemptive) {
-		_ei(1);
 		_timer_enable();
 	}
 	(*tcb_p->task)();
@@ -122,6 +121,7 @@ void ucx_task_init(char *guard, uint16_t guard_size)
 			(*tcb_p->task)();
 		}
 	}
+	_ei(1);
 }
 
 void ucx_task_yield()

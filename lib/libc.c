@@ -323,10 +323,10 @@ static int toint(const char **s)
 }
 
 static void printchar(char **str, int32_t c){
-	if (str){
+	if (str) {
 		**str = c;
 		++(*str);
-	}else{
+	} else {
 		if (c) _putchar(c);
 	}
 }
