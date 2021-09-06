@@ -22,4 +22,5 @@ SIZE = avr-size
 
 hal:
 	$(CC) $(CFLAGS) \
+		$(ARCH_DIR)/uart.c \
 		$(ARCH_DIR)/hal.c 
