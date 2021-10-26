@@ -73,6 +73,10 @@ pipes_s: hal ucx
 	$(CC) $(CFLAGS) -o pipes_small.o app/pipes_small.c
 	@$(MAKE) --no-print-directory link
 
+pipes_struct: hal ucx
+	$(CC) $(CFLAGS) -o pipes_struct.o app/pipes_struct.c
+	@$(MAKE) --no-print-directory link
+
 progress: hal ucx
 	$(CC) $(CFLAGS) -o progress.o app/progress.c
 	@$(MAKE) --no-print-directory link
