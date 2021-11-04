@@ -6,16 +6,33 @@
 
 #include <ucx.h>
 
-static int32_t ispowerof2(uint32_t x){
+static int32_t ispowerof2(uint32_t x)
+{
 	return x && !(x & (x - 1));
+}
+
+static uint32_t nextpowerof2(uint32_t x)
+{
+	x--;
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	x++;
+	
+	return x;
 }
 
 struct pipe_s *ucx_pipe_create(uint16_t size)
 {
 	struct pipe_s *pipe;
 	
+	if (size < 2)
+		size = 2;
+	
 	if (!ispowerof2(size))
-		return 0;
+		size = nextpowerof2(size);
 		
 	pipe = (struct pipe_s *)_malloc(sizeof(struct pipe_s));
 	

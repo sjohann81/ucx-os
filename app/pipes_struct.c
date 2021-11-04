@@ -52,7 +52,7 @@ int32_t app_main(void)
 	ucx_task_add(task0);
 	ucx_task_add(task1);
 
-	pipe1 = ucx_pipe_create(64);		/* pipe buffer, 64 bytes - powers of two */
+	pipe1 = ucx_pipe_create(64);		/* pipe buffer, 64 bytes */
 
 	// start UCX/OS, preemptive mode
 	return 1;
