@@ -5,7 +5,8 @@
 struct sem_s empty, full, mutex;
 int32_t in = 0, out = 0, buffer[N];
 
-void producer(void){
+void producer(void)
+{
 	int32_t item;
 	char guard[256];
 
@@ -23,7 +24,8 @@ void producer(void){
 	}
 }
 
-void consumer(void){
+void consumer(void)
+{
 	int32_t item;
 	char guard[256];
 
@@ -40,7 +42,8 @@ void consumer(void){
 	}
 }
 
-int32_t app_main(void){
+int32_t app_main(void)
+{
 	ucx_task_add(producer);
 	ucx_task_add(consumer);
 	ucx_task_add(consumer);
