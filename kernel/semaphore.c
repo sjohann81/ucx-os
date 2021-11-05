@@ -6,24 +6,36 @@
 
 #include <ucx.h>
 
-int32_t ucx_seminit(struct sem_s *s, int32_t value)
+struct sem_s *ucx_seminit(int32_t value)
 {
+	struct sem_s *s;
+	
+	s = (struct sem_s *)_malloc(sizeof(struct sem_s));
+	
+	if (!s)
+		return 0;
+	
 	s->sem_queue = queue_create(ucx_tasks());
 	
 	if ((!s->sem_queue) || (value < 0)) {
-		return -1;
+		_free(s);
+		
+		return 0;
 	} else {
 		s->count = value;
 
-		return 0;
+		return s;
 	}
 }
 
 int32_t ucx_semdestroy(struct sem_s *s)
 {
+	
 	if (queue_destroy(s->sem_queue)) {
 		return -1;
 	} else {
+		_free(s);
+		
 		return 0;
 	}
 }

@@ -3,7 +3,7 @@ struct sem_s {
 	volatile int32_t count;
 };
 
-int32_t ucx_seminit(struct sem_s *s, int32_t value);
+struct sem_s *ucx_seminit(int32_t value);
 int32_t ucx_semdestroy(struct sem_s *s);
 void ucx_wait(struct sem_s *s);
 void ucx_signal(struct sem_s *s);
