@@ -6,18 +6,10 @@
 
 #include <ucx.h>
 
-struct tcb_s {
-	struct tcb_s *tcb_next;
-	void (*task)(void);
-	jmp_buf context;
-	uint32_t *check_addr;
-	uint16_t id;
-	uint16_t delay;
-	uint8_t state;
-};
-
-struct tcb_s *tcb_first = 0, *tcb_p;
-volatile uint32_t ctx_switches = 0;
+struct tcb_s *tcb_p;
+static struct tcb_s *tcb_first = 0;
+static volatile uint32_t ctx_switches = 0;
+static uint16_t id = 0;
 
 static void guard_check()
 {
@@ -36,7 +28,8 @@ void dispatcher(void)
 	
 	if (!setjmp(tcb_p->context)) {
 		guard_check();
-		tcb_p->state = TASK_READY;
+		if (tcb_p->state == TASK_RUNNING)
+			tcb_p->state = TASK_READY;
 		do {
 			tcb_p = tcb_p->tcb_next;
 		} while (tcb_p->state != TASK_READY);
@@ -62,7 +55,6 @@ static void sched_init(int32_t preemptive)
 int32_t ucx_task_add(void *task)
 {
 	struct tcb_s *tcb_last = tcb_p;
-	static uint16_t id = 0;
 	
 	tcb_p = (struct tcb_s *)_malloc(sizeof(struct tcb_s));
 	if (tcb_first == 0)
@@ -128,7 +120,8 @@ void ucx_task_yield()
 {
 	if (!setjmp(tcb_p->context)) {
 		guard_check();
-		tcb_p->state = TASK_READY;
+		if (tcb_p->state == TASK_RUNNING)
+			tcb_p->state = TASK_READY;
 		do {
 			tcb_p = tcb_p->tcb_next;
 		} while (tcb_p->state != TASK_READY);
@@ -154,6 +147,11 @@ void ucx_task_wfi()
 	
 	s = ctx_switches;
 	while (s == ctx_switches);
+}
+
+uint16_t ucx_tasks()
+{
+	return id + 1;
 }
 
 void ucx_enter_critical()
