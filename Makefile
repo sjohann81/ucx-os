@@ -39,6 +39,7 @@ ucx:
 		$(SRC_DIR)/lib/list.c \
 		$(SRC_DIR)/lib/queue.c \
 		$(SRC_DIR)/kernel/pipe.c \
+		$(SRC_DIR)/kernel/semaphore.c \
 		$(SRC_DIR)/kernel/ucx.c
 
 ## kernel + application link
@@ -75,6 +76,10 @@ pipes_s: hal ucx
 
 pipes_struct: hal ucx
 	$(CC) $(CFLAGS) -o pipes_struct.o app/pipes_struct.c
+	@$(MAKE) --no-print-directory link
+
+prodcons: hal ucx
+	$(CC) $(CFLAGS) -o prodcons.o app/prodcons.c
 	@$(MAKE) --no-print-directory link
 
 progress: hal ucx
