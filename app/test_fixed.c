@@ -71,7 +71,7 @@ void testfp(void)
 
 void task0()
 {
-	char guard[1024];
+	char guard[128];
 	
 	ucx_task_init(guard, sizeof(guard));
 	
