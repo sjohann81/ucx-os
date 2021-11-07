@@ -6,6 +6,7 @@ void task2(void)
 {
 	char data2[64];
 	char guard[256];
+	/* stack usage: 320 bytes */
 
 	ucx_task_init(guard, sizeof(guard));
 
@@ -20,6 +21,7 @@ void task1(void)
 {
 	char data1[64];
 	char guard[256];
+	/* stack usage: 320 bytes */
 
 	ucx_task_init(guard, sizeof(guard));
 
@@ -35,6 +37,7 @@ void task0(void)
 	char data[64];
 	uint16_t s;
 	char guard[256];
+	/* stack usage: 322 bytes */
 
 	ucx_task_init(guard, sizeof(guard));
 
@@ -54,8 +57,8 @@ int32_t app_main(void)
 	ucx_task_add(task1);
 	ucx_task_add(task2);
 
-	pipe1 = ucx_pipe_create(64);		/* pipe buffer, 64 bytes */
-	pipe2 = ucx_pipe_create(32);		/* pipe buffer, 32 bytes */
+	pipe1 = ucx_pipe_create(64);		/* pipe buffer, 64 bytes (allocated from the heap) */
+	pipe2 = ucx_pipe_create(32);		/* pipe buffer, 32 bytes (allocated from the heap) */
 
 	// start UCX/OS, preemptive mode
 	return 1;

@@ -3,7 +3,8 @@
 void task2(void)
 {
 	int32_t cnt = 300000;
-	char guard[256];	/* reserve some guard space. the last thread (task1) may need this! */
+	char guard[256];
+	/* stack usage: 260 bytes */
 
 	ucx_task_init(guard, sizeof(guard));
 
