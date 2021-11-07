@@ -110,7 +110,7 @@ float fix_to_float(fixed_t val)
 	float ip, fp;
 
 	ip = (float)(val >> FIX_IBITS);
-	fp = ((float)(val & FIX_FMASK)) / ((float)(1 << FIX_FBITS));
+	fp = ((float)(val & FIX_FMASK)) / ((float)(1L << FIX_FBITS));
 
 	return ip + fp;
 }
