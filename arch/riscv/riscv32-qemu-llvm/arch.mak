@@ -10,7 +10,7 @@ LDFLAGS_STRIP = --gc-sections
 
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
 ASFLAGS = -march=rv32i -mabi=ilp32 #-fPIC
-CFLAGS = -Wall --target=riscv32 -march=rv32i -mabi=ilp32 -O0 -c -ffreestanding -nostdlib -fomit-frame-pointer $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) -DTERM_BAUD=$(SERIAL_BAUD)
+CFLAGS = -Wall --target=riscv32 -march=rv32i -mabi=ilp32 -O2 -c -ffreestanding -nostdlib -fomit-frame-pointer $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) -DTERM_BAUD=$(SERIAL_BAUD)
 
 LDFLAGS = -melf32lriscv $(LDFLAGS_STRIP)
 LDSCRIPT = $(ARCH_DIR)/riscv32-qemu.ld
