@@ -18,7 +18,7 @@ static void guard_check(void)
 	if (*tcb_p->guard_addr != check) {
 		hexdump((void *)tcb_p->guard_addr, tcb_p->guard_sz);
 		_printf("\n*** HALT - task %d, guard %08x (%d) check failed\n", tcb_p->id,
-			(int32_t)tcb_p->guard_addr, (int32_t)tcb_p->guard_sz);
+			(size_t)tcb_p->guard_addr, (size_t)tcb_p->guard_sz);
 		for (;;);
 	}
 		
@@ -106,8 +106,8 @@ void ucx_task_init(void)
 	_memset(guard, 0x33, 4);
 	_memset((guard) + tcb_p->guard_sz - 4, 0x33, 4);
 	tcb_p->guard_addr = (uint32_t *)guard;
-	_printf("task %d, guard: %08x - %08x\n", tcb_p->id, (int32_t)tcb_p->guard_addr,
-		(int32_t)tcb_p->guard_addr + tcb_p->guard_sz);
+	_printf("task %d, guard: %08x - %08x\n", tcb_p->id, (size_t)tcb_p->guard_addr,
+		(size_t)tcb_p->guard_addr + tcb_p->guard_sz);
 	
 	if (!setjmp(tcb_p->context)) {
 		tcb_p->state = TASK_READY;

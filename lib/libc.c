@@ -451,7 +451,7 @@ int32_t hexdump(char *buf, uint32_t size){
 
 	buf = (char *)((size_t)buf & ~0xf);
 	for (k = 0; k < size; k += 16) {
-		_putchar('\n'); printhex((int32_t)buf + k, 8); _putchar(' ');
+		_putchar('\n'); printhex((size_t)buf + k, 8); _putchar(' ');
 		for(l = 0; l < 16; l++){
 			printhex((uint8_t)buf[k + l], 2);
 			_putchar(' ');
