@@ -13,14 +13,15 @@ struct tcb_s {
 	struct tcb_s *tcb_next;
 	void (*task)(void);
 	jmp_buf context;
-	uint32_t *check_addr;
+	uint32_t *guard_addr;
+	uint16_t guard_sz;
 	uint16_t id;
 	uint16_t delay;
 	uint8_t state;
 };
 
-int32_t ucx_task_add(void *task);
-void ucx_task_init(char *guard, uint16_t guard_size);
+int32_t ucx_task_add(void *task, uint16_t guard_size);
+void ucx_task_init();
 void ucx_task_yield();
 void ucx_task_delay(uint16_t ticks);
 uint16_t ucx_task_id();

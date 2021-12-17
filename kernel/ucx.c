@@ -11,12 +11,14 @@ static struct tcb_s *tcb_first = 0;
 static volatile uint32_t ctx_switches = 0;
 static uint16_t id = 0;
 
-static void guard_check()
+static void guard_check(void)
 {
 	uint32_t check = 0x33333333;
 	
-	if (*tcb_p->check_addr != check) {
-		_printf("PANIC: guard check %08x\n", (int32_t)*tcb_p->check_addr);
+	if (*tcb_p->guard_addr != check) {
+		hexdump((void *)tcb_p->guard_addr, tcb_p->guard_sz);
+		_printf("\n*** HALT - task %d, guard %08x (%d) check failed\n", tcb_p->id,
+			(int32_t)tcb_p->guard_addr, (int32_t)tcb_p->guard_sz);
 		for (;;);
 	}
 		
@@ -52,7 +54,7 @@ static void sched_init(int32_t preemptive)
 
 /* task management */
 
-int32_t ucx_task_add(void *task)
+int32_t ucx_task_add(void *task, uint16_t guard_size)
 {
 	struct tcb_s *tcb_last = tcb_p;
 	
@@ -68,6 +70,7 @@ int32_t ucx_task_add(void *task)
 	tcb_p->tcb_next = tcb_first;
 	tcb_p->task = task;
 	tcb_p->delay = 0;
+	tcb_p->guard_sz = guard_size;
 	tcb_p->id = id++;
 	tcb_p->state = TASK_STOPPED;
 	
@@ -78,8 +81,8 @@ int32_t ucx_task_add(void *task)
  * First following lines of code are absurd at best. Stack marks are
  * used by guard_check() to detect stack overflows (sometimes). It is
  * up to the user to define sufficient stack guard space (considering
- * local thread allocation of the stack for variables, recursion and 
- * context saving). We also need the safety pig, just in case.
+ * local thread allocation of the stack for recursion and context
+ * saving). We also need the safety pig, just in case.
                          _ 
  _._ _..._ .-',     _.._(`)) 
 '-. `     '  /-._.-'    ',/ 
@@ -95,13 +98,16 @@ int32_t ucx_task_add(void *task)
        /,_|  |   /,_/   / 
           /,_/      '`-' 
 */
-void ucx_task_init(char *guard, uint16_t guard_size)
+void ucx_task_init(void)
 {
-	_memset(guard, 0x69, guard_size);
+	char guard[tcb_p->guard_sz];
+	
+	_memset(guard, 0x69, tcb_p->guard_sz);
 	_memset(guard, 0x33, 4);
-	_memset((guard) + guard_size - 4, 0x33, 4);
-	tcb_p->check_addr = (uint32_t *)guard;
-	_printf("task %d, guard: %08x - %08x\n", tcb_p->id, (int32_t)guard, (int32_t)(guard) + guard_size);
+	_memset((guard) + tcb_p->guard_sz - 4, 0x33, 4);
+	tcb_p->guard_addr = (uint32_t *)guard;
+	_printf("task %d, guard: %08x - %08x\n", tcb_p->id, (int32_t)tcb_p->guard_addr,
+		(int32_t)tcb_p->guard_addr + tcb_p->guard_sz);
 	
 	if (!setjmp(tcb_p->context)) {
 		tcb_p->state = TASK_READY;
@@ -170,7 +176,7 @@ int32_t main(void)
 	int32_t pr;
 	
 	_hardware_init();
-	_printf("UCX/OS boot on %s!\n", __ARCH__);
+	_printf("UCX/OS boot on %s\n", __ARCH__);
 #ifndef UCX_OS_HEAP_SIZE
 	heap_init((size_t *)&_heap_start, (size_t)&_heap_size);
 	_printf("heap_init(), %d bytes free\n", (size_t)&_heap_size);
