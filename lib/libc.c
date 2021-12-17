@@ -431,15 +431,30 @@ int32_t _sprintf(char *out, char *fmt, ...){
 	return v;
 }
 
+void printhex(int n, int digits){
+	int a;
+
+	while (digits > 0){
+		digits--;
+		a = (n >> (digits << 2)) & 0xf;
+		if (a > 9)
+			a = a + '7';
+		else
+			a = a + '0';
+		_putchar(a);
+	}
+}
+
 int32_t hexdump(char *buf, uint32_t size){
 	uint32_t k, l;
 	char ch;
 
 	buf = (char *)((size_t)buf & ~0xf);
 	for (k = 0; k < size; k += 16) {
-		_printf("\n%08x ", buf + k);
+		_putchar('\n'); printhex((int32_t)buf + k, 8); _putchar(' ');
 		for(l = 0; l < 16; l++){
-			_printf("%02x ", (uint8_t)buf[k + l]);
+			printhex((uint8_t)buf[k + l], 2);
+			_putchar(' ');
 			if (l == 7) _putchar(' ');
 		}
 		_printf(" |");
