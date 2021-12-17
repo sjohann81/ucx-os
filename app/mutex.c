@@ -28,8 +28,8 @@ void task_b(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(task_a, 384);
-	ucx_task_add(task_b, 384);
+	ucx_task_add(task_a, DEFAULT_GUARD_SIZE);
+	ucx_task_add(task_b, DEFAULT_GUARD_SIZE);
 
 	mutex = ucx_seminit(1);
 	

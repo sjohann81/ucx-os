@@ -80,7 +80,7 @@ void task0()
 
 int32_t app_main(void)
 {
-	ucx_task_add(task0, 512);
+	ucx_task_add(task0, DEFAULT_GUARD_SIZE);
 
 	return 1;
 }

@@ -42,9 +42,9 @@ void consumer(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(producer, 256);
-	ucx_task_add(consumer, 256);
-	ucx_task_add(consumer, 256);
+	ucx_task_add(producer, DEFAULT_GUARD_SIZE);
+	ucx_task_add(consumer, DEFAULT_GUARD_SIZE);
+	ucx_task_add(consumer, DEFAULT_GUARD_SIZE);
 
 	empty = ucx_seminit(N);
 	full = ucx_seminit(0);

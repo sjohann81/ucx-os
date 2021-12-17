@@ -93,3 +93,5 @@ uint64_t mtime_r(void);
 void mtime_w(uint64_t val);
 uint64_t mtimecmp_r(void);
 void mtimecmp_w(uint64_t val);
+
+#define DEFAULT_GUARD_SIZE	4096

@@ -383,3 +383,5 @@ void _hardware_init(void);
 void _timer_enable(void);
 void _timer_disable(void);
 void _interrupt_tick(void);
+
+#define DEFAULT_GUARD_SIZE	2048

@@ -36,11 +36,10 @@ int32_t app_main(void)
 {
 	int32_t i;
 	
-	// add tasks, 256 bytes of stack guard space for each
 	for (i = 0; i < N_TASKS; i++)
-		ucx_task_add(task, 256);
+		ucx_task_add(task, DEFAULT_GUARD_SIZE);
 	// add logger task, 384 bytes of stack guard space
-	ucx_task_add(logger, 384);
+	ucx_task_add(logger, DEFAULT_GUARD_SIZE);
 
 	// start UCX/OS, preemptive mode
 	return 1;

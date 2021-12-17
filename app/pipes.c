@@ -65,11 +65,10 @@ void task0(void)
 
 int32_t app_main(void)
 {
-	// add tasks, 384 bytes of stack guard space for each
-	ucx_task_add(task0, 384);
-	ucx_task_add(task1, 384);
-	ucx_task_add(task2, 384);
-	ucx_task_add(task3, 384);
+	ucx_task_add(task0, DEFAULT_GUARD_SIZE);
+	ucx_task_add(task1, DEFAULT_GUARD_SIZE);
+	ucx_task_add(task2, DEFAULT_GUARD_SIZE);
+	ucx_task_add(task3, DEFAULT_GUARD_SIZE);
 
 	pipe1 = ucx_pipe_create(128);		/* pipe buffer, 128 bytes (allocated on the heap) */
 	pipe2 = ucx_pipe_create(64);		/* pipe buffer, 64 bytes */
