@@ -435,7 +435,7 @@ int32_t hexdump(char *buf, uint32_t size){
 	uint32_t k, l;
 	char ch;
 
-	buf = (char *)((size_t)buf & 0xfffffff0);
+	buf = (char *)((size_t)buf & ~0xf);
 	for (k = 0; k < size; k += 16) {
 		_printf("\n%08x ", buf + k);
 		for(l = 0; l < 16; l++){
