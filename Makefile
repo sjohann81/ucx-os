@@ -1,7 +1,9 @@
 ARCH = avr/atmega328p
 #ARCH = mips/hf-risc
 #ARCH = riscv/hf-riscv
+#ARCH = riscv/hf-riscv-llvm
 #ARCH = riscv/riscv32-qemu
+#ARCH = riscv/riscv32-qemu-llvm
 #ARCH = riscv/riscv64-qemu
 
 SERIAL_BAUD=57600
