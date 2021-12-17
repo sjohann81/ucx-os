@@ -13,6 +13,9 @@
 char _heap[UCX_OS_HEAP_SIZE];
 #endif
 
+struct mem_block_s *first_free;
+struct mem_block_s *last_free;
+
 void _free(void *ptr)
 {
 	struct mem_block_s *p;

@@ -7,9 +7,6 @@ struct mem_block_s {
 	size_t size;				/* aligned block size. the LSB is used to define if the block is used */
 };
 
-struct mem_block_s *first_free;
-struct mem_block_s *last_free;
-
 void _free(void *ptr);
 void *_malloc(uint32_t size);
 void heap_init(size_t *zone, uint32_t len);
