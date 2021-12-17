@@ -1,15 +1,14 @@
 #include <ucx.h>
 
-#define N_TASKS	3
+#define N_TASKS	2
 
 volatile uint32_t cnt[N_TASKS] = {[0 ... N_TASKS-1] = 0};
 
 void logger(void)
 {
 	int32_t i;
-	char guard[256];
 	
-	ucx_task_init(guard, sizeof(guard));
+	ucx_task_init();
 	
 	while (1) {
 		_delay_ms(1000);
@@ -22,9 +21,8 @@ void logger(void)
 void task(void)
 {
 	volatile uint32_t counter = 0;
-	char guard[256];
 
-	ucx_task_init(guard, sizeof(guard));
+	ucx_task_init();
 
 	while (1) {
 		if (counter++ == 10000) {
@@ -38,9 +36,11 @@ int32_t app_main(void)
 {
 	int32_t i;
 	
+	// add tasks, 256 bytes of stack guard space for each
 	for (i = 0; i < N_TASKS; i++)
-		ucx_task_add(task);
-	ucx_task_add(logger);
+		ucx_task_add(task, 256);
+	// add logger task, 384 bytes of stack guard space
+	ucx_task_add(logger, 384);
 
 	// start UCX/OS, preemptive mode
 	return 1;

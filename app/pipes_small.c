@@ -5,10 +5,8 @@ struct pipe_s *pipe1, *pipe2;
 void task2(void)
 {
 	char data2[64];
-	char guard[256];
-	/* stack usage: 320 bytes */
 
-	ucx_task_init(guard, sizeof(guard));
+	ucx_task_init();
 
 	while (1) {
 		_sprintf(data2, "Hello from task 2!");
@@ -20,10 +18,8 @@ void task2(void)
 void task1(void)
 {
 	char data1[64];
-	char guard[256];
-	/* stack usage: 320 bytes */
 
-	ucx_task_init(guard, sizeof(guard));
+	ucx_task_init();
 
 	while (1) {
 		_sprintf(data1, "Hello from task 1!");
@@ -36,15 +32,15 @@ void task0(void)
 {
 	char data[64];
 	uint16_t s;
-	char guard[256];
-	/* stack usage: 322 bytes */
 
-	ucx_task_init(guard, sizeof(guard));
+	ucx_task_init();
 
 	while (1) {
 		/* read pipe - read size must be less than buffer size */
+		_memset(data, 0, sizeof(data));
 		s = ucx_pipe_read(pipe1, data, 63);
 		_printf("pipe (%d): %s\n", s, data);
+		_memset(data, 0, sizeof(data));
 		s = ucx_pipe_read(pipe2, data, 50);
 		_printf("pipe (%d): %s\n", s, data);
 		
@@ -53,9 +49,10 @@ void task0(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(task0);
-	ucx_task_add(task1);
-	ucx_task_add(task2);
+	// add tasks, 384 bytes of stack guard space for each
+	ucx_task_add(task0, 384);
+	ucx_task_add(task1, 384);
+	ucx_task_add(task2, 384);
 
 	pipe1 = ucx_pipe_create(64);		/* pipe buffer, 64 bytes (allocated from the heap) */
 	pipe2 = ucx_pipe_create(32);		/* pipe buffer, 32 bytes (allocated from the heap) */

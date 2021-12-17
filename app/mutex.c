@@ -4,9 +4,7 @@ struct sem_s *mutex;
 
 void task_a(void)
 {
-	char guard[256];
-
-	ucx_task_init(guard, sizeof(guard));
+	ucx_task_init();
 
 	for (;;) {
 		ucx_wait(mutex);
@@ -18,9 +16,7 @@ void task_a(void)
 
 void task_b(void)
 {
-	char guard[256];
-
-	ucx_task_init(guard, sizeof(guard));
+	ucx_task_init();
 
 	for (;;) {
 		ucx_wait(mutex);
@@ -32,8 +28,8 @@ void task_b(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(task_a);
-	ucx_task_add(task_b);
+	ucx_task_add(task_a, 384);
+	ucx_task_add(task_b, 384);
 
 	mutex = ucx_seminit(1);
 	

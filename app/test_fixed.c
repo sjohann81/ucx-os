@@ -71,9 +71,7 @@ void testfp(void)
 
 void task0()
 {
-	char guard[128];
-	
-	ucx_task_init(guard, sizeof(guard));
+	ucx_task_init();
 	
 	testfp();
 	
@@ -82,7 +80,7 @@ void task0()
 
 int32_t app_main(void)
 {
-	ucx_task_add(task0);
+	ucx_task_add(task0, 512);
 
 	return 1;
 }

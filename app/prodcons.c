@@ -8,9 +8,8 @@ int32_t in = 0, out = 0, buffer[N];
 void producer(void)
 {
 	int32_t item;
-	char guard[256];
 
-	ucx_task_init(guard, sizeof(guard));
+	ucx_task_init();
 
 	for (;;) {
 		item = _random();
@@ -27,9 +26,8 @@ void producer(void)
 void consumer(void)
 {
 	int32_t item;
-	char guard[256];
 
-	ucx_task_init(guard, sizeof(guard));
+	ucx_task_init();
 
 	for (;;) {
 		ucx_wait(full);
@@ -44,9 +42,9 @@ void consumer(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(producer);
-	ucx_task_add(consumer);
-	ucx_task_add(consumer);
+	ucx_task_add(producer, 256);
+	ucx_task_add(consumer, 256);
+	ucx_task_add(consumer, 256);
 
 	empty = ucx_seminit(N);
 	full = ucx_seminit(0);
