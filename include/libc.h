@@ -64,8 +64,7 @@ void _srand(uint32_t seed);
 int32_t _puts(char *str);
 char *_gets(char *s);
 char *_getline(char *s);
-int32_t _printf(char *fmt, ...);
-int32_t _sprintf(char *out, char *fmt, ...);
+int32_t _printf(const char *fmt, ...);
+int32_t _sprintf(char *out, const char *fmt, ...);
 
-int32_t hexdump(char *buf, uint32_t size);
 

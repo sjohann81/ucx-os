@@ -5,6 +5,7 @@ ARCH = avr/atmega328p
 #ARCH = riscv/riscv32-qemu
 #ARCH = riscv/riscv32-qemu-llvm
 #ARCH = riscv/riscv64-qemu
+#ARCH = riscv/riscv64-qemu-llvm
 
 SERIAL_BAUD=57600
 SERIAL_DEVICE=/dev/ttyUSB0
@@ -37,6 +38,7 @@ run_riscv64:
 ucx:
 	$(CC) $(CFLAGS) \
 		$(SRC_DIR)/lib/libc.c \
+		$(SRC_DIR)/lib/dump.c \
 		$(SRC_DIR)/lib/malloc.c \
 		$(SRC_DIR)/lib/list.c \
 		$(SRC_DIR)/lib/queue.c \

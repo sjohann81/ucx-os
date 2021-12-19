@@ -1,5 +1,6 @@
 #include <hal.h>
 #include <libc.h>
+#include <dump.h>
 #include <list.h>
 #include <queue.h>
 #include <pipe.h>
