@@ -28,14 +28,13 @@ static void update_delay(void)
 {
 	struct tcb_s *tcb_ptr = tcb_first;
 	
-	for (;;) {
+	for (;;	tcb_ptr = tcb_ptr->tcb_next) {
 		if (tcb_ptr->state == TASK_BLOCKED && tcb_ptr->delay > 0) {
 			tcb_ptr->delay--;
 			if (tcb_ptr->delay == 0)
 				tcb_ptr->state = TASK_READY;
 		}
 		if (tcb_ptr->tcb_next == tcb_first) break;
-		tcb_ptr = tcb_ptr->tcb_next;
 	}
 }
 
