@@ -1,6 +1,6 @@
-ARCH = avr/atmega328p
+#ARCH = avr/atmega328p
 #ARCH = mips/hf-risc
-#ARCH = riscv/hf-riscv
+ARCH = riscv/hf-riscv
 #ARCH = riscv/hf-riscv-llvm
 #ARCH = riscv/riscv32-qemu
 #ARCH = riscv/riscv32-qemu-llvm
@@ -62,6 +62,10 @@ endif
 #	hexdump -v -e '4/1 "%02x" "\n"' image.bin > image.txt
 
 ## applications
+delay: hal ucx
+	$(CC) $(CFLAGS) -o delay.o app/delay.c
+	@$(MAKE) --no-print-directory link
+
 hello: hal ucx
 	$(CC) $(CFLAGS) -o hello.o app/hello.c
 	@$(MAKE) --no-print-directory link
@@ -92,6 +96,10 @@ prodcons: hal ucx
 
 progress: hal ucx
 	$(CC) $(CFLAGS) -o progress.o app/progress.c
+	@$(MAKE) --no-print-directory link
+	
+suspend: hal ucx
+	$(CC) $(CFLAGS) -o suspend.o app/suspend.c
 	@$(MAKE) --no-print-directory link
 
 test_fixed: hal ucx
