@@ -24,11 +24,25 @@ static void guard_check(void)
 		
 }
 
+static void update_delay(void)
+{
+	struct tcb_s *tcb_ptr = tcb_first;
+	
+	for (;;) {
+		if (tcb_ptr->state == TASK_BLOCKED && tcb_ptr->delay > 0) {
+			tcb_ptr->delay--;
+			if (tcb_ptr->delay == 0)
+				tcb_ptr->state = TASK_READY;
+		}
+		if (tcb_ptr->tcb_next == tcb_first) break;
+		tcb_ptr = tcb_ptr->tcb_next;
+	}
+}
+
 void dispatcher(void)
 {
-	// [TODO] perform delay decrement on delayed tasks and change their state to TASK_READY from TASK_BLOCKED
-	
 	if (!setjmp(tcb_p->context)) {
+		update_delay();
 		guard_check();
 		if (tcb_p->state == TASK_RUNNING)
 			tcb_p->state = TASK_READY;
@@ -125,6 +139,7 @@ void ucx_task_init(void)
 void ucx_task_yield()
 {
 	if (!setjmp(tcb_p->context)) {
+		update_delay();
 		guard_check();
 		if (tcb_p->state == TASK_RUNNING)
 			tcb_p->state = TASK_READY;
@@ -139,8 +154,61 @@ void ucx_task_yield()
 
 void ucx_task_delay(uint16_t ticks)
 {
-	// [TODO] set task to blocked state and configure delay time on TCB
+	tcb_p->delay = ticks;
+	tcb_p->state = TASK_BLOCKED;
+	ucx_task_yield();
 }
+
+int32_t ucx_task_suspend(uint16_t id)
+{
+	struct tcb_s *tcb_ptr = tcb_first;
+	
+	for (;; tcb_ptr = tcb_ptr->tcb_next) {
+		if (tcb_ptr->id == id) {
+			ucx_enter_critical();
+			if (tcb_ptr->state == TASK_READY || tcb_ptr->state == TASK_RUNNING) {
+				tcb_ptr->state = TASK_SUSPENDED;
+				ucx_leave_critical();
+				break;
+			} else {
+				ucx_leave_critical();
+				return -1;
+			}
+		}
+		if (tcb_ptr->tcb_next == tcb_first)
+			return -1;
+	}
+	if (tcb_p->id == id)
+		ucx_task_yield();
+	
+	return 0;
+}
+
+int32_t ucx_task_resume(uint16_t id)
+{
+	struct tcb_s *tcb_ptr = tcb_first;
+	
+	for (;; tcb_ptr = tcb_ptr->tcb_next) {
+		if (tcb_ptr->id == id) {
+			ucx_enter_critical();
+			if (tcb_ptr->state == TASK_SUSPENDED) {
+				tcb_ptr->state = TASK_READY;
+				ucx_leave_critical();
+				break;
+			} else {
+				ucx_leave_critical();
+				return -1;
+			}
+		}	
+		if (tcb_ptr->tcb_next == tcb_first)
+			return -1;
+	}
+	if (tcb_p->id == id)
+		ucx_task_yield();
+	
+	return 0;
+}
+
 
 uint16_t ucx_task_id()
 {

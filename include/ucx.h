@@ -25,6 +25,8 @@ int32_t ucx_task_add(void *task, uint16_t guard_size);
 void ucx_task_init();
 void ucx_task_yield();
 void ucx_task_delay(uint16_t ticks);
+int32_t ucx_task_suspend(uint16_t id);
+int32_t ucx_task_resume(uint16_t id);
 uint16_t ucx_task_id();
 void ucx_task_wfi();
 uint16_t ucx_tasks();
