@@ -8,8 +8,10 @@
 #include <malloc.h>
 #include <stdarg.h>
 
+/* task states */
 enum {TASK_STOPPED, TASK_READY, TASK_RUNNING, TASK_BLOCKED, TASK_SUSPENDED};
 
+/* task control block node */
 struct tcb_s {
 	struct tcb_s *tcb_next;
 	void (*task)(void);
@@ -21,6 +23,15 @@ struct tcb_s {
 	uint8_t state;
 };
 
+/* kernel control block */
+struct kcb_s {
+	struct tcb_s *tcb_p;
+	struct tcb_s *tcb_first;
+	volatile uint32_t ctx_switches;
+	uint16_t id;
+};
+
+/* kernel base API */
 int32_t ucx_task_add(void *task, uint16_t guard_size);
 void ucx_task_init();
 void ucx_task_yield();
