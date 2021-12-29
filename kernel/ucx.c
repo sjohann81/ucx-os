@@ -6,19 +6,17 @@
 
 #include <ucx.h>
 
-struct tcb_s *tcb_p;
-static struct tcb_s *tcb_first = 0;
-static volatile uint32_t ctx_switches = 0;
-static uint16_t id = 0;
+struct kcb_s kernel_state;
+struct kcb_s *kcb_p = &kernel_state;
 
 static void guard_check(void)
 {
 	uint32_t check = 0x33333333;
 	
-	if (*tcb_p->guard_addr != check) {
-		hexdump((void *)tcb_p->guard_addr, tcb_p->guard_sz);
-		_printf("\n*** HALT - task %d, guard %08x (%d) check failed\n", tcb_p->id,
-			(size_t)tcb_p->guard_addr, (size_t)tcb_p->guard_sz);
+	if (*kcb_p->tcb_p->guard_addr != check) {
+		hexdump((void *)kcb_p->tcb_p->guard_addr, kcb_p->tcb_p->guard_sz);
+		_printf("\n*** HALT - task %d, guard %08x (%d) check failed\n", kcb_p->tcb_p->id,
+			(size_t)kcb_p->tcb_p->guard_addr, (size_t)kcb_p->tcb_p->guard_sz);
 		for (;;);
 	}
 		
@@ -26,7 +24,7 @@ static void guard_check(void)
 
 static void update_delay(void)
 {
-	struct tcb_s *tcb_ptr = tcb_first;
+	struct tcb_s *tcb_ptr = kcb_p->tcb_first;
 	
 	for (;;	tcb_ptr = tcb_ptr->tcb_next) {
 		if (tcb_ptr->state == TASK_BLOCKED && tcb_ptr->delay > 0) {
@@ -34,34 +32,34 @@ static void update_delay(void)
 			if (tcb_ptr->delay == 0)
 				tcb_ptr->state = TASK_READY;
 		}
-		if (tcb_ptr->tcb_next == tcb_first) break;
+		if (tcb_ptr->tcb_next == kcb_p->tcb_first) break;
 	}
 }
 
 void dispatcher(void)
 {
-	if (!setjmp(tcb_p->context)) {
+	if (!setjmp(kcb_p->tcb_p->context)) {
 		update_delay();
 		guard_check();
-		if (tcb_p->state == TASK_RUNNING)
-			tcb_p->state = TASK_READY;
+		if (kcb_p->tcb_p->state == TASK_RUNNING)
+			kcb_p->tcb_p->state = TASK_READY;
 		do {
-			tcb_p = tcb_p->tcb_next;
-		} while (tcb_p->state != TASK_READY);
-		tcb_p->state = TASK_RUNNING;
-		ctx_switches++;
+			kcb_p->tcb_p = kcb_p->tcb_p->tcb_next;
+		} while (kcb_p->tcb_p->state != TASK_READY);
+		kcb_p->tcb_p->state = TASK_RUNNING;
+		kcb_p->ctx_switches++;
 		_interrupt_tick();
-		longjmp(tcb_p->context, 1);
+		longjmp(kcb_p->tcb_p->context, 1);
 	}
 }
 
 static void sched_init(int32_t preemptive)
 {
-	tcb_p = tcb_first;
+	kcb_p->tcb_p = kcb_p->tcb_first;
 	if (preemptive) {
 		_timer_enable();
 	}
-	(*tcb_p->task)();
+	(*kcb_p->tcb_p->task)();
 }
 
 
@@ -69,23 +67,23 @@ static void sched_init(int32_t preemptive)
 
 int32_t ucx_task_add(void *task, uint16_t guard_size)
 {
-	struct tcb_s *tcb_last = tcb_p;
+	struct tcb_s *tcb_last = kcb_p->tcb_p;
 	
-	tcb_p = (struct tcb_s *)_malloc(sizeof(struct tcb_s));
-	if (tcb_first == 0)
-		tcb_first = tcb_p;
+	kcb_p->tcb_p = (struct tcb_s *)_malloc(sizeof(struct tcb_s));
+	if (kcb_p->tcb_first == 0)
+		kcb_p->tcb_first = kcb_p->tcb_p;
 
-	if (!tcb_p)
+	if (!kcb_p->tcb_p)
 		return -1;
 
 	if (tcb_last)
-		tcb_last->tcb_next = tcb_p;
-	tcb_p->tcb_next = tcb_first;
-	tcb_p->task = task;
-	tcb_p->delay = 0;
-	tcb_p->guard_sz = guard_size;
-	tcb_p->id = id++;
-	tcb_p->state = TASK_STOPPED;
+		tcb_last->tcb_next = kcb_p->tcb_p;
+	kcb_p->tcb_p->tcb_next = kcb_p->tcb_first;
+	kcb_p->tcb_p->task = task;
+	kcb_p->tcb_p->delay = 0;
+	kcb_p->tcb_p->guard_sz = guard_size;
+	kcb_p->tcb_p->id = kcb_p->id++;
+	kcb_p->tcb_p->state = TASK_STOPPED;
 	
 	return 0;
 }
@@ -113,23 +111,23 @@ int32_t ucx_task_add(void *task, uint16_t guard_size)
 */
 void ucx_task_init(void)
 {
-	char guard[tcb_p->guard_sz];
+	char guard[kcb_p->tcb_p->guard_sz];
 	
-	_memset(guard, 0x69, tcb_p->guard_sz);
+	_memset(guard, 0x69, kcb_p->tcb_p->guard_sz);
 	_memset(guard, 0x33, 4);
-	_memset((guard) + tcb_p->guard_sz - 4, 0x33, 4);
-	tcb_p->guard_addr = (uint32_t *)guard;
-	_printf("task %d, guard: %08x - %08x\n", tcb_p->id, (size_t)tcb_p->guard_addr,
-		(size_t)tcb_p->guard_addr + tcb_p->guard_sz);
+	_memset((guard) + kcb_p->tcb_p->guard_sz - 4, 0x33, 4);
+	kcb_p->tcb_p->guard_addr = (uint32_t *)guard;
+	_printf("task %d, guard: %08x - %08x\n", kcb_p->tcb_p->id, (size_t)kcb_p->tcb_p->guard_addr,
+		(size_t)kcb_p->tcb_p->guard_addr + kcb_p->tcb_p->guard_sz);
 	
-	if (!setjmp(tcb_p->context)) {
-		tcb_p->state = TASK_READY;
-		if (tcb_p->tcb_next == tcb_first) {
-			tcb_p->state = TASK_RUNNING;
+	if (!setjmp(kcb_p->tcb_p->context)) {
+		kcb_p->tcb_p->state = TASK_READY;
+		if (kcb_p->tcb_p->tcb_next == kcb_p->tcb_first) {
+			kcb_p->tcb_p->state = TASK_RUNNING;
 		} else {
-			tcb_p = tcb_p->tcb_next;
-			tcb_p->state = TASK_RUNNING;
-			(*tcb_p->task)();
+			kcb_p->tcb_p = kcb_p->tcb_p->tcb_next;
+			kcb_p->tcb_p->state = TASK_RUNNING;
+			(*kcb_p->tcb_p->task)();
 		}
 	}
 	_ei(1);
@@ -137,30 +135,30 @@ void ucx_task_init(void)
 
 void ucx_task_yield()
 {
-	if (!setjmp(tcb_p->context)) {
+	if (!setjmp(kcb_p->tcb_p->context)) {
 		update_delay();
 		guard_check();
-		if (tcb_p->state == TASK_RUNNING)
-			tcb_p->state = TASK_READY;
+		if (kcb_p->tcb_p->state == TASK_RUNNING)
+			kcb_p->tcb_p->state = TASK_READY;
 		do {
-			tcb_p = tcb_p->tcb_next;
-		} while (tcb_p->state != TASK_READY);
-		tcb_p->state = TASK_RUNNING;
-		ctx_switches++;
-		longjmp(tcb_p->context, 1);
+			kcb_p->tcb_p = kcb_p->tcb_p->tcb_next;
+		} while (kcb_p->tcb_p->state != TASK_READY);
+		kcb_p->tcb_p->state = TASK_RUNNING;
+		kcb_p->ctx_switches++;
+		longjmp(kcb_p->tcb_p->context, 1);
 	}
 }
 
 void ucx_task_delay(uint16_t ticks)
 {
-	tcb_p->delay = ticks;
-	tcb_p->state = TASK_BLOCKED;
+	kcb_p->tcb_p->delay = ticks;
+	kcb_p->tcb_p->state = TASK_BLOCKED;
 	ucx_task_yield();
 }
 
 int32_t ucx_task_suspend(uint16_t id)
 {
-	struct tcb_s *tcb_ptr = tcb_first;
+	struct tcb_s *tcb_ptr = kcb_p->tcb_first;
 	
 	for (;; tcb_ptr = tcb_ptr->tcb_next) {
 		if (tcb_ptr->id == id) {
@@ -174,10 +172,10 @@ int32_t ucx_task_suspend(uint16_t id)
 				return -1;
 			}
 		}
-		if (tcb_ptr->tcb_next == tcb_first)
+		if (tcb_ptr->tcb_next == kcb_p->tcb_first)
 			return -1;
 	}
-	if (tcb_p->id == id)
+	if (kcb_p->tcb_p->id == id)
 		ucx_task_yield();
 	
 	return 0;
@@ -185,7 +183,7 @@ int32_t ucx_task_suspend(uint16_t id)
 
 int32_t ucx_task_resume(uint16_t id)
 {
-	struct tcb_s *tcb_ptr = tcb_first;
+	struct tcb_s *tcb_ptr = kcb_p->tcb_first;
 	
 	for (;; tcb_ptr = tcb_ptr->tcb_next) {
 		if (tcb_ptr->id == id) {
@@ -199,10 +197,10 @@ int32_t ucx_task_resume(uint16_t id)
 				return -1;
 			}
 		}	
-		if (tcb_ptr->tcb_next == tcb_first)
+		if (tcb_ptr->tcb_next == kcb_p->tcb_first)
 			return -1;
 	}
-	if (tcb_p->id == id)
+	if (kcb_p->tcb_p->id == id)
 		ucx_task_yield();
 	
 	return 0;
@@ -211,20 +209,20 @@ int32_t ucx_task_resume(uint16_t id)
 
 uint16_t ucx_task_id()
 {
-	return tcb_p->id;
+	return kcb_p->tcb_p->id;
 }
 
 void ucx_task_wfi()
 {
 	volatile uint32_t s;
 	
-	s = ctx_switches;
-	while (s == ctx_switches);
+	s = kcb_p->ctx_switches;
+	while (s == kcb_p->ctx_switches);
 }
 
 uint16_t ucx_tasks()
 {
-	return id + 1;
+	return kcb_p->id + 1;
 }
 
 void ucx_enter_critical()
@@ -243,6 +241,12 @@ int32_t main(void)
 	int32_t pr;
 	
 	_hardware_init();
+	
+	kcb_p->tcb_p = 0;
+	kcb_p->tcb_first = 0;
+	kcb_p->ctx_switches = 0;
+	kcb_p->id = 0;
+	
 	_printf("UCX/OS boot on %s\n", __ARCH__);
 #ifndef UCX_OS_HEAP_SIZE
 	heap_init((size_t *)&_heap_start, (size_t)&_heap_size);

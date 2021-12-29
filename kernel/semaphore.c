@@ -42,13 +42,13 @@ int32_t ucx_semdestroy(struct sem_s *s)
 
 void ucx_wait(struct sem_s *s)
 {
-	extern struct tcb_s *tcb_p;
+	extern struct kcb_s *kcb_p;
 	
 	ucx_enter_critical();
 	s->count--;
 	if (s->count < 0) {
-		queue_enqueue(s->sem_queue, tcb_p);
-		tcb_p->state = TASK_BLOCKED;
+		queue_enqueue(s->sem_queue, kcb_p->tcb_p);
+		kcb_p->tcb_p->state = TASK_BLOCKED;
 		ucx_leave_critical();
 		ucx_task_wfi();
 	} else {
