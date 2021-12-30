@@ -331,7 +331,7 @@ static void printchar(char **str, int32_t c){
 	}
 }
 
-static int vsprintf(char **buf, const char *fmt, va_list args)
+static int _vsprintf(char **buf, const char *fmt, va_list args)
 {
 	char **p, *str;
 	const char *digits = "0123456789abcdef";
@@ -417,7 +417,7 @@ int32_t _printf(const char *fmt, ...)
 	int32_t v;
 
 	va_start(args, fmt);
-	v = vsprintf(0, fmt, args);
+	v = _vsprintf(0, fmt, args);
 	va_end(args);
 	return v;
 }
@@ -428,7 +428,7 @@ int32_t _sprintf(char *out, const char *fmt, ...)
 	int32_t v;
 
 	va_start(args, fmt);
-	v = vsprintf(&out, fmt, args);
+	v = _vsprintf(&out, fmt, args);
 	va_end(args);
 	return v;
 }
