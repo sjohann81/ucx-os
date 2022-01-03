@@ -1,6 +1,7 @@
 #ARCH = avr/atmega328p
 #ARCH = mips/hf-risc
 ARCH = riscv/hf-riscv
+#ARCH = riscv/hf-riscv-e
 #ARCH = riscv/hf-riscv-llvm
 #ARCH = riscv/riscv32-qemu
 #ARCH = riscv/riscv32-qemu-llvm
