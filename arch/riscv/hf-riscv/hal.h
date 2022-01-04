@@ -28,7 +28,7 @@ extern uint32_t _sbss;			/* Start address for the .bss section, defined in linke
 extern uint32_t _ebss;			/* End address for the .bss section, defined in linker script. */
 extern uint32_t _end;			/* Start address of the heap memory, defined in linker script. */
 
-#define __ARCH__	"RV32 (HF-RISCV)"
+#define __ARCH__	"RV32I (HF-RISCV)"
 
 /* disable interrupts, return previous int status / enable interrupts */
 #define _di()				_interrupt_set(0)
