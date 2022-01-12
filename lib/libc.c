@@ -6,7 +6,8 @@
 
 #include <ucx.h>
 
-char *_strcpy(char *dst, char *src){
+char *_strcpy(char *dst, char *src)
+{
 	char *dstSave=dst;
 	int32_t c;
 
@@ -16,7 +17,8 @@ char *_strcpy(char *dst, char *src){
 	return dstSave;
 }
 
-char *_strncpy(char *s1, char *s2, int32_t n){
+char *_strncpy(char *s1, char *s2, int32_t n)
+{
 	int32_t i;
 	char *os1;
 
@@ -30,7 +32,8 @@ char *_strncpy(char *s1, char *s2, int32_t n){
 	return(os1);
 }
 
-char *_strcat(char *dst, char *src){
+char *_strcat(char *dst, char *src)
+{
 	int32_t c;
 	char *dstSave=dst;
 
@@ -43,7 +46,8 @@ char *_strcat(char *dst, char *src){
 	return dstSave;
 }
 
-char *_strncat(char *s1, char *s2, int32_t n){
+char *_strncat(char *s1, char *s2, int32_t n)
+{
 	char *os1;
 
 	os1 = s1;
@@ -57,7 +61,8 @@ char *_strncat(char *s1, char *s2, int32_t n){
 	return(os1);
 }
 
-int32_t _strcmp(char *s1, char *s2){
+int32_t _strcmp(char *s1, char *s2)
+{
 	while (*s1 == *s2++)
 		if (*s1++ == '\0')
 			return(0);
@@ -65,7 +70,8 @@ int32_t _strcmp(char *s1, char *s2){
 	return(*s1 - *--s2);
 }
 
-int32_t _strncmp(char *s1, char *s2, int32_t n){
+int32_t _strncmp(char *s1, char *s2, int32_t n)
+{
 	while (--n >= 0 && *s1 == *s2++)
 		if (*s1++ == '\0')
 			return(0);
@@ -73,7 +79,8 @@ int32_t _strncmp(char *s1, char *s2, int32_t n){
 	return(n<0 ? 0 : *s1 - *--s2);
 }
 
-char *_strstr(char *string, char *find){
+char *_strstr(char *string, char *find)
+{
 	int32_t i;
 
 	for (;;) {
@@ -85,7 +92,8 @@ char *_strstr(char *string, char *find){
 	}
 }
 
-int32_t _strlen(char *s){
+int32_t _strlen(char *s)
+{
 	int32_t n;
 
 	n = 0;
@@ -95,7 +103,8 @@ int32_t _strlen(char *s){
 	return(n);
 }
 
-char *_strchr(char *s, int32_t c){
+char *_strchr(char *s, int32_t c)
+{
 	while (*s != (char)c)
 		if (!*s++)
 			return 0;
@@ -117,7 +126,8 @@ char *_strpbrk(char *str, char *set){
 
 }
 
-char *_strsep(char **pp, char *delim){
+char *_strsep(char **pp, char *delim)
+{
 	char *p, *q;
 
 	if (!(p = *pp))
@@ -130,7 +140,8 @@ char *_strsep(char **pp, char *delim){
 	return p;
 }
 
-char *_strtok(char *s, char *delim){
+char *_strtok(char *s, char *delim)
+{
 	char *spanp;
 	int32_t c, sc;
 	char *tok;
@@ -168,7 +179,8 @@ char *_strtok(char *s, char *delim){
 	}
 }
 
-void *_memcpy(void *dst, void *src, uint32_t n){
+void *_memcpy(void *dst, void *src, uint32_t n)
+{
 	char *r1 = dst;
 	char *r2 = src;
 
@@ -178,7 +190,8 @@ void *_memcpy(void *dst, void *src, uint32_t n){
 	return dst;
 }
 
-void *_memmove(void *dst, void *src, uint32_t n){
+void *_memmove(void *dst, void *src, uint32_t n)
+{
 	char *s = (char *)dst;
 	char *p = (char *)src;
 
@@ -195,7 +208,8 @@ void *_memmove(void *dst, void *src, uint32_t n){
 	return dst;
 }
 
-int32_t _memcmp(void *cs, void *ct, uint32_t n){
+int32_t _memcmp(void *cs, void *ct, uint32_t n)
+{
 	char *r1 = (char *)cs;
 	char *r2 = (char *)ct;
 
@@ -208,7 +222,8 @@ int32_t _memcmp(void *cs, void *ct, uint32_t n){
 	return (n == 0) ? 0 : ((*r1 < *r2) ? -1 : 1);
 }
 
-void *_memset(void *s, int32_t c, uint32_t n) {
+void *_memset(void *s, int32_t c, uint32_t n)
+{
 	char *p = (char *)s;
 
 	while (n--)
@@ -217,7 +232,8 @@ void *_memset(void *s, int32_t c, uint32_t n) {
 	return s;
 }
 
-int32_t _strtol(char *s, char **end, int32_t base) {
+int32_t _strtol(char *s, char **end, int32_t base)
+{
 	int32_t i;
 	uint32_t ch, value=0, neg=0;
 
@@ -248,23 +264,27 @@ int32_t _strtol(char *s, char **end, int32_t base) {
 	return value;
 }
 
-int32_t _abs(int32_t n){
+int32_t _abs(int32_t n)
+{
 	return n>=0 ? n:-n;
 }
 
 
 static uint32_t rand1=0xbaadf00d;
 
-int32_t _random(void){
+int32_t _random(void)
+{
 	rand1 = rand1 * 1103515245 + 12345;
 	return (uint32_t)(rand1 >> 16) & 32767;
 }
 
-void _srand(uint32_t seed){
+void _srand(uint32_t seed)
+{
 	rand1 = seed;
 }
 
-int32_t _puts(char *str){
+int32_t _puts(char *str)
+{
 	while (*str)
 		_putchar(*str++);
 	_putchar('\n');
@@ -272,7 +292,8 @@ int32_t _puts(char *str){
 	return 0;
 }
 
-char *_gets(char *s){
+char *_gets(char *s)
+{
 	int32_t c;
 	char *cs;
 
@@ -285,7 +306,8 @@ char *_gets(char *s){
 	return(s);
 }
 
-char *_getline(char *s){
+char *_getline(char *s)
+{
 	int32_t c, i = 0;
 	char *cs;
 
