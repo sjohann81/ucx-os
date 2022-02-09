@@ -220,7 +220,7 @@ void ucx_task_wfi()
 	while (s == kcb_p->ctx_switches);
 }
 
-uint16_t ucx_tasks()
+uint16_t ucx_task_instances()
 {
 	return kcb_p->id + 1;
 }

@@ -40,7 +40,7 @@ int32_t ucx_task_suspend(uint16_t id);
 int32_t ucx_task_resume(uint16_t id);
 uint16_t ucx_task_id();
 void ucx_task_wfi();
-uint16_t ucx_tasks();
-void ucx_enter_critical();
-void ucx_leave_critical();
+uint16_t ucx_task_instances();
+void ucx_enter_critical();	// ucx_critical_enter
+void ucx_leave_critical();	// ucx_critical_leave
 int32_t app_main();
