@@ -7,7 +7,7 @@ void task2(void)
 	ucx_task_init();
 
 	while (1) {
-		_printf("[task %d %ld]\n", ucx_task_id(), cnt++);
+		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
 	}
 }
 
@@ -18,20 +18,20 @@ void task1(void)
 	ucx_task_init();
 
 	while (1) {
-		_printf("[task %d %ld]\n", ucx_task_id(), cnt++);
+		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
 		if (cnt == 2000) {
 			val = ucx_task_resume(2);
 			if (val == 0)
-				_printf("TASK 2 RESUMED!\n");
+				printf("TASK 2 RESUMED!\n");
 			else
-				_printf("FAILED TO RESUME TASK 2\n");
+				printf("FAILED TO RESUME TASK 2\n");
 		}
 		if (cnt == 6000) {
 			val = ucx_task_resume(0);
 			if (val == 0)
-				_printf("TASK 0 RESUMED!\n");
+				printf("TASK 0 RESUMED!\n");
 			else
-				_printf("FAILED TO RESUME TASK 0\n");
+				printf("FAILED TO RESUME TASK 0\n");
 		}
 	}
 }
@@ -43,16 +43,16 @@ void task0(void)
 	ucx_task_init();
 
 	while (1) {
-		_printf("[task %d %ld]\n", ucx_task_id(), cnt++);
+		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
 		if (cnt == 1000) {
 			val = ucx_task_suspend(2);
 			if (val == 0)
-				_printf("TASK 2 SUSPENDED!\n");
+				printf("TASK 2 SUSPENDED!\n");
 			else
-				_printf("FAILED TO SUSPEND TASK 2\n");
+				printf("FAILED TO SUSPEND TASK 2\n");
 		}
 		if (cnt == 5000) {
-			_printf("TRYING TO SUSPEND SELF...");
+			printf("TRYING TO SUSPEND SELF...");
 			ucx_task_suspend(ucx_task_id());
 		}
 	}

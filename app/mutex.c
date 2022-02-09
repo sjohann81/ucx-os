@@ -8,8 +8,8 @@ void task_a(void)
 
 	for (;;) {
 		ucx_wait(mutex);
-		_printf("hello from task A, id %d\n", ucx_task_id());
-		_printf("this is still task A!\n");
+		printf("hello from task A, id %d\n", ucx_task_id());
+		printf("this is still task A!\n");
 		ucx_signal(mutex);
 	}
 }
@@ -20,8 +20,8 @@ void task_b(void)
 
 	for (;;) {
 		ucx_wait(mutex);
-		_printf("hello from task B, id %d\n", ucx_task_id());
-		_printf("this is still task B!\n");
+		printf("hello from task B, id %d\n", ucx_task_id());
+		printf("this is still task B!\n");
 		ucx_signal(mutex);
 	}
 }

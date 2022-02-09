@@ -9,7 +9,7 @@ void task2(void)
 	ucx_task_delay(50);
 
 	while (1) {
-		_printf("[task 2 %ld]\n", cnt++);
+		printf("[task 2 %ld]\n", cnt++);
 		ucx_task_yield();
 	}
 }
@@ -21,7 +21,7 @@ void task1(void)
 	ucx_task_init();
 
 	while (1) {
-		_printf("[task 1 %ld]\n", cnt++);
+		printf("[task 1 %ld]\n", cnt++);
 		ucx_task_yield();
 	}
 }
@@ -33,7 +33,7 @@ void task0(void)
 	ucx_task_init();
 
 	while (1) {
-		_printf("[task 0 %ld]\n", cnt++);
+		printf("[task 0 %ld]\n", cnt++);
 		ucx_task_yield();
 	}
 }

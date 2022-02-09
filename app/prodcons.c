@@ -12,11 +12,11 @@ void producer(void)
 	ucx_task_init();
 
 	for (;;) {
-		item = _random();
+		item = random();
 		ucx_wait(empty);
 		ucx_wait(mutex);
 		buffer[in] = item;
-		_printf("\nproducer %d putting at %ld (%ld)", ucx_task_id(), in, item);
+		printf("\nproducer %d putting at %ld (%ld)", ucx_task_id(), in, item);
 		in = (in + 1) % N;
 		ucx_signal(mutex);
 		ucx_signal(full);
@@ -33,7 +33,7 @@ void consumer(void)
 		ucx_wait(full);
 		ucx_wait(mutex);
 		item = buffer[out];
-		_printf("\nconsumer %d getting from %ld (%ld)", ucx_task_id(), out, item);
+		printf("\nconsumer %d getting from %ld (%ld)", ucx_task_id(), out, item);
 		out = (out + 1) % N;
 		ucx_signal(mutex);
 		ucx_signal(empty);

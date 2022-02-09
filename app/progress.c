@@ -13,8 +13,8 @@ void logger(void)
 	while (1) {
 		_delay_ms(1000);
 		for (i = 0; i < N_TASKS; i++)
-			_printf("%08x ", cnt[i]);
-		_printf("\n");
+			printf("%08x ", cnt[i]);
+		printf("\n");
 	}
 }
 

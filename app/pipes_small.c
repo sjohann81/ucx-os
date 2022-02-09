@@ -9,9 +9,9 @@ void task2(void)
 	ucx_task_init();
 
 	while (1) {
-		_sprintf(data2, "Hello from task 2!");
+		sprintf(data2, "Hello from task 2!");
 		/* write pipe - write size must be less than buffer size */
-		ucx_pipe_write(pipe2, data2, _strlen((char *)data2));
+		ucx_pipe_write(pipe2, data2, strlen((char *)data2));
 	}
 }
 
@@ -22,9 +22,9 @@ void task1(void)
 	ucx_task_init();
 
 	while (1) {
-		_sprintf(data1, "Hello from task 1!");
+		sprintf(data1, "Hello from task 1!");
 		/* write pipe - write size must be less than buffer size */
-		ucx_pipe_write(pipe1, data1, _strlen((char *)data1));
+		ucx_pipe_write(pipe1, data1, strlen((char *)data1));
 	}
 }
 
@@ -37,12 +37,12 @@ void task0(void)
 
 	while (1) {
 		/* read pipe - read size must be less than buffer size */
-		_memset(data, 0, sizeof(data));
+		memset(data, 0, sizeof(data));
 		s = ucx_pipe_read(pipe1, data, 63);
-		_printf("pipe (%d): %s\n", s, data);
-		_memset(data, 0, sizeof(data));
+		printf("pipe (%d): %s\n", s, data);
+		memset(data, 0, sizeof(data));
 		s = ucx_pipe_read(pipe2, data, 50);
-		_printf("pipe (%d): %s\n", s, data);
+		printf("pipe (%d): %s\n", s, data);
 		
 	}
 }

@@ -20,7 +20,7 @@ void task1(void)
 	ptr->b = -555;
 
 	while (1) {
-		_sprintf(ptr->v, "hello %ld", i++);
+		sprintf(ptr->v, "hello %ld", i++);
 		ptr->a++;
 		ptr->b++;
 
@@ -41,7 +41,7 @@ void task0(void)
 	while (1) {
 		while (ucx_pipe_size(pipe1) < sizeof(struct data1_s));
 		s = ucx_pipe_read(pipe1, data, ucx_pipe_size(pipe1));
-		_printf("pipe (%d): %s %ld %d\n", s, ptr->v, ptr->a, ptr->b);
+		printf("pipe (%d): %s %ld %d\n", s, ptr->v, ptr->a, ptr->b);
 	}
 }
 

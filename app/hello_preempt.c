@@ -7,7 +7,7 @@ void task2(void)
 	ucx_task_init();
 
 	while (1) {
-		_printf("[task %d %ld]\n", ucx_task_id(), cnt++);
+		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
 	}
 }
 
@@ -18,7 +18,7 @@ void task1(void)
 	ucx_task_init();
 
 	while (1) {
-		_printf("[task %d %ld]\n", ucx_task_id(), cnt++);
+		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
 	}
 }
 
@@ -29,7 +29,7 @@ void task0(void)
 	ucx_task_init();
 
 	while (1) {
-		_printf("[task %d %ld]\n", ucx_task_id(), cnt++);
+		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
 	}
 }
 
