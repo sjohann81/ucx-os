@@ -7,9 +7,9 @@ struct mem_block_s {
 	size_t size;				/* aligned block size. the LSB is used to define if the block is used */
 };
 
-void _free(void *ptr);
-void *_malloc(uint32_t size);
-void heap_init(size_t *zone, uint32_t len);
+void ucx_free(void *ptr);
+void *ucx_malloc(uint32_t size);
+void ucx_heap_init(size_t *zone, uint32_t len);
 
 #ifdef UCX_OS_HEAP_SIZE
 extern char _heap[UCX_OS_HEAP_SIZE];

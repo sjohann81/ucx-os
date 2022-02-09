@@ -69,7 +69,7 @@ int32_t ucx_task_add(void *task, uint16_t guard_size)
 {
 	struct tcb_s *tcb_last = kcb_p->tcb_p;
 	
-	kcb_p->tcb_p = (struct tcb_s *)_malloc(sizeof(struct tcb_s));
+	kcb_p->tcb_p = (struct tcb_s *)malloc(sizeof(struct tcb_s));
 	if (kcb_p->tcb_first == 0)
 		kcb_p->tcb_first = kcb_p->tcb_p;
 
@@ -249,10 +249,10 @@ int32_t main(void)
 	
 	_printf("UCX/OS boot on %s\n", __ARCH__);
 #ifndef UCX_OS_HEAP_SIZE
-	heap_init((size_t *)&_heap_start, (size_t)&_heap_size);
+	ucx_heap_init((size_t *)&_heap_start, (size_t)&_heap_size);
 	_printf("heap_init(), %d bytes free\n", (size_t)&_heap_size);
 #else
-	heap_init((size_t *)&_heap, UCX_OS_HEAP_SIZE);
+	ucx_heap_init((size_t *)&_heap, UCX_OS_HEAP_SIZE);
 	_printf("heap_init(), %d bytes free\n", UCX_OS_HEAP_SIZE);
 #endif
 	pr = app_main();

@@ -384,4 +384,7 @@ void _timer_enable(void);
 void _timer_disable(void);
 void _interrupt_tick(void);
 
+#define malloc(n)	ucx_malloc(n)
+#define free(n)		ucx_free(n)
+
 #define DEFAULT_GUARD_SIZE	2048

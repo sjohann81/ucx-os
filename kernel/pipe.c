@@ -34,15 +34,15 @@ struct pipe_s *ucx_pipe_create(uint16_t size)
 	if (!ispowerof2(size))
 		size = nextpowerof2(size);
 		
-	pipe = (struct pipe_s *)_malloc(sizeof(struct pipe_s));
+	pipe = (struct pipe_s *)malloc(sizeof(struct pipe_s));
 	
 	if (!pipe)
 		return 0;
 	
 	pipe->mask = size - 1;
-	pipe->data = (char *)_malloc(size);
+	pipe->data = (char *)malloc(size);
 	if (!pipe->data) {
-		_free(pipe);
+		free(pipe);
 		return 0;
 	}
 	pipe->head = 0;
@@ -58,8 +58,8 @@ int32_t ucx_pipe_destroy(struct pipe_s *pipe)
 		return -1;
 	
 	pipe->mask = 0;
-	_free(pipe->data);
-	_free(pipe);
+	free(pipe->data);
+	free(pipe);
 	
 	return 0;
 }

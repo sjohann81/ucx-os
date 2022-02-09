@@ -16,7 +16,7 @@ char _heap[UCX_OS_HEAP_SIZE];
 struct mem_block_s *first_free;
 struct mem_block_s *last_free;
 
-void _free(void *ptr)
+void ucx_free(void *ptr)
 {
 	struct mem_block_s *p;
 	
@@ -25,7 +25,7 @@ void _free(void *ptr)
 	last_free = first_free;
 }
 
-void *_malloc(uint32_t size)
+void *ucx_malloc(uint32_t size)
 {
 	struct mem_block_s *p, *q, *r, n;
 	
@@ -64,7 +64,7 @@ void *_malloc(uint32_t size)
 	return (void *)(p + 1);
 }
 
-void heap_init(size_t *zone, uint32_t len)
+void ucx_heap_init(size_t *zone, uint32_t len)
 {
 	void *heap = zone;
 	struct mem_block_s *p = (struct mem_block_s *)heap;

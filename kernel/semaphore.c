@@ -10,7 +10,7 @@ struct sem_s *ucx_seminit(int32_t value)
 {
 	struct sem_s *s;
 	
-	s = (struct sem_s *)_malloc(sizeof(struct sem_s));
+	s = (struct sem_s *)malloc(sizeof(struct sem_s));
 	
 	if (!s)
 		return 0;
@@ -18,7 +18,7 @@ struct sem_s *ucx_seminit(int32_t value)
 	s->sem_queue = queue_create(ucx_tasks());
 	
 	if ((!s->sem_queue) || (value < 0)) {
-		_free(s);
+		free(s);
 		
 		return 0;
 	} else {
@@ -34,7 +34,7 @@ int32_t ucx_semdestroy(struct sem_s *s)
 	if (queue_destroy(s->sem_queue)) {
 		return -1;
 	} else {
-		_free(s);
+		free(s);
 		
 		return 0;
 	}

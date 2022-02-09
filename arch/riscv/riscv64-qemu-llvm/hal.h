@@ -94,4 +94,7 @@ void mtime_w(uint64_t val);
 uint64_t mtimecmp_r(void);
 void mtimecmp_w(uint64_t val);
 
+#define malloc(n)	ucx_malloc(n)
+#define free(n)		ucx_free(n)
+
 #define DEFAULT_GUARD_SIZE	4096
