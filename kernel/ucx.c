@@ -16,7 +16,7 @@ static void krnl_guard_check(void)
 	uint32_t check = 0x33333333;
 	
 	if (*kcb_p->tcb_p->guard_addr != check) {
-		hexdump((void *)kcb_p->tcb_p->guard_addr, kcb_p->tcb_p->guard_sz);
+		ucx_hexdump((void *)kcb_p->tcb_p->guard_addr, kcb_p->tcb_p->guard_sz);
 		_printf("\n*** HALT - task %d, guard %08x (%d) check failed\n", kcb_p->tcb_p->id,
 			(size_t)kcb_p->tcb_p->guard_addr, (size_t)kcb_p->tcb_p->guard_sz);
 		for (;;);

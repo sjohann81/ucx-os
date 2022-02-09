@@ -1,12 +1,12 @@
 /* file:          dump.c
- * description:   memory dump
+ * description:   memory dump functions
  * date:          12/2021
  * author:        Sergio Johann Filho <sergio.johann@acad.pucrs.br>
  */
 
 #include <ucx.h>
 
-void printhex(int n, int digits)
+void ucx_printhex(int n, int digits)
 {
 	int a;
 
@@ -21,16 +21,16 @@ void printhex(int n, int digits)
 	}
 }
 
-int32_t hexdump(char *buf, uint32_t size)
+int32_t ucx_hexdump(char *buf, uint32_t size)
 {
 	uint32_t k, l;
 	char ch;
 
 	buf = (char *)((size_t)buf & ~0xf);
 	for (k = 0; k < size; k += 16) {
-		_putchar('\n'); printhex((size_t)buf + k, 8); _putchar(' ');
+		_putchar('\n'); ucx_printhex((size_t)buf + k, 8); _putchar(' ');
 		for(l = 0; l < 16; l++){
-			printhex((uint8_t)buf[k + l], 2);
+			ucx_printhex((uint8_t)buf[k + l], 2);
 			_putchar(' ');
 			if (l == 7) _putchar(' ');
 		}
