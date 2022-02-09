@@ -311,7 +311,7 @@ void _irq_handler(uint32_t cause, uint32_t *stack)
 	val = read_csr(mcause);
 	if (mtime_r() > mtimecmp_r()) {
 		mtimecmp_w(mtime_r() + 0x1ffff);
-		dispatcher();
+		krnl_dispatcher();
 	} else {
 		_printf("[%x]\n", val);
 		for (;;);

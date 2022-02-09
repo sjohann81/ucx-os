@@ -44,7 +44,7 @@ char _interrupt_set(char s)
 /* kernel auxiliary routines */
 ISR(TIMER2_COMPA_vect)
 {
-	dispatcher();
+	krnl_dispatcher();
 }
 
 void _hardware_init(void)

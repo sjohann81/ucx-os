@@ -374,7 +374,7 @@ void _delay_us(uint32_t usec)
 
 void timer1ctc_handler(void)
 {
-	dispatcher();
+	krnl_dispatcher();
 }
 
 void _hardware_init(void)

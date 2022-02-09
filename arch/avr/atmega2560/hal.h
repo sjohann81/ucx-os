@@ -18,8 +18,6 @@
 
 char _interrupt_set(char s);
 
-void dispatcher(void);
-
 void _putchar(char value);
 int32_t _kbhit(void);
 int32_t _getchar(void);
@@ -31,5 +29,7 @@ void _interrupt_tick(void);
 
 #define malloc(n)	ucx_malloc(n)
 #define free(n)		ucx_free(n)
+
+void krnl_dispatcher(void);
 
 #define DEFAULT_GUARD_SIZE	256

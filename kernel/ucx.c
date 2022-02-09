@@ -9,7 +9,9 @@
 struct kcb_s kernel_state;
 struct kcb_s *kcb_p = &kernel_state;
 
-static void guard_check(void)
+/* kernel auxiliary functions */
+
+static void krnl_guard_check(void)
 {
 	uint32_t check = 0x33333333;
 	
@@ -22,7 +24,7 @@ static void guard_check(void)
 		
 }
 
-static void update_delay(void)
+static void krnl_delay_update(void)
 {
 	struct tcb_s *tcb_ptr = kcb_p->tcb_first;
 	
@@ -36,11 +38,23 @@ static void update_delay(void)
 	}
 }
 
-void dispatcher(void)
+static void krnl_sched_init(int32_t preemptive)
+{
+	kcb_p->tcb_p = kcb_p->tcb_first;
+	if (preemptive) {
+		_timer_enable();
+	}
+	(*kcb_p->tcb_p->task)();
+}
+
+
+/* task dispatcher */
+
+void krnl_dispatcher(void)
 {
 	if (!setjmp(kcb_p->tcb_p->context)) {
-		update_delay();
-		guard_check();
+		krnl_delay_update();
+		krnl_guard_check();
 		if (kcb_p->tcb_p->state == TASK_RUNNING)
 			kcb_p->tcb_p->state = TASK_READY;
 		do {
@@ -53,17 +67,8 @@ void dispatcher(void)
 	}
 }
 
-static void sched_init(int32_t preemptive)
-{
-	kcb_p->tcb_p = kcb_p->tcb_first;
-	if (preemptive) {
-		_timer_enable();
-	}
-	(*kcb_p->tcb_p->task)();
-}
 
-
-/* task management */
+/* task management API */
 
 int32_t ucx_task_add(void *task, uint16_t guard_size)
 {
@@ -90,7 +95,7 @@ int32_t ucx_task_add(void *task, uint16_t guard_size)
 
 /*
  * First following lines of code are absurd at best. Stack marks are
- * used by guard_check() to detect stack overflows (sometimes). It is
+ * used by krnl_guard_check() to detect stack overflows (sometimes). It is
  * up to the user to define sufficient stack guard space (considering
  * local thread allocation of the stack for recursion and context
  * saving). We also need the safety pig, just in case.
@@ -136,8 +141,8 @@ void ucx_task_init(void)
 void ucx_task_yield()
 {
 	if (!setjmp(kcb_p->tcb_p->context)) {
-		update_delay();
-		guard_check();
+		krnl_delay_update();
+		krnl_guard_check();
 		if (kcb_p->tcb_p->state == TASK_RUNNING)
 			kcb_p->tcb_p->state = TASK_READY;
 		do {
@@ -206,7 +211,6 @@ int32_t ucx_task_resume(uint16_t id)
 	return 0;
 }
 
-
 uint16_t ucx_task_id()
 {
 	return kcb_p->tcb_p->id;
@@ -236,6 +240,8 @@ void ucx_critical_leave()
 }
 
 
+/* main() function, called from the C runtime */
+
 int32_t main(void)
 {
 	int32_t pr;
@@ -256,7 +262,7 @@ int32_t main(void)
 	_printf("heap_init(), %d bytes free\n", UCX_OS_HEAP_SIZE);
 #endif
 	pr = app_main();
-	sched_init(pr);
+	krnl_sched_init(pr);
 	
 	return 0;
 }

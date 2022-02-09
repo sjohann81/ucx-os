@@ -75,8 +75,6 @@ int32_t _interrupt_set(int32_t s);
 int32_t setjmp(jmp_buf env);
 void longjmp(jmp_buf env, int32_t val);
 
-void dispatcher(void);
-
 void _putchar(char value);
 int32_t _kbhit(void);
 int32_t _getchar(void);
@@ -96,5 +94,7 @@ void mtimecmp_w(uint64_t val);
 
 #define malloc(n)	ucx_malloc(n)
 #define free(n)		ucx_free(n)
+
+void krnl_dispatcher(void);
 
 #define DEFAULT_GUARD_SIZE	4096
