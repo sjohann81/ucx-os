@@ -17,7 +17,7 @@ static void krnl_guard_check(void)
 	
 	if (*kcb_p->tcb_p->guard_addr != check) {
 		ucx_hexdump((void *)kcb_p->tcb_p->guard_addr, kcb_p->tcb_p->guard_sz);
-		_printf("\n*** HALT - task %d, guard %08x (%d) check failed\n", kcb_p->tcb_p->id,
+		printf("\n*** HALT - task %d, guard %08x (%d) check failed\n", kcb_p->tcb_p->id,
 			(size_t)kcb_p->tcb_p->guard_addr, (size_t)kcb_p->tcb_p->guard_sz);
 		for (;;);
 	}
@@ -118,11 +118,11 @@ void ucx_task_init(void)
 {
 	char guard[kcb_p->tcb_p->guard_sz];
 	
-	_memset(guard, 0x69, kcb_p->tcb_p->guard_sz);
-	_memset(guard, 0x33, 4);
-	_memset((guard) + kcb_p->tcb_p->guard_sz - 4, 0x33, 4);
+	memset(guard, 0x69, kcb_p->tcb_p->guard_sz);
+	memset(guard, 0x33, 4);
+	memset((guard) + kcb_p->tcb_p->guard_sz - 4, 0x33, 4);
 	kcb_p->tcb_p->guard_addr = (uint32_t *)guard;
-	_printf("task %d, guard: %08x - %08x\n", kcb_p->tcb_p->id, (size_t)kcb_p->tcb_p->guard_addr,
+	printf("task %d, guard: %08x - %08x\n", kcb_p->tcb_p->id, (size_t)kcb_p->tcb_p->guard_addr,
 		(size_t)kcb_p->tcb_p->guard_addr + kcb_p->tcb_p->guard_sz);
 	
 	if (!setjmp(kcb_p->tcb_p->context)) {
@@ -253,13 +253,13 @@ int32_t main(void)
 	kcb_p->ctx_switches = 0;
 	kcb_p->id = 0;
 	
-	_printf("UCX/OS boot on %s\n", __ARCH__);
+	printf("UCX/OS boot on %s\n", __ARCH__);
 #ifndef UCX_OS_HEAP_SIZE
 	ucx_heap_init((size_t *)&_heap_start, (size_t)&_heap_size);
-	_printf("heap_init(), %d bytes free\n", (size_t)&_heap_size);
+	printf("heap_init(), %d bytes free\n", (size_t)&_heap_size);
 #else
 	ucx_heap_init((size_t *)&_heap, UCX_OS_HEAP_SIZE);
-	_printf("heap_init(), %d bytes free\n", UCX_OS_HEAP_SIZE);
+	printf("heap_init(), %d bytes free\n", UCX_OS_HEAP_SIZE);
 #endif
 	pr = app_main();
 	krnl_sched_init(pr);

@@ -6,38 +6,41 @@
 
 #include <ucx.h>
 
-char *_strcpy(char *dst, char *src)
+char *ucx_strcpy(char *dst, char *src)
 {
 	char *dstSave=dst;
 	int32_t c;
 
-	do{
+	do {
 		c = *dst++ = *src++;
 	} while(c);
+	
 	return dstSave;
 }
 
-char *_strncpy(char *s1, char *s2, int32_t n)
+char *ucx_strncpy(char *s1, char *s2, int32_t n)
 {
 	int32_t i;
 	char *os1;
 
 	os1 = s1;
-	for (i = 0; i < n; i++)
+	for (i = 0; i < n; i++) {
 		if ((*s1++ = *s2++) == '\0') {
 			while (++i < n)
 				*s1++ = '\0';
-			return(os1);
+			return (os1);
 		}
-	return(os1);
+	}
+	
+	return (os1);
 }
 
-char *_strcat(char *dst, char *src)
+char *ucx_strcat(char *dst, char *src)
 {
 	int32_t c;
 	char *dstSave=dst;
 
-	while(*dst)
+	while (*dst)
 		++dst;
 	do {
 		c = *dst++ = *src++;
@@ -46,53 +49,55 @@ char *_strcat(char *dst, char *src)
 	return dstSave;
 }
 
-char *_strncat(char *s1, char *s2, int32_t n)
+char *ucx_strncat(char *s1, char *s2, int32_t n)
 {
 	char *os1;
 
 	os1 = s1;
 	while (*s1++);
 	--s1;
-	while ((*s1++ = *s2++))
+	while ((*s1++ = *s2++)) {
 		if (--n < 0) {
 			*--s1 = '\0';
 			break;
 		}
-	return(os1);
+	}
+		
+	return (os1);
 }
 
-int32_t _strcmp(char *s1, char *s2)
+int32_t ucx_strcmp(char *s1, char *s2)
 {
 	while (*s1 == *s2++)
 		if (*s1++ == '\0')
-			return(0);
+			return 0;
 
-	return(*s1 - *--s2);
+	return (*s1 - *--s2);
 }
 
-int32_t _strncmp(char *s1, char *s2, int32_t n)
+int32_t ucx_strncmp(char *s1, char *s2, int32_t n)
 {
 	while (--n >= 0 && *s1 == *s2++)
 		if (*s1++ == '\0')
-			return(0);
+			return 0;
 
-	return(n<0 ? 0 : *s1 - *--s2);
+	return (n<0 ? 0 : *s1 - *--s2);
 }
 
-char *_strstr(char *string, char *find)
+char *ucx_strstr(char *string, char *find)
 {
 	int32_t i;
 
-	for (;;) {
-		for(i = 0; string[i] == find[i] && find[i]; ++i);
-		if(find[i] == 0)
+	while (1) {
+		for (i = 0; string[i] == find[i] && find[i]; ++i);
+		if (find[i] == 0)
 			return (char *)string;
-		if(*string++ == 0)
+		if (*string++ == 0)
 			return 0;
 	}
 }
 
-int32_t _strlen(char *s)
+int32_t ucx_strlen(char *s)
 {
 	int32_t n;
 
@@ -100,10 +105,10 @@ int32_t _strlen(char *s)
 	while (*s++)
 		n++;
 
-	return(n);
+	return n;
 }
 
-char *_strchr(char *s, int32_t c)
+char *ucx_strchr(char *s, int32_t c)
 {
 	while (*s != (char)c)
 		if (!*s++)
@@ -112,7 +117,8 @@ char *_strchr(char *s, int32_t c)
 	return (char *)s;
 }
 
-char *_strpbrk(char *str, char *set){
+char *ucx_strpbrk(char *str, char *set)
+{
 	char c, *p;
 
 	for (c = *str; c != 0; str++, c = *str) {
@@ -126,13 +132,13 @@ char *_strpbrk(char *str, char *set){
 
 }
 
-char *_strsep(char **pp, char *delim)
+char *ucx_strsep(char **pp, char *delim)
 {
 	char *p, *q;
 
 	if (!(p = *pp))
 		return 0;
-	if ((q = _strpbrk (p, delim))) {
+	if ((q = ucx_strpbrk(p, delim))) {
 		*pp = q + 1;
 		*q = '\0';
 	}else	*pp = 0;
@@ -140,7 +146,7 @@ char *_strsep(char **pp, char *delim)
 	return p;
 }
 
-char *_strtok(char *s, char *delim)
+char *ucx_strtok(char *s, char *delim)
 {
 	char *spanp;
 	int32_t c, sc;
@@ -148,22 +154,22 @@ char *_strtok(char *s, char *delim)
 	static char *last;
 
 	if (s == NULL && (s = last) == NULL)
-		return (NULL);
+		return NULL;
 
 	cont:
 	c = *s++;
-	for (spanp = delim; (sc = *spanp++) != 0;){
+	for (spanp = delim; (sc = *spanp++) != 0;) {
 		if (c == sc)
 		goto cont;
 	}
 
-	if (c == 0){
+	if (c == 0) {
 		last = NULL;
-		return (NULL);
+		return NULL;
 	}
 	tok = s - 1;
 
-	for (;;) {
+	while (1) {
 		c = *s++;
 		spanp = delim;
 		do {
@@ -179,7 +185,40 @@ char *_strtok(char *s, char *delim)
 	}
 }
 
-void *_memcpy(void *dst, void *src, uint32_t n)
+int32_t ucx_strtol(char *s, char **end, int32_t base)
+{
+	int32_t i;
+	uint32_t ch, value=0, neg=0;
+
+	if (s[0] == '-') {
+		neg = 1;
+		++s;
+	}
+	if (s[0] == '0' && s[1] == 'x') {
+		base = 16;
+		s += 2;
+	}
+	for (i = 0; i <= 8; ++i) {
+		ch = *s++;
+		if ('0' <= ch && ch <= '9')
+			ch -= '0';
+		else if ('A' <= ch && ch <= 'Z')
+			ch = ch - 'A' + 10;
+		else if ('a' <= ch && ch <= 'z')
+			ch = ch - 'a' + 10;
+		else
+			break;
+		value = value * base + ch;
+	}
+	if (end)
+		*end = (char*)s - 1;
+	if (neg)
+		value = -(int32_t)value;
+		
+	return value;
+}
+
+void *ucx_memcpy(void *dst, void *src, uint32_t n)
 {
 	char *r1 = dst;
 	char *r2 = src;
@@ -190,7 +229,7 @@ void *_memcpy(void *dst, void *src, uint32_t n)
 	return dst;
 }
 
-void *_memmove(void *dst, void *src, uint32_t n)
+void *ucx_memmove(void *dst, void *src, uint32_t n)
 {
 	char *s = (char *)dst;
 	char *p = (char *)src;
@@ -208,7 +247,7 @@ void *_memmove(void *dst, void *src, uint32_t n)
 	return dst;
 }
 
-int32_t _memcmp(void *cs, void *ct, uint32_t n)
+int32_t ucx_memcmp(void *cs, void *ct, uint32_t n)
 {
 	char *r1 = (char *)cs;
 	char *r2 = (char *)ct;
@@ -222,7 +261,7 @@ int32_t _memcmp(void *cs, void *ct, uint32_t n)
 	return (n == 0) ? 0 : ((*r1 < *r2) ? -1 : 1);
 }
 
-void *_memset(void *s, int32_t c, uint32_t n)
+void *ucx_memset(void *s, int32_t c, uint32_t n)
 {
 	char *p = (char *)s;
 
@@ -232,39 +271,7 @@ void *_memset(void *s, int32_t c, uint32_t n)
 	return s;
 }
 
-int32_t _strtol(char *s, char **end, int32_t base)
-{
-	int32_t i;
-	uint32_t ch, value=0, neg=0;
-
-	if(s[0] == '-'){
-		neg = 1;
-		++s;
-	}
-	if (s[0] == '0' && s[1] == 'x'){
-		base = 16;
-		s += 2;
-	}
-	for (i = 0; i <= 8; ++i){
-		ch = *s++;
-		if('0' <= ch && ch <= '9')
-			ch -= '0';
-		else if('A' <= ch && ch <= 'Z')
-			ch = ch - 'A' + 10;
-		else if('a' <= ch && ch <= 'z')
-			ch = ch - 'a' + 10;
-		else
-			break;
-		value = value * base + ch;
-	}
-	if (end)
-		*end = (char*)s - 1;
-	if (neg)
-		value = -(int32_t)value;
-	return value;
-}
-
-int32_t _abs(int32_t n)
+int32_t ucx_abs(int32_t n)
 {
 	return n>=0 ? n:-n;
 }
@@ -272,18 +279,18 @@ int32_t _abs(int32_t n)
 
 static uint32_t rand1=0xbaadf00d;
 
-int32_t _random(void)
+int32_t ucx_random(void)
 {
 	rand1 = rand1 * 1103515245 + 12345;
 	return (uint32_t)(rand1 >> 16) & 32767;
 }
 
-void _srand(uint32_t seed)
+void ucx_srand(uint32_t seed)
 {
 	rand1 = seed;
 }
 
-int32_t _puts(char *str)
+int32_t ucx_puts(char *str)
 {
 	while (*str)
 		_putchar(*str++);
@@ -292,7 +299,7 @@ int32_t _puts(char *str)
 	return 0;
 }
 
-char *_gets(char *s)
+char *ucx_gets(char *s)
 {
 	int32_t c;
 	char *cs;
@@ -306,7 +313,7 @@ char *_gets(char *s)
 	return(s);
 }
 
-char *_getline(char *s)
+char *ucx_getline(char *s)
 {
 	int32_t c, i = 0;
 	char *cs;
@@ -320,9 +327,11 @@ char *_getline(char *s)
 		*cs++ = c;
 	}
 	if (c < 0 && cs == s)
-		return(NULL);
+		return NULL;
+		
 	*cs++ = '\0';
-	return(s);
+	
+	return (s);
 }
 
 /* printf() / sprintf() stuff */
@@ -341,6 +350,7 @@ static int toint(const char **s)
 	int i = 0;
 	while (isdigit((int)**s))
 		i = i * 10 + *((*s)++) - '0';
+		
 	return i;
 }
 
@@ -353,7 +363,7 @@ static void printchar(char **str, int32_t c){
 	}
 }
 
-static int _vsprintf(char **buf, const char *fmt, va_list args)
+static int ucx_vsprintf(char **buf, const char *fmt, va_list args)
 {
 	char **p, *str;
 	const char *digits = "0123456789abcdef";
@@ -433,24 +443,24 @@ static int _vsprintf(char **buf, const char *fmt, va_list args)
 	return 0;
 }
 
-int32_t _printf(const char *fmt, ...)
+int32_t ucx_printf(const char *fmt, ...)
 {
 	va_list args;
 	int32_t v;
 
 	va_start(args, fmt);
-	v = _vsprintf(0, fmt, args);
+	v = ucx_vsprintf(0, fmt, args);
 	va_end(args);
 	return v;
 }
 
-int32_t _sprintf(char *out, const char *fmt, ...)
+int32_t ucx_sprintf(char *out, const char *fmt, ...)
 {
 	va_list args;
 	int32_t v;
 
 	va_start(args, fmt);
-	v = _vsprintf(&out, fmt, args);
+	v = ucx_vsprintf(&out, fmt, args);
 	va_end(args);
 	return v;
 }

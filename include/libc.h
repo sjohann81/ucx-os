@@ -40,31 +40,30 @@
 
 #endif
 
-char *_strcpy(char *dst, char *src);
-char *_strncpy(char *s1, char *s2, int32_t n);
-char *_strcat(char *dst, char *src);
-char *_strncat(char *s1, char *s2, int32_t n);
-int32_t _strcmp(char *s1, char *s2);
-int32_t _strncmp(char *s1, char *s2, int32_t n);
-char *_strstr(char *string, char *find);
-int32_t _strlen(char *s);
-char *_strchr(char *s, int32_t c);
-char *_strpbrk(char *str, char *set);
-char *_strsep(char **pp, char *delim);
-char *_strtok(char *s, char *delim);
-void *_memcpy(void *dst, void *src, uint32_t n);
-void *_memmove(void *dst, void *src, uint32_t n);
-int32_t _memcmp(void *cs, void *ct, uint32_t n);
-void *_memset(void *s, int32_t c, uint32_t n);
-int32_t _strtol(char *s, char **end, int32_t base);
-int32_t _atoi(char *s);
-int32_t _abs(int32_t n);
-int32_t _random(void);
-void _srand(uint32_t seed);
-int32_t _puts(char *str);
-char *_gets(char *s);
-char *_getline(char *s);
-int32_t _printf(const char *fmt, ...);
-int32_t _sprintf(char *out, const char *fmt, ...);
+char *ucx_strcpy(char *dst, char *src);
+char *ucx_strncpy(char *s1, char *s2, int32_t n);
+char *ucx_strcat(char *dst, char *src);
+char *ucx_strncat(char *s1, char *s2, int32_t n);
+int32_t ucx_strcmp(char *s1, char *s2);
+int32_t ucx_strncmp(char *s1, char *s2, int32_t n);
+char *ucx_strstr(char *string, char *find);
+int32_t ucx_strlen(char *s);
+char *ucx_strchr(char *s, int32_t c);
+char *ucx_strpbrk(char *str, char *set);
+char *ucx_strsep(char **pp, char *delim);
+char *ucx_strtok(char *s, char *delim);
+int32_t ucx_strtol(char *s, char **end, int32_t base);
+void *ucx_memcpy(void *dst, void *src, uint32_t n);
+void *ucx_memmove(void *dst, void *src, uint32_t n);
+int32_t ucx_memcmp(void *cs, void *ct, uint32_t n);
+void *ucx_memset(void *s, int32_t c, uint32_t n);
+int32_t ucx_abs(int32_t n);
+int32_t ucx_random(void);
+void ucx_srand(uint32_t seed);
+int32_t ucx_puts(char *str);
+char *ucx_gets(char *s);
+char *ucx_getline(char *s);
+int32_t ucx_printf(const char *fmt, ...);
+int32_t ucx_sprintf(char *out, const char *fmt, ...);
 
 

@@ -106,7 +106,7 @@ void _irq_handler(uint32_t cause, uint32_t *stack)
 		mtimecmp_w(mtime_r() + 0x1ffff);
 		krnl_dispatcher();
 	} else {
-		_printf("[%x]\n", val);
+		printf("[%x]\n", val);
 		for (;;);
 	}
 
