@@ -6,7 +6,7 @@
 
 #include <ucx.h>
 
-struct list_s *list_create(void)
+struct list_s *ucx_list_create(void)
 {
 	struct list_s *lst;
 
@@ -20,7 +20,7 @@ struct list_s *list_create(void)
 	return lst;
 }
 
-int32_t list_destroy(struct list_s *lst)
+int32_t ucx_list_destroy(struct list_s *lst)
 {
 	if (lst->next)
 		return -1;
@@ -30,7 +30,7 @@ int32_t list_destroy(struct list_s *lst)
 	return 0;
 }
 
-int32_t list_add(struct list_s *lst, void *item)
+int32_t ucx_list_add(struct list_s *lst, void *item)
 {
 	struct list_s *t1, *t2;
 
@@ -52,7 +52,7 @@ int32_t list_add(struct list_s *lst, void *item)
 	}
 }
 
-void *list_peek(struct list_s *lst, int32_t pos)
+void *ucx_list_peek(struct list_s *lst, int32_t pos)
 {
 	struct list_s *t1;
 	int32_t i = 0;
@@ -67,7 +67,7 @@ void *list_peek(struct list_s *lst, int32_t pos)
 	return 0;
 }
 
-int32_t list_poke(struct list_s *lst, void *item, int32_t pos)
+int32_t ucx_list_poke(struct list_s *lst, void *item, int32_t pos)
 {
 	struct list_s *t1;
 	int32_t i = 0;
@@ -83,7 +83,7 @@ int32_t list_poke(struct list_s *lst, void *item, int32_t pos)
 	return -1;
 }
 
-int32_t list_count(struct list_s *lst)
+int32_t ucx_list_count(struct list_s *lst)
 {
 	struct list_s *t1;
 	int32_t i = 0;
@@ -95,7 +95,7 @@ int32_t list_count(struct list_s *lst)
 	return i;
 }
 
-int32_t list_insert(struct list_s *lst, void *item, int32_t pos)
+int32_t ucx_list_insert(struct list_s *lst, void *item, int32_t pos)
 {
 	struct list_s *t1, *t2;
 	int32_t i = 0;
@@ -121,7 +121,7 @@ int32_t list_insert(struct list_s *lst, void *item, int32_t pos)
 	}
 }
 
-int32_t list_remove(struct list_s *lst, int32_t pos)
+int32_t ucx_list_remove(struct list_s *lst, int32_t pos)
 {
 	struct list_s *t1, *t2;
 	int32_t i = 0;
