@@ -224,7 +224,7 @@ void ucx_task_wfi()
 	while (s == kcb_p->ctx_switches);
 }
 
-uint16_t ucx_task_instances()
+uint16_t ucx_task_count()
 {
 	return kcb_p->id + 1;
 }
