@@ -162,13 +162,13 @@ int32_t ucx_task_suspend(uint16_t id)
 	
 	for (;; tcb_ptr = tcb_ptr->tcb_next) {
 		if (tcb_ptr->id == id) {
-			ucx_enter_critical();
+			ucx_critical_enter();
 			if (tcb_ptr->state == TASK_READY || tcb_ptr->state == TASK_RUNNING) {
 				tcb_ptr->state = TASK_SUSPENDED;
-				ucx_leave_critical();
+				ucx_critical_leave();
 				break;
 			} else {
-				ucx_leave_critical();
+				ucx_critical_leave();
 				return -1;
 			}
 		}
@@ -187,13 +187,13 @@ int32_t ucx_task_resume(uint16_t id)
 	
 	for (;; tcb_ptr = tcb_ptr->tcb_next) {
 		if (tcb_ptr->id == id) {
-			ucx_enter_critical();
+			ucx_critical_enter();
 			if (tcb_ptr->state == TASK_SUSPENDED) {
 				tcb_ptr->state = TASK_READY;
-				ucx_leave_critical();
+				ucx_critical_leave();
 				break;
 			} else {
-				ucx_leave_critical();
+				ucx_critical_leave();
 				return -1;
 			}
 		}	
@@ -225,12 +225,12 @@ uint16_t ucx_task_instances()
 	return kcb_p->id + 1;
 }
 
-void ucx_enter_critical()
+void ucx_critical_enter()
 {
 	_timer_disable();
 }
 
-void ucx_leave_critical()
+void ucx_critical_leave()
 {
 	_timer_enable();
 }

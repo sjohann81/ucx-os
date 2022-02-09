@@ -112,9 +112,9 @@ int32_t ucx_pipe_read(struct pipe_s *pipe, char *data, uint16_t size)
 	int32_t byte;
 	
 	while (i < size) {
-		ucx_enter_critical();
+		ucx_critical_enter();
 		byte = ucx_pipe_get(pipe);
-		ucx_leave_critical();
+		ucx_critical_leave();
 		if (byte == -1) {
 			_delay_ms(1);
 			continue;
@@ -134,9 +134,9 @@ int32_t ucx_pipe_write(struct pipe_s *pipe, char *data, uint16_t size)
 	int32_t res;
 	
 	while (i < size) {
-		ucx_enter_critical();
+		ucx_critical_enter();
 		res = ucx_pipe_put(pipe, data[i]);
-		ucx_leave_critical();
+		ucx_critical_leave();
 		if (res == -1) {
 			_delay_ms(1);
 			continue;
