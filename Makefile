@@ -1,7 +1,8 @@
 #ARCH = avr/atmega328p
+#ARCH = avr/atmega2560
 #ARCH = mips/hf-risc
-ARCH = riscv/hf-riscv
-#ARCH = riscv/hf-riscv-e
+#ARCH = riscv/hf-riscv
+ARCH = riscv/hf-riscv-e
 #ARCH = riscv/hf-riscv-llvm
 #ARCH = riscv/riscv32-qemu
 #ARCH = riscv/riscv32-qemu-llvm
@@ -51,7 +52,9 @@ ucx:
 link:
 ifeq ('$(ARCH)', 'avr/atmega328p')
 	$(LD) $(LDFLAGS) -o image.elf *.o
-else
+else ifeq ('$(ARCH)', 'avr/atmega2560')
+	$(LD) $(LDFLAGS) -o image.elf *.o
+else 
 	$(LD) $(LDFLAGS) -T$(LDSCRIPT) -Map image.map -o image.elf *.o
 endif
 	$(DUMP) --disassemble --reloc image.elf > image.lst
