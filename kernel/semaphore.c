@@ -15,7 +15,7 @@ struct sem_s *ucx_seminit(int32_t value)
 	if (!s)
 		return 0;
 	
-	s->sem_queue = queue_create(ucx_task_instances());
+	s->sem_queue = queue_create(ucx_task_count());
 	
 	if ((!s->sem_queue) || (value < 0)) {
 		free(s);
