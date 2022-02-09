@@ -24,7 +24,7 @@ static uint32_t nextpowerof2(uint32_t x)
 	return x;
 }
 
-struct queue_s *queue_create(int32_t size)
+struct queue_s *ucx_queue_create(int32_t size)
 {
 	struct queue_s *q;
 	
@@ -53,7 +53,7 @@ struct queue_s *queue_create(int32_t size)
 	return q;
 }
 
-int32_t queue_destroy(struct queue_s *q)
+int32_t ucx_queue_destroy(struct queue_s *q)
 {
 	if (q->head == q->tail && !q->elem) {
 		free(q->pdata);
@@ -65,12 +65,12 @@ int32_t queue_destroy(struct queue_s *q)
 	return -1;
 }
 
-int32_t queue_count(struct queue_s *q)
+int32_t ucx_queue_count(struct queue_s *q)
 {
 	return q->elem;
 }
 
-int32_t queue_enqueue(struct queue_s *q, void *data)
+int32_t ucx_queue_enqueue(struct queue_s *q, void *data)
 {
 	int32_t tail;
 
@@ -85,7 +85,7 @@ int32_t queue_enqueue(struct queue_s *q, void *data)
 	return 0;
 }
 
-void *queue_dequeue(struct queue_s *q)
+void *ucx_queue_dequeue(struct queue_s *q)
 {
 	int32_t head;
 
@@ -99,7 +99,7 @@ void *queue_dequeue(struct queue_s *q)
 	return q->pdata[head];
 }
 
-void *queue_peek(struct queue_s *q)
+void *ucx_queue_peek(struct queue_s *q)
 {
 	int32_t head;
 

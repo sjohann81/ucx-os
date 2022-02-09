@@ -15,7 +15,7 @@ struct sem_s *ucx_seminit(int32_t value)
 	if (!s)
 		return 0;
 	
-	s->sem_queue = queue_create(ucx_task_count());
+	s->sem_queue = ucx_queue_create(ucx_task_count());
 	
 	if ((!s->sem_queue) || (value < 0)) {
 		free(s);
@@ -31,7 +31,7 @@ struct sem_s *ucx_seminit(int32_t value)
 int32_t ucx_semdestroy(struct sem_s *s)
 {
 	
-	if (queue_destroy(s->sem_queue)) {
+	if (ucx_queue_destroy(s->sem_queue)) {
 		return -1;
 	} else {
 		free(s);
@@ -47,7 +47,7 @@ void ucx_wait(struct sem_s *s)
 	ucx_critical_enter();
 	s->count--;
 	if (s->count < 0) {
-		queue_enqueue(s->sem_queue, kcb_p->tcb_p);
+		ucx_queue_enqueue(s->sem_queue, kcb_p->tcb_p);
 		kcb_p->tcb_p->state = TASK_BLOCKED;
 		ucx_critical_leave();
 		ucx_task_wfi();
@@ -63,7 +63,7 @@ void ucx_signal(struct sem_s *s)
 	ucx_critical_enter();
 	s->count++;
 	if (s->count <= 0) {
-		tcb_sem = queue_dequeue(s->sem_queue);
+		tcb_sem = ucx_queue_dequeue(s->sem_queue);
 		tcb_sem->state = TASK_READY;
 	}
 	ucx_critical_leave();
