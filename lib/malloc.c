@@ -78,3 +78,34 @@ void ucx_heap_init(size_t *zone, uint32_t len)
 	first_free = (struct mem_block_s *)heap;
 	last_free = (struct mem_block_s *)heap;
 }
+
+void *ucx_calloc(uint32_t size, uint32_t type_size)
+{
+	void *buf;
+	
+	buf = (void *)malloc((size * type_size));
+	if (buf)
+		memset(buf, 0, (size * type_size));
+
+	return (void *)buf;
+}
+
+void *ucx_realloc(void *ptr, uint32_t size)
+{
+	void *buf;
+
+	if ((int32_t)size < 0)
+		return NULL;
+		
+	if (ptr == NULL)
+		return (void *)malloc(size);
+
+	buf = (void *)malloc(size);
+	
+	if (buf){
+		memcpy(buf, ptr, size);
+		free(ptr);
+	}
+
+	return (void *)buf;
+}

@@ -410,6 +410,8 @@ void _interrupt_tick(void);
 
 #define malloc(n)			ucx_malloc(n)
 #define free(n)				ucx_free(n)
+#define calloc(n, t)			ucx_calloc(n, t) 
+#define realloc(p, s)			ucx_realloc(p, s)
 
 void krnl_dispatcher(void);
 
