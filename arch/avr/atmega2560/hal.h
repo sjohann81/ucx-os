@@ -60,4 +60,4 @@ void _interrupt_tick(void);
 
 void krnl_dispatcher(void);
 
-#define DEFAULT_GUARD_SIZE	256
+#define DEFAULT_GUARD_SIZE	128
