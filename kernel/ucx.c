@@ -95,10 +95,12 @@ int32_t ucx_task_add(void *task, uint16_t guard_size)
 
 /*
  * First following lines of code are absurd at best. Stack marks are
- * used by krnl_guard_check() to detect stack overflows (sometimes). It is
- * up to the user to define sufficient stack guard space (considering
+ * used by krnl_guard_check() to detect stack overflows on guard space.
+ * It is up to the user to define sufficient stack guard space (considering
  * local thread allocation of the stack for recursion and context
- * saving). We also need the safety pig, just in case.
+ * saving). Stack allocated for data before ucx_task_init() (generally
+ * most stack used by a task) is not verified.
+ * We also need the safety pig, just in case.
                          _ 
  _._ _..._ .-',     _.._(`)) 
 '-. `     '  /-._.-'    ',/ 
