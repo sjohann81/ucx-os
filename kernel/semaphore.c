@@ -6,7 +6,7 @@
 
 #include <ucx.h>
 
-struct sem_s *ucx_seminit(int32_t value)
+struct sem_s *ucx_semcreate(int32_t value)
 {
 	struct sem_s *s;
 	
