@@ -48,20 +48,27 @@ static void krnl_sched_init(int32_t preemptive)
 }
 
 
-/* task dispatcher */
+/* task scheduler and dispatcher */
+
+uint16_t krnl_schedule(void)
+{
+	if (kcb_p->tcb_p->state == TASK_RUNNING)
+		kcb_p->tcb_p->state = TASK_READY;
+	do {
+		kcb_p->tcb_p = kcb_p->tcb_p->tcb_next;
+	} while (kcb_p->tcb_p->state != TASK_READY);
+	kcb_p->tcb_p->state = TASK_RUNNING;
+	kcb_p->ctx_switches++;
+	
+	return kcb_p->tcb_p->id;
+}
 
 void krnl_dispatcher(void)
 {
 	if (!setjmp(kcb_p->tcb_p->context)) {
 		krnl_delay_update();
 		krnl_guard_check();
-		if (kcb_p->tcb_p->state == TASK_RUNNING)
-			kcb_p->tcb_p->state = TASK_READY;
-		do {
-			kcb_p->tcb_p = kcb_p->tcb_p->tcb_next;
-		} while (kcb_p->tcb_p->state != TASK_READY);
-		kcb_p->tcb_p->state = TASK_RUNNING;
-		kcb_p->ctx_switches++;
+		krnl_schedule();
 		_interrupt_tick();
 		longjmp(kcb_p->tcb_p->context, 1);
 	}
@@ -143,15 +150,9 @@ void ucx_task_init(void)
 void ucx_task_yield()
 {
 	if (!setjmp(kcb_p->tcb_p->context)) {
-		krnl_delay_update();
+		krnl_delay_update();		/* TODO: check if we need to run a delay update on yields. maybe only on a non-preemtive execution? */ 
 		krnl_guard_check();
-		if (kcb_p->tcb_p->state == TASK_RUNNING)
-			kcb_p->tcb_p->state = TASK_READY;
-		do {
-			kcb_p->tcb_p = kcb_p->tcb_p->tcb_next;
-		} while (kcb_p->tcb_p->state != TASK_READY);
-		kcb_p->tcb_p->state = TASK_RUNNING;
-		kcb_p->ctx_switches++;
+		krnl_schedule();
 		longjmp(kcb_p->tcb_p->context, 1);
 	}
 }
