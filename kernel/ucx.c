@@ -55,8 +55,11 @@ uint16_t krnl_schedule(void)
 	if (kcb_p->tcb_p->state == TASK_RUNNING)
 		kcb_p->tcb_p->state = TASK_READY;
 	do {
-		kcb_p->tcb_p = kcb_p->tcb_p->tcb_next;
-	} while (kcb_p->tcb_p->state != TASK_READY);
+		do {
+			kcb_p->tcb_p = kcb_p->tcb_p->tcb_next;
+		} while (kcb_p->tcb_p->state != TASK_READY);
+	} while (--kcb_p->tcb_p->priority & 0xff);
+	kcb_p->tcb_p->priority |= (kcb_p->tcb_p->priority >> 8) & 0xff;
 	kcb_p->tcb_p->state = TASK_RUNNING;
 	kcb_p->ctx_switches++;
 	
@@ -96,6 +99,7 @@ int32_t ucx_task_add(void *task, uint16_t guard_size)
 	kcb_p->tcb_p->guard_sz = guard_size;
 	kcb_p->tcb_p->id = kcb_p->id++;
 	kcb_p->tcb_p->state = TASK_STOPPED;
+	kcb_p->tcb_p->priority = TASK_NORMAL_PRIO;
 	
 	return 0;
 }
@@ -210,6 +214,33 @@ int32_t ucx_task_resume(uint16_t id)
 	}
 	if (kcb_p->tcb_p->id == id)
 		ucx_task_yield();
+	
+	return 0;
+}
+
+int32_t ucx_task_priority(uint16_t id, uint16_t priority)
+{
+	struct tcb_s *tcb_ptr = kcb_p->tcb_first;
+
+	switch (priority) {
+	case TASK_CRIT_PRIO:
+	case TASK_HIGH_PRIO:
+	case TASK_NORMAL_PRIO:
+	case TASK_LOW_PRIO:
+	case TASK_IDLE_PRIO:
+		break;
+	default:
+		return -1;
+	}
+	
+	for (;; tcb_ptr = tcb_ptr->tcb_next) {
+		if (tcb_ptr->id == id) {
+			tcb_ptr->priority = priority;
+			break;
+		}
+		if (tcb_ptr->tcb_next == kcb_p->tcb_first)
+			return -1;
+	}
 	
 	return 0;
 }
