@@ -79,12 +79,12 @@ Each architecture HAL defines a default value for the guard space in a macro (DE
 | ucx_task_delay()*	| ucx_signal()*		| ucx_pipe_size()*	| ucx_list_peek()	| ucx_strncat()		|			|
 | ucx_task_suspend()*	|			| ucx_pipe_get()*	| ucx_list_poke()	| ucx_strcmp()		|			|
 | ucx_task_resume()*	|			| ucx_pipe_put()*	| ucx_list_count()	| ucx_strncmp()		|			|
-| ucx_task_id()*	|			| ucx_pipe_read()*	| ucx_list_insert()	| ucx_strstr()		|			|
-| ucx_task_wfi()*	|			| ucx_pipe_write()*	| ucx_list_remove()	| ucx_strlen()		|			|
-| ucx_task_count()*	|			|			| ucx_queue_create()	| ucx_strchr()		|			|
-| ucx_critical_enter()*	|			|			| ucx_queue_destroy()	| ucx_strpbrk()		|			|
-| ucx_critical_leave()*	|			|			| ucx_queue_count()	| ucx_strsep()		|			|
-| 			|			|			| ucx_queue_enqueue()	| ucx_strtok()		|			|
+| ucx_task_priority()*	|			| ucx_pipe_read()*	| ucx_list_insert()	| ucx_strstr()		|			|
+| ucx_task_id()*	|			| ucx_pipe_write()*	| ucx_list_remove()	| ucx_strlen()		|			|
+| ucx_task_wfi()*	|			|			| ucx_queue_create()	| ucx_strchr()		|			|
+| ucx_task_count()*	|			|			| ucx_queue_destroy()	| ucx_strpbrk()		|			|
+| ucx_critical_enter()*	|			|			| ucx_queue_count()	| ucx_strsep()		|			|
+| ucx_critical_leave()*	|			|			| ucx_queue_enqueue()	| ucx_strtok()		|			|
 | 			|			|			| ucx_queue_dequeue()	| ucx_strtol()		|			|
 | 			|			|			| ucx_queue_peek()	| ucx_memcpy()		|			|
 | 			|			|			|			| ucx_memmove()		|			|
@@ -125,6 +125,8 @@ Each architecture HAL defines a default value for the guard space in a macro (DE
 ##### ucx_task_suspend()
 
 ##### ucx_task_resume()
+
+##### ucx_task_priority()
 
 ##### ucx_task_id()
 
