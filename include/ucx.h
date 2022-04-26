@@ -18,15 +18,6 @@
 /* task states */
 enum {TASK_STOPPED, TASK_READY, TASK_RUNNING, TASK_BLOCKED, TASK_SUSPENDED};
 
-struct rt_par_s {
-	uint16_t period;
-	uint16_t capacity;
-	uint16_t deadline;
-	uint16_t rem_period;
-	uint16_t rem_capacity;
-	uint16_t rem_deadline;
-};
-
 /* task control block node */
 struct tcb_s {
 	struct tcb_s *tcb_next;
