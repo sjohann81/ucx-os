@@ -66,6 +66,10 @@ endif
 #	hexdump -v -e '4/1 "%02x" "\n"' image.bin > image.txt
 
 ## applications
+t1: hal ucx
+	$(CC) $(CFLAGS) -o t1.o app/t1.c
+	@$(MAKE) --no-print-directory link
+
 delay: hal ucx
 	$(CC) $(CFLAGS) -o delay.o app/delay.c
 	@$(MAKE) --no-print-directory link

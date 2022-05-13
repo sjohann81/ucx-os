@@ -50,6 +50,66 @@ static void krnl_sched_init(int32_t preemptive)
 
 /* task scheduler and dispatcher */
 
+uint16_t krnl_rt_schedule(void)
+{
+	struct tcb_s *tcb = kcb_p->tcb_first;
+	uint16_t deadline = 0xFFFF;
+	uint16_t id = 0xFFFF;
+	
+	do {
+		if (tcb->p_params) {
+			/* decrementa capacidade se a tarefa periodica está executando */
+			if (tcb->state == TASK_RUNNING) {
+				tcb->p_params->rem_capacity--;
+				tcb->state = TASK_READY;
+			}
+
+			/* decrementa deadline */
+			if (tcb->p_params->rem_deadline > 0) {
+				tcb->p_params->rem_deadline--;
+			} else {
+				/* se o deadline for zero e ainda há capacidade (deadline_miss) */
+				if (tcb->p_params->rem_capacity > 0) kcb_p->dln_miss++;
+			}
+
+			/* decrementa periodo */
+			if (tcb->p_params->rem_period > 0) {
+				tcb->p_params->rem_period--;
+			} else {
+				/* restaura capacidade, deadline e periodo */
+				tcb->p_params->rem_capacity = tcb->p_params->capacity;
+				tcb->p_params->rem_deadline = tcb->p_params->deadline;
+				tcb->p_params->rem_period = tcb->p_params->period;
+			}
+
+			/* verifica se a tarefa periodica ainda tem capacidade */
+			if (tcb->p_params->rem_capacity > 0) {
+				/* testa o deadline para eleger a tarefa com menor deadline (tcb) */
+				if (deadline > tcb->p_params->rem_deadline) {
+					deadline = tcb->p_params->rem_deadline;
+					id = tcb->id;
+				}
+			}
+		}
+	
+		/* aponta para a proxima tarefa da fila */
+		tcb = tcb->tcb_next;
+	} while (tcb != kcb_p->tcb_first);
+
+	/* verifica se foi eleita alguma tarefa periodica */
+	if (id != 0xFFFF) {
+		/* move o ponteiro do kernel para tarefa periodica que deve executar */
+		while (kcb_p->tcb_p->id != id) kcb_p->tcb_p = kcb_p->tcb_p->tcb_next;
+
+		kcb_p->tcb_p->state = TASK_RUNNING;
+		kcb_p->ctx_switches++;
+		printf("tp %d %d\n", kcb_p->tcb_p->id, kcb_p->tcb_p->p_params->rem_deadline);	
+		return kcb_p->tcb_p->id;
+	}
+
+	return 0xFFFF;
+}
+
 uint16_t krnl_schedule(void)
 {
 	if (kcb_p->tcb_p->state == TASK_RUNNING)
@@ -57,12 +117,13 @@ uint16_t krnl_schedule(void)
 	do {
 		do {
 			kcb_p->tcb_p = kcb_p->tcb_p->tcb_next;
-		} while (kcb_p->tcb_p->state != TASK_READY);
+		} while ((kcb_p->tcb_p->state != TASK_READY) && (kcb_p->tcb_p->p_params));
 	} while (--kcb_p->tcb_p->priority & 0xff);
 	kcb_p->tcb_p->priority |= (kcb_p->tcb_p->priority >> 8) & 0xff;
 	kcb_p->tcb_p->state = TASK_RUNNING;
 	kcb_p->ctx_switches++;
 	
+	printf("ta %d\n", kcb_p->tcb_p->id);
 	return kcb_p->tcb_p->id;
 }
 
@@ -71,7 +132,7 @@ void krnl_dispatcher(void)
 	if (!setjmp(kcb_p->tcb_p->context)) {
 		krnl_delay_update();
 		krnl_guard_check();
-		krnl_schedule();
+		if (krnl_rt_schedule() == 0xFFFF) krnl_schedule();
 		_interrupt_tick();
 		longjmp(kcb_p->tcb_p->context, 1);
 	}
@@ -100,7 +161,38 @@ int32_t ucx_task_add(void *task, uint16_t guard_size)
 	kcb_p->tcb_p->id = kcb_p->id++;
 	kcb_p->tcb_p->state = TASK_STOPPED;
 	kcb_p->tcb_p->priority = TASK_NORMAL_PRIO;
+	printf("add aperiodic task %ld\n", kcb_p->tcb_p->id);
+	return 0;
+}
+
+int32_t ucx_task_add_periodic(void *task, uint16_t period, uint16_t capacity, uint16_t deadline, uint16_t guard_size)
+{
+	struct tcb_s *tcb_last = kcb_p->tcb_p;
+	struct rt_par_s *p_params = (struct rt_par_s *)malloc(sizeof(struct rt_par_s));
+	p_params->period = p_params->rem_period = period;
+	p_params->capacity = p_params->rem_capacity = capacity;
+	p_params->deadline = p_params->rem_deadline = deadline;
 	
+	kcb_p->tcb_p = (struct tcb_s *)malloc(sizeof(struct tcb_s));
+	if (kcb_p->tcb_first == 0)
+		kcb_p->tcb_first = kcb_p->tcb_p;
+
+	if (!kcb_p->tcb_p)
+		return -1;
+
+	if (tcb_last)
+		tcb_last->tcb_next = kcb_p->tcb_p;
+	kcb_p->tcb_p->tcb_next = kcb_p->tcb_first;
+	kcb_p->tcb_p->task = task;
+	kcb_p->tcb_p->delay = 0;
+	kcb_p->tcb_p->guard_sz = guard_size;
+	kcb_p->tcb_p->id = kcb_p->id++;
+	kcb_p->tcb_p->state = TASK_STOPPED;
+	kcb_p->tcb_p->priority = TASK_NORMAL_PRIO;
+	/* */
+	kcb_p->tcb_p->p_params = p_params;
+	printf("add  periodic task %ld\n", kcb_p->tcb_p->id);
+
 	return 0;
 }
 
@@ -263,6 +355,26 @@ uint16_t ucx_task_count()
 	return kcb_p->id + 1;
 }
 
+uint32_t ucx_context_switch()
+{
+	return kcb_p->ctx_switches;
+}
+
+uint32_t ucx_deadline_misses()
+{
+	return kcb_p->dln_miss;
+}
+
+uint32_t ucx_job_executed()
+{
+	return kcb_p->job_exec;
+}
+
+uint32_t ucx_period_executed()
+{
+	return kcb_p->prd_exec;
+}
+
 void ucx_critical_enter()
 {
 	_timer_disable();
@@ -285,6 +397,9 @@ int32_t main(void)
 	kcb_p->tcb_p = 0;
 	kcb_p->tcb_first = 0;
 	kcb_p->ctx_switches = 0;
+	kcb_p->dln_miss = 0;
+	kcb_p->job_exec = 0;
+	kcb_p->prd_exec = 0;
 	kcb_p->id = 0;
 	
 	printf("UCX/OS boot on %s\n", __ARCH__);
