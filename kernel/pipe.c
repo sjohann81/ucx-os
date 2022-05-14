@@ -78,31 +78,36 @@ int32_t ucx_pipe_size(struct pipe_s *pipe)
 	return pipe->size;
 }
 
-static int32_t ucx_pipe_get(struct pipe_s *pipe)
+int32_t ucx_pipe_get(struct pipe_s *pipe)
 {
-	int32_t head;
+	int32_t head, data;
 
 	if (pipe->head == pipe->tail)
 		return -1;
 
+	ucx_critical_enter();	
 	head = pipe->head;
 	pipe->head = (pipe->head + 1) & pipe->mask;
+	data = pipe->data[head];
 	pipe->size--;
+	ucx_critical_leave();
 
-	return pipe->data[head];
+	return data;
 }
 
-static int32_t ucx_pipe_put(struct pipe_s *pipe, char data)
+int32_t ucx_pipe_put(struct pipe_s *pipe, char data)
 {
 	int32_t tail;
 
 	tail = (pipe->tail + 1) & pipe->mask;
 	if (tail == pipe->head)
 		return -1;
-
+		
+	ucx_critical_enter();
 	pipe->data[pipe->tail] = data;
 	pipe->tail = tail;
 	pipe->size++;
+	ucx_critical_leave();
 
 	return 0;
 }
@@ -114,13 +119,11 @@ int32_t ucx_pipe_read(struct pipe_s *pipe, char *data, uint16_t size)
 	int32_t byte;
 	
 	while (i < size) {
-		ucx_critical_enter();
 		byte = ucx_pipe_get(pipe);
-		ucx_critical_leave();
-		if (byte == -1) {
-			_delay_ms(1);
+
+		if (byte == -1)
 			continue;
-		}
+
 		data[i] = byte;
 		i++;
 	}
@@ -136,13 +139,11 @@ int32_t ucx_pipe_write(struct pipe_s *pipe, char *data, uint16_t size)
 	int32_t res;
 	
 	while (i < size) {
-		ucx_critical_enter();
 		res = ucx_pipe_put(pipe, data[i]);
-		ucx_critical_leave();
-		if (res == -1) {
-			_delay_ms(1);
+
+		if (res == -1)
 			continue;
-		}
+
 		i++;
 	}
 
