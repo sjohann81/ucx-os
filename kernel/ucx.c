@@ -52,49 +52,56 @@ static void krnl_sched_init(int32_t preemptive)
 
 uint16_t krnl_rt_schedule(void)
 {
-	struct tcb_s *tcb = kcb_p->tcb_first;
+	struct tcb_s *tcb = kcb_p->tcb_p;
 	uint16_t deadline = 0xFFFF;
 	uint16_t id = 0xFFFF;
 	
-	do {
-		if (tcb->p_params) {
-			/* decrementa capacidade se a tarefa periodica está executando */
-			if (tcb->state == TASK_RUNNING) {
-				tcb->p_params->rem_capacity--;
-				tcb->state = TASK_READY;
-			}
+	/* move a tarefa executando para estado ready */
+	if (kcb_p->tcb_p->state == TASK_RUNNING) {
+		/* decrementa capacidade se a tarefa periodica está executando */
+		if (kcb_p->tcb_p->p_params) {
+			/* condição para ignorar primeira execução */
+			if (kcb_p->ctx_switches != 0) kcb_p->tcb_p->p_params->rem_capacity--;
+		}
+		kcb_p->tcb_p->state = TASK_READY;
+	}
 
+	do {
+		if (kcb_p->tcb_p->p_params) {
 			/* decrementa deadline */
-			if (tcb->p_params->rem_deadline > 0) {
-				tcb->p_params->rem_deadline--;
+			if (kcb_p->tcb_p->p_params->rem_deadline > 0) {
+				/* condição para ignorar primeira execução */
+				if (kcb_p->ctx_switches != 0) kcb_p->tcb_p->p_params->rem_deadline--;
 			} else {
 				/* se o deadline for zero e ainda há capacidade (deadline_miss) */
-				if (tcb->p_params->rem_capacity > 0) kcb_p->dln_miss++;
+				if (kcb_p->tcb_p->p_params->rem_capacity > 0) kcb_p->dln_miss++;
 			}
 
 			/* decrementa periodo */
-			if (tcb->p_params->rem_period > 0) {
-				tcb->p_params->rem_period--;
+			if (kcb_p->tcb_p->p_params->rem_period > 0) {
+				/* condição para ignorar primeira execução */
+				if (kcb_p->ctx_switches != 0) kcb_p->tcb_p->p_params->rem_period--;
 			} else {
 				/* restaura capacidade, deadline e periodo */
-				tcb->p_params->rem_capacity = tcb->p_params->capacity;
-				tcb->p_params->rem_deadline = tcb->p_params->deadline;
-				tcb->p_params->rem_period = tcb->p_params->period;
+				kcb_p->tcb_p->p_params->rem_capacity = kcb_p->tcb_p->p_params->capacity;
+				kcb_p->tcb_p->p_params->rem_deadline = kcb_p->tcb_p->p_params->deadline;
+				kcb_p->tcb_p->p_params->rem_period = kcb_p->tcb_p->p_params->period;
+				kcb_p->prd_exec++;
 			}
 
 			/* verifica se a tarefa periodica ainda tem capacidade */
-			if (tcb->p_params->rem_capacity > 0) {
-				/* testa o deadline para eleger a tarefa com menor deadline (tcb) */
-				if (deadline > tcb->p_params->rem_deadline) {
-					deadline = tcb->p_params->rem_deadline;
-					id = tcb->id;
+			if (kcb_p->tcb_p->p_params->rem_capacity > 0) {
+				/* testa o deadline para eleger a tarefa com menor deadline (kcb_p->tcb_p) */
+				if (deadline > kcb_p->tcb_p->p_params->rem_deadline) {
+					deadline = kcb_p->tcb_p->p_params->rem_deadline;
+					id = kcb_p->tcb_p->id;
 				}
 			}
 		}
 	
 		/* aponta para a proxima tarefa da fila */
-		tcb = tcb->tcb_next;
-	} while (tcb != kcb_p->tcb_first);
+		kcb_p->tcb_p = kcb_p->tcb_p->tcb_next;
+	} while (kcb_p->tcb_p != tcb);
 
 	/* verifica se foi eleita alguma tarefa periodica */
 	if (id != 0xFFFF) {
@@ -103,7 +110,8 @@ uint16_t krnl_rt_schedule(void)
 
 		kcb_p->tcb_p->state = TASK_RUNNING;
 		kcb_p->ctx_switches++;
-		printf("tp %d %d\n", kcb_p->tcb_p->id, kcb_p->tcb_p->p_params->rem_deadline);	
+		kcb_p->job_exec++;
+		printf("tp %d %d %d\n", kcb_p->tcb_p->id, kcb_p->tcb_p->p_params->rem_capacity, kcb_p->tcb_p->p_params->rem_deadline);	
 		return kcb_p->tcb_p->id;
 	}
 
@@ -117,8 +125,9 @@ uint16_t krnl_schedule(void)
 	do {
 		do {
 			kcb_p->tcb_p = kcb_p->tcb_p->tcb_next;
-		} while ((kcb_p->tcb_p->state != TASK_READY) && (kcb_p->tcb_p->p_params));
+		} while ((kcb_p->tcb_p->state != TASK_READY) || (kcb_p->tcb_p->p_params));
 	} while (--kcb_p->tcb_p->priority & 0xff);
+
 	kcb_p->tcb_p->priority |= (kcb_p->tcb_p->priority >> 8) & 0xff;
 	kcb_p->tcb_p->state = TASK_RUNNING;
 	kcb_p->ctx_switches++;
@@ -161,6 +170,7 @@ int32_t ucx_task_add(void *task, uint16_t guard_size)
 	kcb_p->tcb_p->id = kcb_p->id++;
 	kcb_p->tcb_p->state = TASK_STOPPED;
 	kcb_p->tcb_p->priority = TASK_NORMAL_PRIO;
+	kcb_p->tcb_p->p_params = 0;
 	printf("add aperiodic task %ld\n", kcb_p->tcb_p->id);
 	return 0;
 }
