@@ -110,15 +110,15 @@ Each architecture HAL defines a default value for the guard space in a macro (DE
 
 ##### ucx_task_add()
 
-- *Parameters: void \*task, uint16_t guard_size. Returns: int32_t (0, success or -1, fail).* Adds an application task to the system with a TASK_STOPPED state. *\*task* is a pointer to a task function and *guard_size* is a stack reservation amount for recursion and dynamic allocation during task execution. *guard_size* does not include the amount of memory used for local storage allocation (which is automatically allocated in the stack).
+- *Parameters: void \*task, uint16_t guard_size. Returns: int32_t (0, success or -1, fail).* Adds an application task to the system with a TASK_STOPPED state. *\*task* is a pointer to a task function and *guard_size* is a stack reservation amount for recursion and dynamic allocation during task execution. *guard_size* does not include the amount of memory used for local storage allocation (which is automatically allocated in the stack). This function is called during system initialization inside *app_main* and should not be called inside a task. 
 
 ##### ucx_task_init()
 
-- *Parameters: none. Returns: nothing.* Initializes a task for execution, putting it in the TASK_READY or TASK_RUNNING state. This function is called once inside a task, after local storage declaration and before the main task loop.
+- *Parameters: none. Returns: nothing.* Initializes a task for execution, putting it in the TASK_READY or TASK_RUNNING state. This function is called once inside a task, after local storage declaration and before the main task loop and should not be called outside the scope of a task.
 
 ##### ucx_task_yield()
 
-- *Parameters: none. Returns: nothing.* Yields que processor voluntarily (non-preemptive task reschedule), changing its state to TASK_READY. A task invoking this function gives up execution and calls the scheduler, as it is put at the end of the tasks circular queue (round-robin) and rescheduled to run again in the future.
+- *Parameters: none. Returns: nothing.* Yields que processor voluntarily (non-preemptive task reschedule), changing its state to TASK_READY. A task invoking this function gives up execution and calls the scheduler. As a consequence, it is rescheduled to run again in the future.
 
 ##### ucx_task_delay()
 
