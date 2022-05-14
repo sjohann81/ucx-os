@@ -20,7 +20,35 @@ READ = avr-objread
 OBJ = avr-objcopy
 SIZE = avr-size
 
+SERIAL_PROG = /dev/ttyACM0
+AVRDUDE_CONFIG=/usr/local/avr/gcc/etc/avrdude.conf
+AVRDUDE_PART=m2560
+
+#PROGRAMMER = bsd
+#PROGRAMMER = usbtiny
+#PROGRAMMER = dasa -P $(SERIAL_PROG)
+#PROGRAMMER = usbasp
+#PROGRAMMER = arduino -P $(SERIAL_PROG)
+PROGRAMMER = wiring -P $(SERIAL_PROG) -D
+
 hal:
 	$(CC) $(CFLAGS) \
 		$(ARCH_DIR)/uart.c \
 		$(ARCH_DIR)/hal.c 
+
+flash:
+	avrdude -C $(AVRDUDE_CONFIG) -p $(AVRDUDE_PART) -U flash:w:code.hex -y -c $(PROGRAMMER)
+
+# external high frequency crystal
+fuses:
+	avrdude -C $(AVRDUDE_CONFIG) -p $(AVRDUDE_PART) -U lfuse:w:0xcf:m -U hfuse:w:0xd9:m -U efuse:w:0x07:m -c $(PROGRAMMER)
+
+# internal rc osc @ 1MHz, original factory config
+fuses_osc:
+	avrdude -C $(AVRDUDE_CONFIG) -p $(AVRDUDE_PART) -U lfuse:w:0x62:m -U hfuse:w:0xd9:m -U efuse:w:0x07:m -c $(PROGRAMMER)
+
+serial_sim:
+	socat -d -d  pty,link=/tmp/ttyS10,raw,echo=0 pty,link=/tmp/ttyS11,raw,echo=0
+
+test:
+	avrdude -C $(AVRDUDE_CONFIG) -p $(AVRDUDE_PART) -c $(PROGRAMMER)
