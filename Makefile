@@ -110,5 +110,10 @@ test_fixed: hal ucx
 	$(CC) $(CFLAGS) -o test_fixed.o app/test_fixed.c
 	@$(MAKE) --no-print-directory link
 
+timer: hal ucx
+	$(CC) $(CFLAGS) -o timer.o app/timer.c
+	@$(MAKE) --no-print-directory link
+
+
 clean:
 	rm -rf *.o *~ *.elf *.bin *.cnt *.lst *.sec *.txt *.map *.hex
