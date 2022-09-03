@@ -46,8 +46,9 @@ ucx:
 		$(SRC_DIR)/lib/queue.c \
 		$(SRC_DIR)/kernel/pipe.c \
 		$(SRC_DIR)/kernel/semaphore.c \
+		$(SRC_DIR)/kernel/task.c \
 		$(SRC_DIR)/kernel/ucx.c
-
+		
 ## kernel + application link
 link:
 ifeq ('$(ARCH)', 'avr/atmega328p')

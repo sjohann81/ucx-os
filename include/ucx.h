@@ -5,6 +5,7 @@
 #include <queue.h>
 #include <pipe.h>
 #include <semaphore.h>
+#include <timer.h>
 #include <malloc.h>
 #include <stdarg.h>
 
@@ -39,7 +40,17 @@ struct kcb_s {
 	uint16_t id;
 };
 
-/* kernel base API */
+extern struct kcb_s *kcb_p;
+
+/* kernel API */
+void krnl_guard_check(void);
+void krnl_delay_update(void);
+void krnl_sched_init(int32_t preemptive);
+uint16_t krnl_schedule(void);
+void krnl_dispatcher(void);
+void ucx_critical_enter();
+void ucx_critical_leave();
+
 int32_t ucx_task_add(void *task, uint16_t guard_size);
 void ucx_task_init();
 void ucx_task_yield();
@@ -50,6 +61,4 @@ int32_t ucx_task_priority(uint16_t id, uint16_t priority);
 uint16_t ucx_task_id();
 void ucx_task_wfi();
 uint16_t ucx_task_count();
-void ucx_critical_enter();
-void ucx_critical_leave();
 int32_t app_main();

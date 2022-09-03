@@ -63,7 +63,7 @@ A priority round-robin algorithm performs the scheduling of tasks. By default, a
 
 Memory used for stack inside a task function is allocated from a global stack and divided in two parts. The first part is generally used for task data structures and local task variables, and it is allocated during the first execution of a task. The second part, also known as *guard space*, is allocated after task initialization (after a call to ucx_task_init()). The size of this region is specified when a task is added so it can't be changed. During execution, the guard space will be used for dynamic stack allocation during function calls, temporary variables and also to keep processor state during interrupts.
 
-Each architecture HAL defines a default value for the guard space in a macro (DEFAULT_GUARD_SIZE). Memory constrained architectures, such as the ATMEGA328p have a very limited default guard space of 128 bytes, but other architectures have more (2kB for example). Different tasks may have different guard space sizes. It is up to the user to specify such value according to the application needs.
+Each architecture HAL defines a default value for the guard space in a macro (DEFAULT_GUARD_SIZE). Memory constrained architectures, such as the ATMEGA328p have a very limited default guard space of 256 bytes, but other architectures have more (2kB for example). Different tasks may have different guard space sizes. It is up to the user to specify such value according to the application needs.
 
 ### Task synchronization (pipes, semaphores)
 
@@ -85,8 +85,8 @@ Each architecture HAL defines a default value for the guard space in a macro (DE
 | ucx_task_id()*	|			| ucx_pipe_write()*	| ucx_list_remove()	| ucx_strlen()		|			|
 | ucx_task_wfi()*	|			|			| ucx_queue_create()	| ucx_strchr()		|			|
 | ucx_task_count()*	|			|			| ucx_queue_destroy()	| ucx_strpbrk()		|			|
-| ucx_critical_enter()*	|			|			| ucx_queue_count()	| ucx_strsep()		|			|
-| ucx_critical_leave()*	|			|			| ucx_queue_enqueue()	| ucx_strtok()		|			|
+| 			|			|			| ucx_queue_count()	| ucx_strsep()		|			|
+| 			|			|			| ucx_queue_enqueue()	| ucx_strtok()		|			|
 | 			|			|			| ucx_queue_dequeue()	| ucx_strtol()		|			|
 | 			|			|			| ucx_queue_peek()	| ucx_memcpy()		|			|
 | 			|			|			|			| ucx_memmove()		|			|
@@ -135,10 +135,6 @@ Each architecture HAL defines a default value for the guard space in a macro (DE
 ##### ucx_task_wfi()
 
 ##### ucx_task_count()
-
-##### ucx_critical_enter()
-
-##### ucx_critical_leave()
 
 #### Semaphore
 
