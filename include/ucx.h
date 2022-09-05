@@ -43,13 +43,15 @@ struct kcb_s {
 extern struct kcb_s *kcb_p;
 
 /* kernel API */
+
+#define CRITICAL_ENTER		_timer_disable
+#define CRITICAL_LEAVE		_timer_enable
+
 void krnl_guard_check(void);
 void krnl_delay_update(void);
 void krnl_sched_init(int32_t preemptive);
 uint16_t krnl_schedule(void);
 void krnl_dispatcher(void);
-void ucx_critical_enter();
-void ucx_critical_leave();
 
 int32_t ucx_task_add(void *task, uint16_t guard_size);
 void ucx_task_init();

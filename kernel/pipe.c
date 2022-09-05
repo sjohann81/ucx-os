@@ -66,11 +66,11 @@ int32_t ucx_pipe_destroy(struct pipe_s *pipe)
 
 void ucx_pipe_flush(struct pipe_s *pipe)
 {
-	ucx_critical_enter();
+	CRITICAL_ENTER();
 	pipe->head = 0;
 	pipe->tail = 0;
 	pipe->size = 0;
-	ucx_critical_leave();
+	CRITICAL_LEAVE();
 }
 
 int32_t ucx_pipe_size(struct pipe_s *pipe)
@@ -85,12 +85,12 @@ int32_t ucx_pipe_get(struct pipe_s *pipe)
 	if (pipe->head == pipe->tail)
 		return -1;
 
-	ucx_critical_enter();	
+	CRITICAL_ENTER();	
 	head = pipe->head;
 	pipe->head = (pipe->head + 1) & pipe->mask;
 	data = pipe->data[head];
 	pipe->size--;
-	ucx_critical_leave();
+	CRITICAL_LEAVE();
 
 	return data;
 }
@@ -103,11 +103,11 @@ int32_t ucx_pipe_put(struct pipe_s *pipe, char data)
 	if (tail == pipe->head)
 		return -1;
 		
-	ucx_critical_enter();
+	CRITICAL_ENTER();
 	pipe->data[pipe->tail] = data;
 	pipe->tail = tail;
 	pipe->size++;
-	ucx_critical_leave();
+	CRITICAL_LEAVE();
 
 	return 0;
 }

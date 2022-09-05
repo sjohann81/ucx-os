@@ -44,15 +44,15 @@ void ucx_wait(struct sem_s *s)
 {
 	extern struct kcb_s *kcb_p;
 	
-	ucx_critical_enter();
+	CRITICAL_ENTER();
 	s->count--;
 	if (s->count < 0) {
 		ucx_queue_enqueue(s->sem_queue, kcb_p->tcb_p);
 		kcb_p->tcb_p->state = TASK_BLOCKED;
-		ucx_critical_leave();
+		CRITICAL_LEAVE();
 		ucx_task_wfi();
 	} else {
-		ucx_critical_leave();
+		CRITICAL_LEAVE();
 	}
 }
 
@@ -60,11 +60,11 @@ void ucx_signal(struct sem_s *s)
 {
 	struct tcb_s *tcb_sem; 
 	
-	ucx_critical_enter();
+	CRITICAL_ENTER();
 	s->count++;
 	if (s->count <= 0) {
 		tcb_sem = ucx_queue_dequeue(s->sem_queue);
 		tcb_sem->state = TASK_READY;
 	}
-	ucx_critical_leave();
+	CRITICAL_LEAVE();
 }

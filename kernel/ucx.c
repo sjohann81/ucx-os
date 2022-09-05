@@ -79,19 +79,6 @@ void krnl_dispatcher(void)
 }
 
 
-/* critical section functions */
-
-void ucx_critical_enter()
-{
-	_timer_disable();
-}
-
-void ucx_critical_leave()
-{
-	_timer_enable();
-}
-
-
 /* main() function, called from the C runtime */
 
 int32_t main(void)

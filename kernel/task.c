@@ -94,13 +94,13 @@ int32_t ucx_task_suspend(uint16_t id)
 	
 	for (;; tcb_ptr = tcb_ptr->tcb_next) {
 		if (tcb_ptr->id == id) {
-			ucx_critical_enter();
+			CRITICAL_ENTER();
 			if (tcb_ptr->state == TASK_READY || tcb_ptr->state == TASK_RUNNING) {
 				tcb_ptr->state = TASK_SUSPENDED;
-				ucx_critical_leave();
+				CRITICAL_LEAVE();
 				break;
 			} else {
-				ucx_critical_leave();
+				CRITICAL_LEAVE();
 				return -1;
 			}
 		}
@@ -119,13 +119,13 @@ int32_t ucx_task_resume(uint16_t id)
 	
 	for (;; tcb_ptr = tcb_ptr->tcb_next) {
 		if (tcb_ptr->id == id) {
-			ucx_critical_enter();
+			CRITICAL_ENTER();
 			if (tcb_ptr->state == TASK_SUSPENDED) {
 				tcb_ptr->state = TASK_READY;
-				ucx_critical_leave();
+				CRITICAL_LEAVE();
 				break;
 			} else {
-				ucx_critical_leave();
+				CRITICAL_LEAVE();
 				return -1;
 			}
 		}	
