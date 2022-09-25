@@ -16,9 +16,11 @@ Currently, the kernel supports the following architectures:
 - ATMEGA328p
 - ATMEGA2560
 
+
 ## Supported toolchains
 
 Different toolchains based on GCC and LLVM can be used to build the kernel and applications. If you want to build a cross-compiler from scratch, check the *sjohann81/toolchains* repository for build scripts.
+
 
 ## Features
 
@@ -28,6 +30,7 @@ Different toolchains based on GCC and LLVM can be used to build the kernel and a
 - Task synchronization using semaphores or pipeline channels;
 - Dynamic memory allocation;
 - Small LibC, queue and list libraries.
+
 
 ## Building example applications
 
@@ -44,6 +47,7 @@ For example, to build an application to run on Qemu (32 bit RISC-V) architecture
 - Run the application with '*make run_riscv32*' (type 'Ctrl+a x' to quit the emulator);
 
 For other emulators, the binary image may need to be passed as a parameter as there are no rules in the makefile to run the application in this case. For boards such as the Arduino Nano (ATMEGA328p), the binary can be uploaded via a serial port. In the last case, plug the board, check the created virtual serial interface name in */dev/* and verify if the *SERIAL_DEVICE* variable is configured accordingly. To upload the binary to the board, type *make load*.
+
 
 ## Programming model
 
@@ -69,42 +73,25 @@ Each architecture HAL defines a default value for the guard space in a macro (DE
 
 (TODO)
 
+
+## APIs
+
 ### Kernel API
 
-* System calls (implemented as library calls)
+System calls are divided in three classes. The *task* class of system calls are used for task control and information. The *semaphore* class of system calls are used for task synchronization and the *pipe* class of system calls are used as a basic communication mechanism between tasks. At this moment, system calls are implemented as simple library calls, but this will change in the near future for architectures that suport hardware exceptions and different modes of operation.
 
-| Task			| Semaphore		| Pipe			| List / Queue		| LibC			| Utils			|
-| :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- |
-| ucx_task_add()*	| ucx_sem_create()*	| ucx_pipe_create()*	| ucx_list_create()	| ucx_strcpy()		| ucx_printhex()	|
-| ucx_task_init()*	| ucx_sem_destroy()*	| ucx_pipe_destroy()*	| ucx_list_destroy()	| ucx_strncpy()		| ucx_hexdump()		|
-| ucx_task_yield()*	| ucx_wait()*		| ucx_pipe_flush()*	| ucx_list_add()	| ucx_strcat()		|			|
-| ucx_task_delay()*	| ucx_signal()*		| ucx_pipe_size()*	| ucx_list_peek()	| ucx_strncat()		|			|
-| ucx_task_suspend()*	|			| ucx_pipe_get()*	| ucx_list_poke()	| ucx_strcmp()		|			|
-| ucx_task_resume()*	|			| ucx_pipe_put()*	| ucx_list_count()	| ucx_strncmp()		|			|
-| ucx_task_priority()*	|			| ucx_pipe_read()*	| ucx_list_insert()	| ucx_strstr()		|			|
-| ucx_task_id()*	|			| ucx_pipe_write()*	| ucx_list_remove()	| ucx_strlen()		|			|
-| ucx_task_wfi()*	|			|			| ucx_queue_create()	| ucx_strchr()		|			|
-| ucx_task_count()*	|			|			| ucx_queue_destroy()	| ucx_strpbrk()		|			|
-| 			|			|			| ucx_queue_count()	| ucx_strsep()		|			|
-| 			|			|			| ucx_queue_enqueue()	| ucx_strtok()		|			|
-| 			|			|			| ucx_queue_dequeue()	| ucx_strtol()		|			|
-| 			|			|			| ucx_queue_peek()	| ucx_memcpy()		|			|
-| 			|			|			|			| ucx_memmove()		|			|
-| 			|			|			|			| ucx_memcmp()		|			|
-| 			|			|			|			| ucx_memset()		|			|
-| 			|			|			|			| ucx_abs()		|			|
-| 			|			|			|			| ucx_random()		|			|
-| 			|			|			|			| ucx_srand()		|			|
-| 			|			|			|			| ucx_puts()		|			|
-| 			|			|			|			| ucx_gets()		|			|
-| 			|			|			|			| ucx_getline()		|			|
-| 			|			|			|			| ucx_vsprintf()	|			|
-| 			|			|			|			| ucx_printf()		|			|
-| 			|			|			|			| ucx_sprintf()		|			|
-| 			|			|			|			| ucx_free()*		|			|
-| 			|			|			|			| ucx_malloc()*		|			|
-| 			|			|			|			| ucx_calloc()*		|			|
-| 			|			|			|			| ucx_realloc()*	|			|
+| Task			| Semaphore		| Pipe			|
+| :-------------------- | :-------------------- | :-------------------- |
+| ucx_task_add()	| ucx_sem_create()	| ucx_pipe_create()	|
+| ucx_task_init()	| ucx_sem_destroy()	| ucx_pipe_destroy()	|
+| ucx_task_yield()	| ucx_wait()		| ucx_pipe_flush()	|
+| ucx_task_delay()	| ucx_signal()		| ucx_pipe_size()	|
+| ucx_task_suspend()	|			| ucx_pipe_get()	|
+| ucx_task_resume()	|			| ucx_pipe_put()	|
+| ucx_task_priority()	|			| ucx_pipe_read()	|
+| ucx_task_id()		|			| ucx_pipe_write()	|
+| ucx_task_wfi()	|			|			|
+| ucx_task_count()	|			|			|
 
 #### Task
 
@@ -144,14 +131,39 @@ Each architecture HAL defines a default value for the guard space in a macro (DE
 
 (TODO)
 
-#### List / Queue
+
+### Library API
+
+Lists and queues are basic data structures which are provided to applications as an API. Lists are simply linked lists with automatic memory management. Queues are circular data structures and have a defined size on their creation aligned to the next power of two. This results in an efficient implementation of circular queues, as no modular arithmetic needs to be performed for insertion and removal of items.
+
+| List 			| Queue			|
+| :-------------------- | :-------------------- |
+| ucx_list_create()	| ucx_queue_create()	|
+| ucx_list_destroy()	| ucx_queue_destroy()	|
+| ucx_list_add()	| ucx_queue_count()	|
+| ucx_list_peek()	| ucx_queue_enqueue()	|
+| ucx_list_poke()	| ucx_queue_dequeue()	|
+| ucx_list_count()	| ucx_queue_peek()	|
+| ucx_list_insert()	| 			|
+| ucx_list_remove()	| 			|
+
+#### List
 
 (TODO)
 
-#### LibC
-
-- Macros / library abstractions. The internal libc implementation can be bypassed (with function granularity), removing macros thus supporting an external or more adequate implementation.
-
-#### Utils
+#### Queue
 
 (TODO)
+
+### LibC
+
+Below is a table of the implemented functions from the standard C library. These functions are macros which are used as aliases for actual library abstractions. The internal C library implementation is limited and can be bypassed if needed (with function granularity) by removing such macros from the HAL of a specific architecture, thus supporting an external or more adequate implementation. Functions such as *printf()* are limited implementations which focus on basic functionality, being more compact (smaller code size) versions of the original primitives.
+
+| Libc		|		| 		| 		| 		|
+| :------------ | :------------ | :------------ | :------------ | :------------ |
+| strcpy()	| strncpy()	| strcat()	| strncat()	| strcmp()	|
+| strncmp()	| strstr()	| strlen()	| strchr()	| strpbrk()	|
+| strsep()	| strtok()	| strtol()	| memcpy()	| memmove()	|
+| memcmp()	| memset()	| abs()		| random()	| srand()	|
+| puts()	| gets()	| getline()	| vsprintf()	| printf()	|
+| sprintf()	| free()	| malloc()	| calloc()	| realloc()	|
