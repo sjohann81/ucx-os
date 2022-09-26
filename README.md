@@ -40,11 +40,9 @@ To build an application, uncomment a line that corresponds to the correct target
 
 For example, to build an application to run on Qemu (32 bit RISC-V) architecture:
 
-- Verify if a toolchain for RISC-V is installed (riscv32-unknown-elf);
-- Verify if Qemu is installed (qemu-system-riscv32);
-- Edit the root Makefile, selecting '*ARCH = riscv/riscv32-qemu*' as the target architecture;
-- Build the application with '*make hello_p*';
-- Run the application with '*make run_riscv32*' (type 'Ctrl+a x' to quit the emulator);
+- Verify if both a toolchain for RISC-V (riscv32-unknown-elf) and Qemu (qemu-system-riscv32) are installed;
+- Build the application for the target (*make hello_p ARCH=riscv/riscv32-qemu*);
+- Run the application (*make run_riscv32*') and type 'Ctrl+a x' to quit the emulator;
 
 For other emulators, the binary image may need to be passed as a parameter as there are no rules in the makefile to run the application in this case. For boards such as the Arduino Nano (ATMEGA328p), the binary can be uploaded via a serial port. In the last case, plug the board, check the created virtual serial interface name in */dev/* and verify if the *SERIAL_DEVICE* variable is configured accordingly. To upload the binary to the board, type *make load*.
 
@@ -71,7 +69,7 @@ Each architecture HAL defines a default value for the guard space in a macro (DE
 
 ### Task synchronization (pipes, semaphores)
 
-(TODO)
+In real world applications, tasks of the same application have some kind of interaction (synchronization / communication). To support this behavior, two basic abstractions are implemented in the kernel - *pipelines* and *semaphores*. Pipes are character oriented communication channels and semaphores are traditional counting semaphores with atomic semantics.
 
 
 ## APIs
