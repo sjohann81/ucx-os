@@ -4,7 +4,7 @@ TARGET_LIST = \
 	'riscv/riscv32-qemu' 'riscv/riscv32-qemu-llvm' \
 	'riscv/riscv64-qemu' 'riscv/riscv64-qemu-llvm'
 
-ARCH = none
+#ARCH = none
 
 SERIAL_BAUD=57600
 SERIAL_DEVICE=/dev/ttyUSB0
@@ -17,16 +17,18 @@ BUILD_HAL_DIR = $(BUILD_DIR)/hal
 BUILD_KERNEL_DIR = $(BUILD_DIR)/kernel
 BUILD_TARGET_DIR = $(BUILD_DIR)/target
 
-ifneq ('$(ARCH)', 'none')
-include $(SRC_DIR)/arch/$(ARCH)/arch.mak
+-include $(BUILD_TARGET_DIR)/target.mak
+-include $(SRC_DIR)/arch/$(ARCH)/arch.mak
 INC_DIRS += -I $(SRC_DIR)/include
-endif
 
 incl:
 ifeq ('$(ARCH)', 'none')
-	@echo "You must specify a target architecture (ARCH='arch/target')."
+	@echo "You must specify a target architecture (ARCH=arch/target)."
 	@echo "Supported targets are: $(TARGET_LIST)"
+else
+	@echo "ARCH = $(ARCH)" > $(BUILD_TARGET_DIR)/target.mak
 endif
+
 
 serial:
 	stty ${SERIAL_BAUD} raw cs8 -parenb -crtscts clocal cread ignpar ignbrk -ixon -ixoff -ixany -brkint -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke -F ${SERIAL_DEVICE}
@@ -40,14 +42,14 @@ debug: serial
 ## RISC-V / Qemu
 run_riscv32:
 	echo "hit Ctrl+a x to quit"
-	qemu-system-riscv32 -machine virt -nographic -bios image.bin -serial mon:stdio
+	qemu-system-riscv32 -machine virt -nographic -bios $(BUILD_TARGET_DIR)/image.bin -serial mon:stdio
 
 run_riscv64:
 	echo "hit Ctrl+a x to quit"
-	qemu-system-riscv64 -machine virt -nographic -bios image.bin -serial mon:stdio
+	qemu-system-riscv64 -machine virt -nographic -bios $(BUILD_TARGET_DIR)/image.bin -serial mon:stdio
 
 ## kernel
-ucx: hal
+ucx: incl hal
 	$(CC) $(CFLAGS) \
 		$(SRC_DIR)/lib/libc.c \
 		$(SRC_DIR)/lib/dump.c \
@@ -81,59 +83,63 @@ endif
 	hexdump -v -e '4/1 "%02x" "\n"' $(BUILD_TARGET_DIR)/image.bin > $(BUILD_TARGET_DIR)/code.txt
 
 ## applications
-delay: incl
+delay: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/delay.o app/delay.c
 	@$(MAKE) --no-print-directory link
 
-hello: incl
+hello: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/hello.o app/hello.c
 	@$(MAKE) --no-print-directory link
 
-hello_p: incl
+hello_p: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/hello_preempt.o app/hello_preempt.c
 	@$(MAKE) --no-print-directory link
 
-mutex: incl
+mutex: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/mutex.o app/mutex.c
 	@$(MAKE) --no-print-directory link
 	
-pipes: incl
+pipes: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/pipes.o app/pipes.c
 	@$(MAKE) --no-print-directory link
 
-pipes_s: incl
+pipes_s: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/pipes_small.o app/pipes_small.c
 	@$(MAKE) --no-print-directory link
 
-pipes_struct: incl
+pipes_struct: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/pipes_struct.o app/pipes_struct.c
 	@$(MAKE) --no-print-directory link
 
-prodcons: incl
+prodcons: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/prodcons.o app/prodcons.c
 	@$(MAKE) --no-print-directory link
 
-progress: incl
+progress: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/progress.o app/progress.c
 	@$(MAKE) --no-print-directory link
 	
-suspend: incl
+suspend: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/suspend.o app/suspend.c
 	@$(MAKE) --no-print-directory link
 
-test_fixed: incl
+test_fixed: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/test_fixed.o app/test_fixed.c
 	@$(MAKE) --no-print-directory link
 
-timer: incl
+timer: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/timer.o app/timer.c
 	@$(MAKE) --no-print-directory link
 
+
+rebuild:
+	find '$(BUILD_APP_DIR)' -type f -name '*.o' -delete
 
 clean:
 	find '$(BUILD_APP_DIR)' '$(BUILD_KERNEL_DIR)' -type f -name '*.o' -delete
 	find '$(BUILD_TARGET_DIR)' -type f -name '*.o' -delete -o -name '*~' \
 		-delete -o -name 'image.*' -delete -o -name 'code.*' -delete
+	echo "ARCH = none" > $(BUILD_TARGET_DIR)/target.mak
 
 veryclean: clean
 	find '$(BUILD_TARGET_DIR)' -type f -name '*.a' -delete
