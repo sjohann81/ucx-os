@@ -11,6 +11,12 @@ SERIAL_DEVICE=/dev/ttyUSB0
 
 SRC_DIR = .
 
+BUILD_DIR = $(SRC_DIR)/build
+BUILD_APP_DIR = $(BUILD_DIR)/app
+BUILD_HAL_DIR = $(BUILD_DIR)/hal
+BUILD_KERNEL_DIR = $(BUILD_DIR)/kernel
+BUILD_TARGET_DIR = $(BUILD_DIR)/target
+
 ifneq ('$(ARCH)', 'none')
 include $(SRC_DIR)/arch/$(ARCH)/arch.mak
 INC_DIRS += -I $(SRC_DIR)/include
@@ -41,7 +47,7 @@ run_riscv64:
 	qemu-system-riscv64 -machine virt -nographic -bios image.bin -serial mon:stdio
 
 ## kernel
-ucx:
+ucx: hal
 	$(CC) $(CFLAGS) \
 		$(SRC_DIR)/lib/libc.c \
 		$(SRC_DIR)/lib/dump.c \
@@ -53,72 +59,81 @@ ucx:
 		$(SRC_DIR)/kernel/task.c \
 		$(SRC_DIR)/kernel/ucx.c \
 		$(SRC_DIR)/init/main.c
+		mv *.o $(SRC_DIR)/build/kernel
+	$(AR) $(ARFLAGS) $(BUILD_TARGET_DIR)/libucxos.a \
+		$(BUILD_KERNEL_DIR)/*.o
 		
 ## kernel + application link
 link:
 ifeq ('$(ARCH)', 'avr/atmega328p')
-	$(LD) $(LDFLAGS) -o image.elf *.o
+	$(LD) $(LDFLAGS) -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
 else ifeq ('$(ARCH)', 'avr/atmega2560')
-	$(LD) $(LDFLAGS) -o image.elf *.o
+	$(LD) $(LDFLAGS) -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
 else 
-	$(LD) $(LDFLAGS) -T$(LDSCRIPT) -Map image.map -o image.elf *.o
+	$(LD) $(LDFLAGS) -T$(LDSCRIPT) -Map $(BUILD_TARGET_DIR)/image.map -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
 endif
-	$(DUMP) --disassemble --reloc image.elf > image.lst
-	$(DUMP) -h image.elf > image.sec
-	$(DUMP) -s image.elf > image.cnt
-	$(OBJ) -O binary image.elf image.bin
-	$(OBJ) -R .eeprom -O ihex image.elf image.hex
-	$(SIZE) image.elf
-#	hexdump -v -e '4/1 "%02x" "\n"' image.bin > image.txt
+	$(DUMP) --disassemble --reloc $(BUILD_TARGET_DIR)/image.elf > $(BUILD_TARGET_DIR)/image.lst
+	$(DUMP) -h $(BUILD_TARGET_DIR)/image.elf > $(BUILD_TARGET_DIR)/image.sec
+	$(DUMP) -s $(BUILD_TARGET_DIR)/image.elf > $(BUILD_TARGET_DIR)/image.cnt
+	$(OBJ) -O binary $(BUILD_TARGET_DIR)/image.elf $(BUILD_TARGET_DIR)/image.bin
+	$(OBJ) -R .eeprom -O ihex $(BUILD_TARGET_DIR)/image.elf $(BUILD_TARGET_DIR)/image.hex
+	$(SIZE) $(BUILD_TARGET_DIR)/image.elf
+	hexdump -v -e '4/1 "%02x" "\n"' $(BUILD_TARGET_DIR)/image.bin > $(BUILD_TARGET_DIR)/code.txt
 
 ## applications
-delay: incl hal ucx
-	$(CC) $(CFLAGS) -o delay.o app/delay.c
+delay: incl
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/delay.o app/delay.c
 	@$(MAKE) --no-print-directory link
 
-hello: incl hal ucx
-	$(CC) $(CFLAGS) -o hello.o app/hello.c
+hello: incl
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/hello.o app/hello.c
 	@$(MAKE) --no-print-directory link
 
-hello_p: incl hal ucx
-	$(CC) $(CFLAGS) -o hello_preempt.o app/hello_preempt.c
+hello_p: incl
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/hello_preempt.o app/hello_preempt.c
 	@$(MAKE) --no-print-directory link
 
-mutex: incl hal ucx
-	$(CC) $(CFLAGS) -o mutex.o app/mutex.c
+mutex: incl
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/mutex.o app/mutex.c
 	@$(MAKE) --no-print-directory link
 	
-pipes: incl hal ucx
-	$(CC) $(CFLAGS) -o pipes.o app/pipes.c
+pipes: incl
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/pipes.o app/pipes.c
 	@$(MAKE) --no-print-directory link
 
-pipes_s: incl hal ucx
-	$(CC) $(CFLAGS) -o pipes_small.o app/pipes_small.c
+pipes_s: incl
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/pipes_small.o app/pipes_small.c
 	@$(MAKE) --no-print-directory link
 
-pipes_struct: incl hal ucx
-	$(CC) $(CFLAGS) -o pipes_struct.o app/pipes_struct.c
+pipes_struct: incl
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/pipes_struct.o app/pipes_struct.c
 	@$(MAKE) --no-print-directory link
 
-prodcons: incl hal ucx
-	$(CC) $(CFLAGS) -o prodcons.o app/prodcons.c
+prodcons: incl
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/prodcons.o app/prodcons.c
 	@$(MAKE) --no-print-directory link
 
-progress: incl hal ucx
-	$(CC) $(CFLAGS) -o progress.o app/progress.c
+progress: incl
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/progress.o app/progress.c
 	@$(MAKE) --no-print-directory link
 	
-suspend: incl hal ucx
-	$(CC) $(CFLAGS) -o suspend.o app/suspend.c
+suspend: incl
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/suspend.o app/suspend.c
 	@$(MAKE) --no-print-directory link
 
-test_fixed: incl hal ucx
-	$(CC) $(CFLAGS) -o test_fixed.o app/test_fixed.c
+test_fixed: incl
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/test_fixed.o app/test_fixed.c
 	@$(MAKE) --no-print-directory link
 
-timer: incl hal ucx
-	$(CC) $(CFLAGS) -o timer.o app/timer.c
+timer: incl
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/timer.o app/timer.c
 	@$(MAKE) --no-print-directory link
+
 
 clean:
-	rm -rf *.o *~ *.elf *.bin *.cnt *.lst *.sec *.txt *.map *.hex
+	find '$(BUILD_APP_DIR)' '$(BUILD_KERNEL_DIR)' -type f -name '*.o' -delete
+	find '$(BUILD_TARGET_DIR)' -type f -name '*.o' -delete -o -name '*~' \
+		-delete -o -name 'image.*' -delete -o -name 'code.*' -delete
+
+veryclean: clean
+	find '$(BUILD_TARGET_DIR)' -type f -name '*.a' -delete
