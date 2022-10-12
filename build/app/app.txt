@@ -1,0 +1,1 @@
+Application objects generated during the building process are placed in this directory.
