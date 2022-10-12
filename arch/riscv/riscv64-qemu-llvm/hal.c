@@ -5,7 +5,7 @@
  */
 
 #include <hal.h>
-#include <libc.h>
+#include <lib/libc.h>
 typedef union{
 	int64_t all;
 	struct{

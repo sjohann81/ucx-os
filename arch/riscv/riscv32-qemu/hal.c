@@ -5,7 +5,7 @@
  */
 
 #include <hal.h>
-#include <libc.h>
+#include <lib/libc.h>
 
 /*
 software implementation of multiply/divide and 64-bit routines

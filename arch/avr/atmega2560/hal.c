@@ -5,7 +5,7 @@
  */
 
 #include <hal.h>
-#include <libc.h>
+#include <lib/libc.h>
 #include <uart.h>
 
 #define TIMER_CLK2		F_CPU / 1024

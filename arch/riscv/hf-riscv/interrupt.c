@@ -5,7 +5,7 @@
  */
 
 #include <hal.h>
-#include <libc.h>
+#include <lib/libc.h>
 
 /* defined interrupt handlers */
 void dummy_handler(void);

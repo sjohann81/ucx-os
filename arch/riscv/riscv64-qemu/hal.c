@@ -5,7 +5,7 @@
  */
 
 #include <hal.h>
-#include <libc.h>
+#include <lib/libc.h>
 
 /* hardware platform dependent stuff */
 void _putchar(char value)		// polled putchar()
