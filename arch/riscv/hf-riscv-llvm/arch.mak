@@ -11,6 +11,7 @@ LDFLAGS_STRIP = --gc-sections
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
 ASFLAGS = -march=rv32i -mabi=ilp32 #-fPIC
 CFLAGS = -Wall --target=riscv32 -march=rv32i -mabi=ilp32 -O2 -c -ffreestanding -nostdlib -ffixed-x26 -ffixed-x27 -fomit-frame-pointer $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) #-mrvc -fPIC -DDEBUG_PORT
+ARFLAGS = r
 
 LDFLAGS = -melf32lriscv $(LDFLAGS_STRIP)
 LDSCRIPT = $(ARCH_DIR)/hf-risc.ld
@@ -22,6 +23,7 @@ DUMP = riscv32-unknown-elf-objdump -Mno-aliases
 READ = riscv32-unknown-elf-readelf
 OBJ = riscv32-unknown-elf-objcopy
 SIZE = riscv32-unknown-elf-size
+AR = riscv32-unknown-elf-ar
 
 hal:
 	$(AS) $(ASFLAGS) -o crt0.o $(ARCH_DIR)/crt0.s

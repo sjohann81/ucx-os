@@ -21,7 +21,7 @@ ASFLAGS = -mips1 -msoft-float
 #CFLAGS = -Wall -O2 -c -mips1 -mno-check-zero-division -msoft-float -ffreestanding -nostdlib -G 0 $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DBIG_ENDIAN $(CFLAGS_STRIP) #-DDEBUG_PORT
 # new compiler (patched)
 CFLAGS = -Wall -O2 -c -mips1 -ffixed-hi -ffixed-lo -mno-check-zero-division -msoft-float -ffreestanding -nostdlib -G 0 $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DBIG_ENDIAN $(CFLAGS_STRIP) #-DDEBUG_PORT
-
+ARFLAGS = r
 LDFLAGS = -mips1 $(LDFLAGS_STRIP)
 LDSCRIPT = $(ARCH_DIR)/hf-risc.ld
 
@@ -32,7 +32,7 @@ DUMP = mips-elf-objdump
 READ = mips-elf-readelf
 OBJ = mips-elf-objcopy
 SIZE = mips-elf-size
-
+AR = mips-elf-ar
 
 hal:
 	$(AS) $(ASFLAGS) -o crt0.o $(ARCH_DIR)/crt0.s
