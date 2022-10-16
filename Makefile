@@ -131,7 +131,7 @@ timer: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/timer.o app/timer.c
 	@$(MAKE) --no-print-directory link
 
-
+# clean and rebuild rules
 rebuild:
 	find '$(BUILD_APP_DIR)' -type f -name '*.o' -delete
 
@@ -139,7 +139,8 @@ clean:
 	find '$(BUILD_APP_DIR)' '$(BUILD_KERNEL_DIR)' -type f -name '*.o' -delete
 	find '$(BUILD_TARGET_DIR)' -type f -name '*.o' -delete -o -name '*~' \
 		-delete -o -name 'image.*' -delete -o -name 'code.*' -delete
-	echo "ARCH = none" > $(BUILD_TARGET_DIR)/target.mak
 
 veryclean: clean
+	echo "ARCH = none" > $(BUILD_TARGET_DIR)/target.mak
 	find '$(BUILD_TARGET_DIR)' -type f -name '*.a' -delete
+
