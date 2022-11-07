@@ -388,6 +388,8 @@ void _hardware_init(void)
 
 	/* TIMER1 frequency: (39063 * 16) = 250000 cycles (10ms timer @ 25MHz) */
 	TIMER1CTC = 15625;
+	
+	_ei(1);
 }
 
 void _timer_enable(void)
