@@ -9,6 +9,9 @@ Currently, the kernel supports the following architectures:
 - RV64I (Qemu)
 - HF-RISCV
 
+#### ARM
+- Versatilepb
+
 #### MIPS (32 bit)
 - HF-RISC
 
