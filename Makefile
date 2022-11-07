@@ -1,7 +1,7 @@
 TARGET_LIST = \
-	'avr/atmega328p' 'avr/atmega2560' 'mips/hf-risc' \
-	'riscv/hf-riscv' 'riscv/hf-riscv-e' 'riscv/hf-riscv-llvm' \
-	'riscv/riscv32-qemu' 'riscv/riscv32-qemu-llvm' \
+	'arm/versatilepb' 'avr/atmega328p' 'avr/atmega2560' \
+	'mips/hf-risc' 'riscv/hf-riscv' 'riscv/hf-riscv-e' \
+	'riscv/hf-riscv-llvm' 'riscv/riscv32-qemu' 'riscv/riscv32-qemu-llvm' \
 	'riscv/riscv64-qemu' 'riscv/riscv64-qemu-llvm'
 
 #ARCH = none
@@ -47,6 +47,10 @@ run_riscv32:
 run_riscv64:
 	echo "hit Ctrl+a x to quit"
 	qemu-system-riscv64 -machine virt -nographic -bios $(BUILD_TARGET_DIR)/image.bin -serial mon:stdio
+	
+run_versatilepb:
+	echo "hit Ctrl+a x to quit"
+	qemu-system-arm -cpu arm1176 -m 128 -M versatilepb -serial stdio -kernel $(BUILD_TARGET_DIR)/image.elf
 
 ## kernel
 ucx: incl hal
