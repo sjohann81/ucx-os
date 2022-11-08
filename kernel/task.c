@@ -68,6 +68,7 @@ void ucx_task_init(void)
 			(*kcb_p->tcb_p->task)();
 		}
 	}
+	_enable_interrupts();
 }
 
 void ucx_task_yield()

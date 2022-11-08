@@ -10,7 +10,7 @@ LDFLAGS_STRIP = --gc-sections
 
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
 CFLAGS = -Wall -O2 -c -march=armv6 -msoft-float -mabi=atpcs -fPIC -marm -ffreestanding -nostdlib -fomit-frame-pointer $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) -DTERM_BAUD=$(SERIAL_BAUD)
-LDFLAGS = -nodefaultlibs $(LDFLAGS_STRIP)
+LDFLAGS = $(LDFLAGS_STRIP)
 LDSCRIPT = $(ARCH_DIR)/versatilepb.ld
 ARFLAGS = r
 
