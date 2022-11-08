@@ -25,11 +25,10 @@ int32_t _getchar(void){
 	return uart_rx_polled();
 }
 
-static char int_status = 1;
-
 char _interrupt_set(char s)
 {
-	char val = int_status;
+	static char int_status = 1;
+	
 	if (s) {
 		int_status = 1;
 		sei();
@@ -38,7 +37,7 @@ char _interrupt_set(char s)
 		cli();
 	}
 
-	return val;
+	return int_status;
 }
 
 /* kernel auxiliary routines */
@@ -60,8 +59,6 @@ void _hardware_init(void)
 	OCR2A = (TIMER_CLK2 / IRQ_FREQ2) - 1;
 	TCCR2A |= (1 << WGM21);
    	TCCR2B |= (1 << CS22) | (1 << CS21) | (1 << CS20);		// clk / 1024 (prescaler), clear-on-match
-   	
-   	_ei(1);
 }
 
 void _timer_enable(void)
