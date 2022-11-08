@@ -33,6 +33,7 @@ extern uint32_t _end;			/* Start address of the heap memory, defined in linker s
 /* disable interrupts, return previous int status / enable interrupts */
 #define _di()				_interrupt_set(0)
 #define _ei(S)				_interrupt_set(S)
+#define _enable_interrupts()		_interrupt_set(1)
 
 /* memory address map */
 #define ROM_BASE			0x00000000
