@@ -328,16 +328,22 @@ void _irq_handler(void)
 void _putchar(char value)		// polled putchar()
 {
 	while (UART0FR & UARTFR_TXFF);
+	
 	UART0DR = value;
 }
 
 int32_t _kbhit(void)
 {
-	while (~(UART0FR & UARTFR_TXFF));
+	if (UART0FR & UARTFR_RXFF)
+		return 1;
+	else
+		return 0;
 }
 
 int32_t _getchar(void)
 {
+	while (~(UART0FR & UARTFR_RXFF));
+	
 	return UART0DR;
 }
 
@@ -433,7 +439,6 @@ void _hardware_init(void)
 	
 	_irq_register(INTMASK_TIMERINT0_1, krnl_dispatcher);
 	_timer_disable();
-	_enable_interrupts();
 }
 
 void _timer_enable(void)
