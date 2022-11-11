@@ -369,6 +369,18 @@ void _delay_us(uint32_t usec)
 	}
 }
 
+uint64_t _read_us(void)
+{
+	static uint64_t timeref = 0;
+	static uint32_t tval2 = 0, tref = 0;
+
+	if (tref == 0) TIMER0;
+	if (TIMER0 < tref) tval2++;
+	tref = TIMER0;
+	timeref = ((uint64_t)tval2 << 32) + (uint64_t)TIMER0;
+
+	return (timeref / (CPU_SPEED / 1000000));
+}
 
 /* kernel auxiliary routines */
 
@@ -388,8 +400,6 @@ void _hardware_init(void)
 
 	/* TIMER1 frequency: (39063 * 16) = 250000 cycles (10ms timer @ 25MHz) */
 	TIMER1CTC = 15625;
-
-	_ei(1);
 }
 
 void _timer_enable(void)

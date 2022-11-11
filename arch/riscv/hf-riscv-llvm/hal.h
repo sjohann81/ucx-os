@@ -377,6 +377,7 @@ int32_t _getchar(void);
 
 void _delay_ms(uint32_t msec);
 void _delay_us(uint32_t usec);
+uint64_t _read_us(void);
 
 void _hardware_init(void);
 void _timer_enable(void);
