@@ -40,9 +40,19 @@ char _interrupt_set(char s)
 	return int_status;
 }
 
+/* delay routines */
+
+static volatile uint32_t timer = 0;
+
+uint64_t _read_us(void)
+{
+	return (timer * (1000000 / IRQ_FREQ2));
+}
+
 /* kernel auxiliary routines */
 ISR(TIMER2_COMPA_vect)
 {
+	timer++;
 	krnl_dispatcher();
 }
 

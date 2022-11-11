@@ -23,6 +23,8 @@ void _putchar(char value);
 int32_t _kbhit(void);
 int32_t _getchar(void);
 
+uint64_t _read_us(void);
+
 void _hardware_init(void);
 void _timer_enable(void);
 void _timer_disable(void);
