@@ -7,14 +7,17 @@ volatile uint32_t cnt[N_TASKS] = {[0 ... N_TASKS-1] = 0};
 void logger(void)
 {
 	int32_t i;
+	uint32_t ms;
 	
 	ucx_task_init();
 	
 	while (1) {
+		ms = _read_us() / 1000;
 		_delay_ms(1000);
+		ms = _read_us() / 1000 - ms;
 		for (i = 0; i < N_TASKS; i++)
 			printf("%08x ", cnt[i]);
-		printf("\n");
+		printf("ms: %d\n", ms);
 	}
 }
 
