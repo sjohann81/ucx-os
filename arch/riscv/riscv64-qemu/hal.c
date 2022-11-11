@@ -161,7 +161,6 @@ void _hardware_init(void)
 {
 	uart_init(TERM_BAUD);
 	mtimecmp_w(mtime_r() + 0x1ffff);
-	write_csr(mie, 128);
 }
 
 void _timer_enable(void)
