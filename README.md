@@ -2,7 +2,7 @@
 
 UCX/OS is an experimental preemptive unikernel (library OS) for microcontrollers, aimed to be easily ported. The kernel implements a lightweight multitasking environment in a single address space (based on fibers/coroutines and standard setjmp() and longjmp() library calls), using a minimum amount of resources.
 
-Currently, the kernel supports the following architectures:
+Currently, UCX/OS supports the following targets:
 
 #### RISC-V (32 / 64 bit)
 - RV32I (Qemu)
@@ -29,25 +29,26 @@ Different toolchains based on GCC and LLVM can be used to build the kernel and a
 
 - Small footprint (4kB ~ 8kB) for the kernel;
 - Lightweight task model (fibers) where tasks share the same stack;
-- Preemptive / cooperative scheduling based on a round robin (RR) scheduler;
+- Preemptive / cooperative scheduling based on a priority round robin (RR) scheduler;
 - Task synchronization using semaphores or pipeline channels;
 - Dynamic memory allocation;
-- Small LibC, queue and list libraries.
+- Small C library, along with queue and list libraries.
 
 
 ## Building example applications
 
-In order to build the examples, a cross compiler toolchain has to be installed in the host. This toolchain will be used to assemble and compile the kernel sources, as well as the user application and to build a single binary image that can be uploaded to a board or run in a simulator. The build process will generate several files and the final binary is named *image.bin*.
+In order to build the examples, a cross compiler toolchain has to be installed in the build machine. This toolchain will be used to assemble and compile the kernel sources, as well as user application sources and to build a single binary image that can be uploaded to a board or run in a simulator. The build process will generate several files in the *build/target* directory. In order to simplify recurrent application builds, the OS is compiled into a static library (libucxos.a) and application objects are linked with this library in the final build stage.
 
-To build an application, uncomment a line that corresponds to the correct target architecture then type *make* followed by the application rule. For example, to build the '*hello_preempt.c*' application, type '*make hello_p*'. Check the makefile for different rules to build and run the examples. To build a different application, type '*make clean*' before the build process command. 
+To build an application, select a supported target and build the kernel. Then, select an application and build it. There is no need to rebuild the kernel if the same chosen target is used, only application sources need to be compiled. For example, to build the '*hello_preempt.c*' application for the Versatilepb target, type '*make ucx ARCH=arm/versatilepb*' to build the kernel and '*make hello_p*' to build the application and link it with the OS library. Check the *makefile* for different rules to build and run the examples. To build applications on a different target, type '*make veryclean*' before rebuilding the kernel again.
 
 For example, to build an application to run on Qemu (32 bit RISC-V) architecture:
 
 - Verify if both a toolchain for RISC-V (riscv32-unknown-elf) and Qemu (qemu-system-riscv32) are installed;
-- Build the application for the target (*make hello_p ARCH=riscv/riscv32-qemu*);
+- Build the UCX/OS kernel for the target (*make ucx ARCH=riscv/riscv32-qemu*);
+- Build the application (*make hello_p*);
 - Run the application (*make run_riscv32*') and type 'Ctrl+a x' to quit the emulator;
 
-For other emulators, the binary image may need to be passed as a parameter as there are no rules in the makefile to run the application in this case. For boards such as the Arduino Nano (ATMEGA328p), the binary can be uploaded via a serial port. In the last case, plug the board, check the created virtual serial interface name in */dev/* and verify if the *SERIAL_DEVICE* variable is configured accordingly. To upload the binary to the board, type *make load*.
+For other emulators, the binary image may need to be passed as a parameter as there are no rules in the *makefile* to run the application in this case. For boards such as the Arduino Nano (ATMEGA328p), the binary can be uploaded via a serial port. In the last case, plug the board, check the created virtual serial interface name in */dev/* and verify if the *SERIAL_DEVICE* variable is configured accordingly. To upload the binary to the board, type *make load*.
 
 
 ## Programming model
