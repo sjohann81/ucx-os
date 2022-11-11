@@ -360,20 +360,6 @@ uint32_t _readcounter(void)
 	return ~TIMER3_VALUE;
 }
 
-uint64_t _read_us(void)
-{
-	static uint64_t timeref = 0;
-	static uint32_t tval2 = 0, tref = 0;
-
-	if (tref == 0) _readcounter();
-	if (_readcounter() < tref) tval2++;
-	tref = _readcounter();
-	timeref = ((uint64_t)tval2 << 32) + (uint64_t)_readcounter();
-
-//	return (timeref / (CPU_SPEED / 1000000));
-	return timeref;
-}
-
 void _delay_ms(uint32_t msec)
 {
 	volatile uint32_t cur, last, delta, msecs;
@@ -381,11 +367,11 @@ void _delay_ms(uint32_t msec)
 
 	last = _readcounter();
 	delta = msecs = 0;
-	cycles_per_msec = CPU_SPEED / 1000;
+	cycles_per_msec = TIMCLK / 1000;
 	while (msec > msecs) {
 		cur = _readcounter();
 		if (cur < last)
-			delta += (cur + (CPU_SPEED - last));
+			delta += (cur + (TIMCLK - last));
 		else
 			delta += (cur - last);
 		last = cur;
@@ -403,11 +389,11 @@ void _delay_us(uint32_t usec)
 
 	last = _readcounter();
 	delta = usecs = 0;
-	cycles_per_usec = CPU_SPEED / 1000000;
+	cycles_per_usec = TIMCLK / 1000000;
 	while (usec > usecs) {
 		cur = _readcounter();
 		if (cur < last)
-			delta += (cur + (CPU_SPEED - last));
+			delta += (cur + (TIMCLK - last));
 		else
 			delta += (cur - last);
 		last = cur;
@@ -416,6 +402,19 @@ void _delay_us(uint32_t usec)
 			delta %= cycles_per_usec;
 		}
 	}
+}
+
+uint64_t _read_us(void)
+{
+	static uint64_t timeref = 0;
+	static uint32_t tval2 = 0, tref = 0;
+
+	if (tref == 0) _readcounter();
+	if (_readcounter() < tref) tval2++;
+	tref = _readcounter();
+	timeref = ((uint64_t)tval2 << 32) + (uint64_t)_readcounter();
+
+	return (timeref / (TIMCLK / 1000000));
 }
 
 void _panic(void)

@@ -66,6 +66,8 @@ extern uint32_t _end;			/* Start address of the heap memory, defined in linker s
 #define TIMER_32BIT			0x02
 #define TIMER_ONESHOT			0x01
 
+#define TIMCLK				1000000
+
 /* interrupt controller */
 #define NVIC_BASE			0x10140000
 #define VIC_IRQSTATUS			(*(volatile uint32_t *)(NVIC_BASE+0x000))
@@ -144,6 +146,7 @@ int32_t _getchar(void);
 
 void _delay_ms(uint32_t msec);
 void _delay_us(uint32_t usec);
+uint64_t _read_us(void);
 
 void _hardware_init(void);
 void _timer_enable(void);
