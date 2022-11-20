@@ -18,11 +18,14 @@ void _putchar(char value)
 
 int32_t _kbhit(void)
 {
-	return uart_rx_dataready();
+	if (uart_rxsize())
+		return 1;
+	else
+		return 0;
 }
 
 int32_t _getchar(void){
-	return uart_rx_polled();
+	return uart_rx();
 }
 
 char _interrupt_set(char s)
