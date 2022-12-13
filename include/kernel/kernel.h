@@ -15,8 +15,8 @@ struct tcb_s {
 	jmp_buf context;
 	uint32_t *guard_addr;
 	uint16_t guard_sz;
-	uint32_t *stack;
-//	uint16_t stack_sz;
+	size_t *stack;
+//	size_t stack_sz;
 	uint16_t id;
 	uint16_t delay;
 	uint16_t priority;
@@ -25,6 +25,7 @@ struct tcb_s {
 
 /* kernel control block */
 struct kcb_s {
+	jmp_buf context;
 	struct tcb_s *tcb_p;
 	struct tcb_s *tcb_first;
 	volatile uint32_t ctx_switches;

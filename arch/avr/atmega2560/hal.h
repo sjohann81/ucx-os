@@ -17,6 +17,9 @@
 #define _ei(S)				_interrupt_set(S)
 #define _enable_interrupts()		_interrupt_set(1)
 
+#define CONTEXT_SP	18
+#define CONTEXT_RA	21
+
 char _interrupt_set(char s);
 
 void _putchar(char value);
@@ -63,4 +66,4 @@ void _interrupt_tick(void);
 
 void krnl_dispatcher(void);
 
-#define DEFAULT_GUARD_SIZE	256
+#define DEFAULT_GUARD_SIZE	512

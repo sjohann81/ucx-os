@@ -28,7 +28,11 @@ int32_t main(void)
 	printf("heap_init(), %d bytes free\n", UCX_OS_HEAP_SIZE);
 #endif
 	pr = app_main();
+	
+	setjmp(kcb_p->context);
+	
 	krnl_sched_init(pr);
 	
+	/* never reached */
 	return 0;
 }

@@ -416,3 +416,9 @@ void _interrupt_tick(void)
 {
 	_ei(1);
 }
+
+void _context_init(size_t *ctx, size_t sp, size_t ss, size_t ra)
+{
+	ctx[CONTEXT_SP] = sp + ss;
+	ctx[CONTEXT_RA] = ra;
+}

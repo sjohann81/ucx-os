@@ -30,11 +30,13 @@ int32_t ucx_task_add(void *task, uint16_t guard_size)
 	}
 	
 	if (!setjmp(kcb_p->tcb_p->context)) {
-		kcb_p->tcb_p->context[CONTEXT_SP] = (uint32_t)kcb_p->tcb_p->stack + kcb_p->tcb_p->guard_sz;
-		kcb_p->tcb_p->context[CONTEXT_RA] = (uint32_t)task;
-
-		printf("task %d, stack: %08x - %08x [sp: %08x], size %d\n", kcb_p->tcb_p->id, (size_t)kcb_p->tcb_p->stack,
-			(size_t)kcb_p->tcb_p->stack + kcb_p->tcb_p->guard_sz, kcb_p->tcb_p->context[CONTEXT_SP], kcb_p->tcb_p->guard_sz);
+		_context_init((size_t *)&kcb_p->tcb_p->context, (size_t)kcb_p->tcb_p->stack,
+			kcb_p->tcb_p->guard_sz, (size_t)task);
+//		kcb_p->tcb_p->context[CONTEXT_SP] = (size_t)kcb_p->tcb_p->stack + kcb_p->tcb_p->guard_sz;
+//		kcb_p->tcb_p->context[CONTEXT_RA] = (size_t)task;
+		
+		printf("task %d, stack: %08x - %08x, size %d\n", kcb_p->tcb_p->id, (size_t)kcb_p->tcb_p->stack,
+			(size_t)kcb_p->tcb_p->stack + kcb_p->tcb_p->guard_sz, kcb_p->tcb_p->guard_sz);
 		
 		kcb_p->tcb_p->state = TASK_READY;
 	}
