@@ -45,7 +45,10 @@ void krnl_sched_init(int32_t preemptive)
 	if (preemptive) {
 		_timer_enable();
 	}
-	(*kcb_p->tcb_p->task)();
+	
+	_enable_interrupts();
+	longjmp(kcb_p->tcb_p->context, 1);
+//	(*kcb_p->tcb_p->task)();
 }
 
 
@@ -71,7 +74,7 @@ void krnl_dispatcher(void)
 {
 	if (!setjmp(kcb_p->tcb_p->context)) {
 		krnl_delay_update();
-		krnl_guard_check();
+//		krnl_guard_check();
 		krnl_schedule();
 		_interrupt_tick();
 		longjmp(kcb_p->tcb_p->context, 1);

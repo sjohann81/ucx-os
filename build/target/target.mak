@@ -1,1 +1,1 @@
-ARCH = none
+ARCH = riscv/hf-riscv-e

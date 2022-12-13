@@ -2,9 +2,9 @@
 
 void task2(void)
 {
+//	ucx_task_init();
+	
 	int32_t cnt = 300000;
-
-	ucx_task_init();
 
 	while (1) {
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
@@ -13,9 +13,9 @@ void task2(void)
 
 void task1(void)
 {
+//	ucx_task_init();
+	
 	int32_t cnt = 200000;
-
-	ucx_task_init();
 
 	while (1) {
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
@@ -24,9 +24,9 @@ void task1(void)
 
 void task0(void)
 {
+//	ucx_task_init();
+	
 	int32_t cnt = 100000;
-
-	ucx_task_init();
 
 	while (1) {
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);

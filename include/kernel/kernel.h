@@ -15,6 +15,8 @@ struct tcb_s {
 	jmp_buf context;
 	uint32_t *guard_addr;
 	uint16_t guard_sz;
+	uint32_t *stack;
+//	uint16_t stack_sz;
 	uint16_t id;
 	uint16_t delay;
 	uint16_t priority;

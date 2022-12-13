@@ -20,7 +20,25 @@ int32_t ucx_task_add(void *task, uint16_t guard_size)
 	kcb_p->tcb_p->id = kcb_p->id++;
 	kcb_p->tcb_p->state = TASK_STOPPED;
 	kcb_p->tcb_p->priority = TASK_NORMAL_PRIO;
+
+	kcb_p->tcb_p->stack = malloc(kcb_p->tcb_p->guard_sz);
 	
+	if (!kcb_p->tcb_p->stack) {
+		printf("\n*** HALT - task %d, stack alloc failed\n", kcb_p->tcb_p->id);
+		
+		for (;;);
+	}
+	
+	if (!setjmp(kcb_p->tcb_p->context)) {
+		kcb_p->tcb_p->context[CONTEXT_SP] = (uint32_t)kcb_p->tcb_p->stack + kcb_p->tcb_p->guard_sz;
+		kcb_p->tcb_p->context[CONTEXT_RA] = (uint32_t)task;
+
+		printf("task %d, stack: %08x - %08x [sp: %08x], size %d\n", kcb_p->tcb_p->id, (size_t)kcb_p->tcb_p->stack,
+			(size_t)kcb_p->tcb_p->stack + kcb_p->tcb_p->guard_sz, kcb_p->tcb_p->context[CONTEXT_SP], kcb_p->tcb_p->guard_sz);
+		
+		kcb_p->tcb_p->state = TASK_READY;
+	}
+
 	return 0;
 }
 
@@ -49,15 +67,17 @@ int32_t ucx_task_add(void *task, uint16_t guard_size)
 */
 void ucx_task_init(void)
 {
-	char guard[kcb_p->tcb_p->guard_sz];
+//	char guard[kcb_p->tcb_p->guard_sz];
 	
-	memset(guard, 0x69, kcb_p->tcb_p->guard_sz);
-	memset(guard, 0x33, 4);
-	memset((guard) + kcb_p->tcb_p->guard_sz - 4, 0x33, 4);
-	kcb_p->tcb_p->guard_addr = (uint32_t *)guard;
-	printf("task %d, guard: %08x - %08x\n", kcb_p->tcb_p->id, (size_t)kcb_p->tcb_p->guard_addr,
-		(size_t)kcb_p->tcb_p->guard_addr + kcb_p->tcb_p->guard_sz);
+
 	
+	//memset(guard, 0x69, kcb_p->tcb_p->guard_sz);
+	//memset(guard, 0x33, 4);
+	//memset((guard) + kcb_p->tcb_p->guard_sz - 4, 0x33, 4);
+	//kcb_p->tcb_p->guard_addr = (uint32_t *)guard;
+	//printf("task %d, guard: %08x - %08x\n", kcb_p->tcb_p->id, (size_t)kcb_p->tcb_p->guard_addr,
+	//	(size_t)kcb_p->tcb_p->guard_addr + kcb_p->tcb_p->guard_sz);
+
 	if (!setjmp(kcb_p->tcb_p->context)) {
 		kcb_p->tcb_p->state = TASK_READY;
 		if (kcb_p->tcb_p->tcb_next == kcb_p->tcb_first) {
@@ -75,7 +95,7 @@ void ucx_task_yield()
 {
 	if (!setjmp(kcb_p->tcb_p->context)) {
 		krnl_delay_update();		/* TODO: check if we need to run a delay update on yields. maybe only on a non-preemtive execution? */ 
-		krnl_guard_check();
+//		krnl_guard_check();
 		krnl_schedule();
 		longjmp(kcb_p->tcb_p->context, 1);
 	}

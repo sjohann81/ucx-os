@@ -364,7 +364,10 @@ extern uint32_t _end;			/* Start address of the heap memory, defined in linker s
 #define XTEA_OUT1			(*(volatile uint32_t *)(XTEA_BASE + 0x080))
 
 /* hardware dependent C library stuff */
-typedef uint32_t jmp_buf[20];
+#define CONTEXT_SP	4
+#define CONTEXT_RA	5
+
+typedef uint32_t jmp_buf[20];	// 6
 
 int32_t _interrupt_set(int32_t s);
 int32_t setjmp(jmp_buf env);
