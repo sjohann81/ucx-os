@@ -1,1 +1,1 @@
-ARCH = riscv/hf-riscv-e
+ARCH = avr/atmega2560

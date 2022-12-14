@@ -417,8 +417,12 @@ void _interrupt_tick(void)
 	_ei(1);
 }
 
-void _context_init(size_t *ctx, size_t sp, size_t ss, size_t ra)
+void _context_init(uint8_t *ctx, size_t sp, size_t ss, size_t ra)
 {
-	ctx[CONTEXT_SP] = sp + ss;
-	ctx[CONTEXT_RA] = ra;
+	size_t *ctx_p;
+	
+	ctx_p = (size_t *)ctx;
+	
+	ctx_p[CONTEXT_SP] = sp + ss;
+	ctx_p[CONTEXT_RA] = ra;
 }

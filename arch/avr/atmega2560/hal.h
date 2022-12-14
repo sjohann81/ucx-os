@@ -9,6 +9,9 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include <stddef.h>
+
+#define HAS_SIZE_T
 
 #define __ARCH__	"ATMEGA2560"
 
@@ -32,6 +35,7 @@ void _hardware_init(void);
 void _timer_enable(void);
 void _timer_disable(void);
 void _interrupt_tick(void);
+void _context_init(uint8_t *ctx, size_t sp, size_t ss, size_t ra);
 
 #define strcpy(dst, src)		ucx_strcpy(dst, src)
 #define strncpy(s1, s2, n)		ucx_strncpy(s1, s2, n)

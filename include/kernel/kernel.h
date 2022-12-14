@@ -12,7 +12,8 @@ enum {TASK_STOPPED, TASK_READY, TASK_RUNNING, TASK_BLOCKED, TASK_SUSPENDED};
 struct tcb_s {
 	struct tcb_s *tcb_next;
 	void (*task)(void);
-	jmp_buf context;
+	jmp_buf context;		/* jmp_buf is architecture specific */
+	uint8_t *context_p;		/* generalize jmp_buf */
 	uint32_t *guard_addr;
 	uint16_t guard_sz;
 	size_t *stack;
