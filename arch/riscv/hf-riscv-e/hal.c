@@ -419,9 +419,9 @@ void _interrupt_tick(void)
 
 void _context_init(uint8_t *ctx, size_t sp, size_t ss, size_t ra)
 {
-	size_t *ctx_p;
+	uint32_t *ctx_p;
 	
-	ctx_p = (size_t *)ctx;
+	ctx_p = (uint32_t *)ctx;
 	
 	ctx_p[CONTEXT_SP] = sp + ss;
 	ctx_p[CONTEXT_RA] = ra;

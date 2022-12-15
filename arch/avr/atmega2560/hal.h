@@ -21,6 +21,7 @@
 #define _enable_interrupts()		_interrupt_set(1)
 
 #define CONTEXT_SP	18
+#define CONTEXT_SR	20
 #define CONTEXT_RA	21
 
 char _interrupt_set(char s);

@@ -92,8 +92,9 @@ void _interrupt_tick(void)
 
 void _context_init(uint8_t *ctx, size_t sp, size_t ss, size_t ra)
 {
-	ctx[CONTEXT_SP] = (sp + ss) >> 8;
-	ctx[CONTEXT_SP + 1] = (sp + ss) & 0xff;
-	ctx[CONTEXT_RA] = ra >> 8;
-	ctx[CONTEXT_RA + 1] = ra & 0xff;
+	ctx[CONTEXT_SP] = (sp + ss) & 0xff;
+	ctx[CONTEXT_SP + 1] = (sp + ss) >> 8;
+	ctx[CONTEXT_SR] = 0x80;
+	ctx[CONTEXT_RA] = ra & 0xff;
+	ctx[CONTEXT_RA + 1] = ra >> 8;
 }
