@@ -9,7 +9,7 @@ void producer(void)
 {
 	int32_t item;
 
-	ucx_task_init();
+//	ucx_task_init();
 
 	for (;;) {
 		item = random();
@@ -27,7 +27,7 @@ void consumer(void)
 {
 	int32_t item;
 
-	ucx_task_init();
+//	ucx_task_init();
 
 	for (;;) {
 		ucx_wait(full);

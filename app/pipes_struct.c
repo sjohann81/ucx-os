@@ -14,7 +14,7 @@ void task1(void)
 	int32_t i = 0;
 	struct data1_s *ptr = (struct data1_s *)&data1;
 
-	ucx_task_init();
+//	ucx_task_init();
 
 	ptr->a = 12345;
 	ptr->b = -555;
@@ -36,7 +36,7 @@ void task0(void)
 	uint16_t s;
 	struct data1_s *ptr = (struct data1_s *)&data;
 
-	ucx_task_init();
+//	ucx_task_init();
 
 	while (1) {
 		while (ucx_pipe_size(pipe1) < sizeof(struct data1_s));
