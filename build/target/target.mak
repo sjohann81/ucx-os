@@ -1,1 +1,1 @@
-ARCH = avr/atmega2560
+ARCH = none

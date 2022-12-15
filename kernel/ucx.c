@@ -42,13 +42,13 @@ void krnl_delay_update(void)
 void krnl_sched_init(int32_t preemptive)
 {
 	kcb_p->tcb_p = kcb_p->tcb_first;
+	
 	if (preemptive) {
 		_timer_enable();
 	}
 	
 	_enable_interrupts();
 	longjmp(kcb_p->tcb_p->context, 1);
-//	(*kcb_p->tcb_p->task)();
 }
 
 
