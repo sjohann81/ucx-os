@@ -384,3 +384,13 @@ void _interrupt_tick(void)
 {
 	_ei(1);
 }
+
+void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)
+{
+	uint64_t *ctx_p;
+	
+	ctx_p = (uint64_t *)ctx;
+	
+	ctx_p[CONTEXT_SP] = sp + ss;
+	ctx_p[CONTEXT_RA] = ra;
+}
