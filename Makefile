@@ -62,7 +62,6 @@ ucx: incl hal
 		$(SRC_DIR)/lib/queue.c \
 		$(SRC_DIR)/kernel/pipe.c \
 		$(SRC_DIR)/kernel/semaphore.c \
-		$(SRC_DIR)/kernel/task.c \
 		$(SRC_DIR)/kernel/ucx.c \
 		$(SRC_DIR)/init/main.c
 		mv *.o $(SRC_DIR)/build/kernel

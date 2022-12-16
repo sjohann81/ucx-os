@@ -1,6 +1,6 @@
 #include <ucx.h>
 
-int32_t ucx_task_add(void *task, uint16_t guard_size)
+int32_t ucx_task_add(void *task, uint16_t stack_size)
 {
 	struct tcb_s *tcb_last = kcb_p->tcb_p;
 	
@@ -17,12 +17,12 @@ int32_t ucx_task_add(void *task, uint16_t guard_size)
 	kcb_p->tcb_p->task = task;
 	kcb_p->tcb_p->context_p = (uint8_t *)kcb_p->tcb_p->context;
 	kcb_p->tcb_p->delay = 0;
-	kcb_p->tcb_p->guard_sz = guard_size;
+	kcb_p->tcb_p->stack_sz = stack_size;
 	kcb_p->tcb_p->id = kcb_p->id++;
 	kcb_p->tcb_p->state = TASK_STOPPED;
 	kcb_p->tcb_p->priority = TASK_NORMAL_PRIO;
 
-	kcb_p->tcb_p->stack = malloc(kcb_p->tcb_p->guard_sz);
+	kcb_p->tcb_p->stack = malloc(kcb_p->tcb_p->stack_sz);
 	
 	if (!kcb_p->tcb_p->stack) {
 		printf("\n*** HALT - task %d, stack alloc failed\n", kcb_p->tcb_p->id);
@@ -31,13 +31,15 @@ int32_t ucx_task_add(void *task, uint16_t guard_size)
 	}
 	
 	if (!setjmp(kcb_p->tcb_p->context)) {
-		_context_init(kcb_p->tcb_p->context_p, (size_t)kcb_p->tcb_p->stack,
-			kcb_p->tcb_p->guard_sz, (size_t)task);
-//		kcb_p->tcb_p->context[CONTEXT_SP] = (size_t)kcb_p->tcb_p->stack + kcb_p->tcb_p->guard_sz;
-//		kcb_p->tcb_p->context[CONTEXT_RA] = (size_t)task;
+		memset(kcb_p->tcb_p->stack, 0x69, kcb_p->tcb_p->stack_sz);
+		memset(kcb_p->tcb_p->stack, 0x33, 4);
+		memset((kcb_p->tcb_p->stack) + kcb_p->tcb_p->stack_sz - 4, 0x33, 4);
 		
-		printf("task %d, stack: %08x - %08x, size %d\n", kcb_p->tcb_p->id, (uint32_t)kcb_p->tcb_p->stack,
-			(uint32_t)kcb_p->tcb_p->stack + kcb_p->tcb_p->guard_sz, kcb_p->tcb_p->guard_sz);
+		_context_init(kcb_p->tcb_p->context_p, (size_t)kcb_p->tcb_p->stack,
+			kcb_p->tcb_p->stack_sz, (size_t)task);
+		
+		printf("task %d, stack: %08x, size %d\n", kcb_p->tcb_p->id,
+			(uint32_t)kcb_p->tcb_p->stack, kcb_p->tcb_p->stack_sz);
 		
 		kcb_p->tcb_p->state = TASK_READY;
 	}
@@ -45,60 +47,11 @@ int32_t ucx_task_add(void *task, uint16_t guard_size)
 	return 0;
 }
 
-/*
- * First following lines of code are absurd at best. Stack marks are
- * used by krnl_guard_check() to detect stack overflows on guard space.
- * It is up to the user to define sufficient stack guard space (considering
- * local thread allocation of the stack for recursion and context
- * saving). Stack allocated for data before ucx_task_init() (generally
- * most stack used by a task) is not verified.
- * We also need the safety pig, just in case.
-                         _ 
- _._ _..._ .-',     _.._(`)) 
-'-. `     '  /-._.-'    ',/ 
-   )         \            '. 
-  / _    _    |             \ 
- |  a    a    /              | 
- \   .-.                     ;   
-  '-('' ).-'       ,'       ; 
-     '-;           |      .' 
-        \           \    / 
-        | 7  .__  _.-\   \ 
-        | |  |  ``/  /`  / 
-       /,_|  |   /,_/   / 
-          /,_/      '`-' 
-*/
-void ucx_task_init(void)
-{
-//	char guard[kcb_p->tcb_p->guard_sz];
-	
-
-	
-	//memset(guard, 0x69, kcb_p->tcb_p->guard_sz);
-	//memset(guard, 0x33, 4);
-	//memset((guard) + kcb_p->tcb_p->guard_sz - 4, 0x33, 4);
-	//kcb_p->tcb_p->guard_addr = (uint32_t *)guard;
-	//printf("task %d, guard: %08x - %08x\n", kcb_p->tcb_p->id, (size_t)kcb_p->tcb_p->guard_addr,
-	//	(size_t)kcb_p->tcb_p->guard_addr + kcb_p->tcb_p->guard_sz);
-
-	if (!setjmp(kcb_p->tcb_p->context)) {
-		kcb_p->tcb_p->state = TASK_READY;
-		if (kcb_p->tcb_p->tcb_next == kcb_p->tcb_first) {
-			kcb_p->tcb_p->state = TASK_RUNNING;
-		} else {
-			kcb_p->tcb_p = kcb_p->tcb_p->tcb_next;
-			kcb_p->tcb_p->state = TASK_RUNNING;
-			(*kcb_p->tcb_p->task)();
-		}
-	}
-	_enable_interrupts();
-}
-
 void ucx_task_yield()
 {
 	if (!setjmp(kcb_p->tcb_p->context)) {
 		krnl_delay_update();		/* TODO: check if we need to run a delay update on yields. maybe only on a non-preemtive execution? */ 
-//		krnl_guard_check();
+		krnl_stack_check();
 		krnl_schedule();
 		longjmp(kcb_p->tcb_p->context, 1);
 	}
@@ -130,6 +83,7 @@ int32_t ucx_task_suspend(uint16_t id)
 		if (tcb_ptr->tcb_next == kcb_p->tcb_first)
 			return -1;
 	}
+	
 	if (kcb_p->tcb_p->id == id)
 		ucx_task_yield();
 	
