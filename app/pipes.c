@@ -11,8 +11,6 @@ void task3(void)
 	char data[128];
 	uint16_t s;
 
-	ucx_task_init();
-
 	while (1) {
 		memset(data, 0, sizeof(data));
 		printf("Waiting data from task0... ");
@@ -24,8 +22,6 @@ void task3(void)
 
 void task2(void)
 {
-	ucx_task_init();
-
 	while (1) {
 		/* write pipe - write size must be less than buffer size */
 		ucx_pipe_write(pipe2, data2, strlen(data2));
@@ -34,8 +30,6 @@ void task2(void)
 
 void task1(void)
 {
-	ucx_task_init();
-
 	while (1) {
 		/* write pipe - write size must be less than buffer size */
 		ucx_pipe_write(pipe1, data1, strlen(data1));
@@ -47,8 +41,6 @@ void task0(void)
 	char data1[128];	/* data buffer 1 */
 	char data2[50];		/* data buffer 2 */
 	uint16_t s;
-
-	ucx_task_init();
 
 	while (1) {
 		/* read pipe - read size must be less than buffer size */
@@ -65,10 +57,10 @@ void task0(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(task0, DEFAULT_GUARD_SIZE);
-	ucx_task_add(task1, DEFAULT_GUARD_SIZE);
-	ucx_task_add(task2, DEFAULT_GUARD_SIZE);
-	ucx_task_add(task3, DEFAULT_GUARD_SIZE);
+	ucx_task_add(task0, DEFAULT_STACK_SIZE);
+	ucx_task_add(task1, DEFAULT_STACK_SIZE);
+	ucx_task_add(task2, DEFAULT_STACK_SIZE);
+	ucx_task_add(task3, DEFAULT_STACK_SIZE);
 
 	pipe1 = ucx_pipe_create(128);		/* pipe buffer, 128 bytes (allocated on the heap) */
 	pipe2 = ucx_pipe_create(64);		/* pipe buffer, 64 bytes */

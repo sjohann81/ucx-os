@@ -4,8 +4,6 @@ void task2(void)
 {
 	int32_t cnt = 0;
 
-	ucx_task_init();
-
 	while (1) {
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
 	}
@@ -14,8 +12,6 @@ void task2(void)
 void task1(void)
 {
 	int32_t cnt = 0, val;
-
-	ucx_task_init();
 
 	while (1) {
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
@@ -40,8 +36,6 @@ void task0(void)
 {
 	int32_t cnt = 0, val;
 
-	ucx_task_init();
-
 	while (1) {
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
 		if (cnt == 1000) {
@@ -60,9 +54,9 @@ void task0(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(task0, DEFAULT_GUARD_SIZE);
-	ucx_task_add(task1, DEFAULT_GUARD_SIZE);
-	ucx_task_add(task2, DEFAULT_GUARD_SIZE);
+	ucx_task_add(task0, DEFAULT_STACK_SIZE);
+	ucx_task_add(task1, DEFAULT_STACK_SIZE);
+	ucx_task_add(task2, DEFAULT_STACK_SIZE);
 
 	// start UCX/OS, preemptive mode
 	return 1;

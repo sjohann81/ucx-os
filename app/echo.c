@@ -6,8 +6,6 @@ void task1(void)
 {
 	char buf[128];
 	
-	ucx_task_init();
-
 	while (1) {
 		memset(buf, 0, sizeof(buf));
 		printf("[task B] Waiting for message...\n");
@@ -21,8 +19,6 @@ void task0(void)
 {
 	char buf[128];
 	
-	ucx_task_init();
-
 	while (1) {
 		printf("[task A] Type a message: \n");
 		gets(buf);
@@ -32,8 +28,8 @@ void task0(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(task0, DEFAULT_GUARD_SIZE);
-	ucx_task_add(task1, DEFAULT_GUARD_SIZE);
+	ucx_task_add(task0, DEFAULT_STACK_SIZE);
+	ucx_task_add(task1, DEFAULT_STACK_SIZE);
 	
 	pipe = ucx_pipe_create(32);
 	

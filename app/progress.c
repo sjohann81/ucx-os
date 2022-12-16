@@ -9,8 +9,6 @@ void logger(void)
 	int32_t i;
 	uint32_t ms;
 	
-	ucx_task_init();
-	
 	while (1) {
 		ms = _read_us() / 1000;
 		_delay_ms(1000);
@@ -25,8 +23,6 @@ void task(void)
 {
 	volatile uint32_t counter = 0;
 
-	ucx_task_init();
-
 	while (1) {
 		if (counter++ == 10000) {
 			counter = 0;
@@ -40,9 +36,9 @@ int32_t app_main(void)
 	int32_t i;
 	
 	for (i = 0; i < N_TASKS; i++)
-		ucx_task_add(task, DEFAULT_GUARD_SIZE);
-	// add logger task, 384 bytes of stack guard space
-	ucx_task_add(logger, DEFAULT_GUARD_SIZE);
+		ucx_task_add(task, DEFAULT_STACK_SIZE);
+	// add logger task
+	ucx_task_add(logger, DEFAULT_STACK_SIZE);
 
 	// start UCX/OS, preemptive mode
 	return 1;

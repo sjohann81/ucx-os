@@ -2,8 +2,6 @@
 
 void task2(void)
 {
-//	ucx_task_init();
-	
 	int32_t cnt = 300000;
 
 	while (1) {
@@ -13,8 +11,6 @@ void task2(void)
 
 void task1(void)
 {
-//	ucx_task_init();
-	
 	int32_t cnt = 200000;
 
 	while (1) {
@@ -24,8 +20,6 @@ void task1(void)
 
 void task0(void)
 {
-//	ucx_task_init();
-	
 	int32_t cnt = 100000;
 
 	while (1) {

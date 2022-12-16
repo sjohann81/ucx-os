@@ -9,8 +9,6 @@ void producer(void)
 {
 	int32_t item;
 
-//	ucx_task_init();
-
 	for (;;) {
 		item = random();
 		ucx_wait(empty);
@@ -27,8 +25,6 @@ void consumer(void)
 {
 	int32_t item;
 
-//	ucx_task_init();
-
 	for (;;) {
 		ucx_wait(full);
 		ucx_wait(mutex);
@@ -42,9 +38,9 @@ void consumer(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(producer, DEFAULT_GUARD_SIZE);
-	ucx_task_add(consumer, DEFAULT_GUARD_SIZE);
-	ucx_task_add(consumer, DEFAULT_GUARD_SIZE);
+	ucx_task_add(producer, DEFAULT_STACK_SIZE);
+	ucx_task_add(consumer, DEFAULT_STACK_SIZE);
+	ucx_task_add(consumer, DEFAULT_STACK_SIZE);
 
 	empty = ucx_semcreate(N);
 	full = ucx_semcreate(0);

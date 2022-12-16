@@ -71,8 +71,6 @@ void testfp(void)
 
 void task0()
 {
-	ucx_task_init();
-	
 	testfp();
 	
 	for (;;);
@@ -80,7 +78,8 @@ void task0()
 
 int32_t app_main(void)
 {
-	ucx_task_add(task0, DEFAULT_GUARD_SIZE);
+	ucx_task_add(task0, DEFAULT_STACK_SIZE);
+	ucx_task_add(task0, DEFAULT_STACK_SIZE);
 
 	return 1;
 }

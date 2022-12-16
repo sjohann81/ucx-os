@@ -14,8 +14,6 @@ void task1(void)
 	int32_t i = 0;
 	struct data1_s *ptr = (struct data1_s *)&data1;
 
-//	ucx_task_init();
-
 	ptr->a = 12345;
 	ptr->b = -555;
 
@@ -36,8 +34,6 @@ void task0(void)
 	uint16_t s;
 	struct data1_s *ptr = (struct data1_s *)&data;
 
-//	ucx_task_init();
-
 	while (1) {
 		while (ucx_pipe_size(pipe1) < sizeof(struct data1_s));
 		s = ucx_pipe_read(pipe1, data, ucx_pipe_size(pipe1));
@@ -47,8 +43,8 @@ void task0(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(task0, DEFAULT_GUARD_SIZE);
-	ucx_task_add(task1, DEFAULT_GUARD_SIZE);
+	ucx_task_add(task0, DEFAULT_STACK_SIZE);
+	ucx_task_add(task1, DEFAULT_STACK_SIZE);
 
 	pipe1 = ucx_pipe_create(64);		/* pipe buffer, 64 bytes */
 
