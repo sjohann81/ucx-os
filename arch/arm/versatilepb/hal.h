@@ -132,6 +132,9 @@ https://github.com/Luminger/Alice-1121-Modem/blob/master/kernel/linux/include/as
 #define INTMASK_GNDINT                  (1 << INT_GNDINT)
 
 /* hardware dependent C library stuff */
+#define CONTEXT_SP	8
+#define CONTEXT_RA	9
+
 typedef uint32_t jmp_buf[20];
 
 void _enable_interrupts(void);
@@ -152,6 +155,7 @@ void _hardware_init(void);
 void _timer_enable(void);
 void _timer_disable(void);
 void _interrupt_tick(void);
+void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra);
 
 #define strcpy(dst, src)		ucx_strcpy(dst, src)
 #define strncpy(s1, s2, n)		ucx_strncpy(s1, s2, n)
@@ -186,4 +190,4 @@ void _interrupt_tick(void);
 
 void krnl_dispatcher(void);
 
-#define DEFAULT_GUARD_SIZE	4096
+#define DEFAULT_STACK_SIZE	4096

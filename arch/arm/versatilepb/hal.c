@@ -455,3 +455,13 @@ void _interrupt_tick(void)
 	if (TIMER0_MIS)
 		TIMER0_INTCLR = 1;
 }
+
+void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)
+{
+	uint32_t *ctx_p;
+	
+	ctx_p = (uint32_t *)ctx;
+	
+	ctx_p[CONTEXT_SP] = sp + ss;
+	ctx_p[CONTEXT_RA] = ra;
+}
