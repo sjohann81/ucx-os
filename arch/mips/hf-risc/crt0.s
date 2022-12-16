@@ -163,8 +163,8 @@ setjmp:
 	sw    $sp, 40($a0)
 	sw    $ra, 44($a0)
 
-	jr    $ra
 	ori   $v0,  $zero, 0
+	jr    $ra
 
 	.set reorder
 .end setjmp
@@ -188,8 +188,8 @@ longjmp:
 	lw    $sp, 40($a0)
 	lw    $ra, 44($a0)
 
-	jr    $ra
 	ori   $v0,  $a1, 0
+	jr    $ra
 
 	.set reorder
 .end longjmp
