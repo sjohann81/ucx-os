@@ -90,11 +90,16 @@ void _interrupt_tick(void)
 {
 }
 
-void _context_init(uint8_t *ctx, size_t sp, size_t ss, size_t ra)
+void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)
 {
-	ctx[CONTEXT_SP] = (sp + ss) & 0xff;
-	ctx[CONTEXT_SP + 1] = (sp + ss) >> 8;
-	ctx[CONTEXT_SR] = 0x80;			/* status register, global interrupts enabled */
-	ctx[CONTEXT_RA] = ra & 0xff;
-	ctx[CONTEXT_RA + 1] = ra >> 8;
+	uint8_t *ctx_p;
+	
+	ctx_p = (uint8_t *)ctx;
+
+	ctx_p[CONTEXT_SP] = (sp + ss) & 0xff;
+	ctx_p[CONTEXT_SP + 1] = (sp + ss) >> 8;
+	ctx_p[CONTEXT_SR] = 0x80;			/* status register, global interrupts enabled */
+	ctx_p[CONTEXT_RA] = ra & 0xff;
+	ctx_p[CONTEXT_RA + 1] = ra >> 8;
 }
+

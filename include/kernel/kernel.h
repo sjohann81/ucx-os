@@ -13,7 +13,6 @@ struct tcb_s {
 	struct tcb_s *tcb_next;
 	void (*task)(void);
 	jmp_buf context;		/* jmp_buf is architecture specific */
-	uint8_t *context_p;		/* generalize jmp_buf */
 	size_t *stack;
 	size_t stack_sz;
 	uint16_t id;
@@ -38,8 +37,6 @@ extern struct kcb_s *kcb_p;
 #define CRITICAL_ENTER		_timer_disable
 #define CRITICAL_LEAVE		_timer_enable
 
-//void krnl_stack_check(void);
-//void krnl_delay_update(void);
 void krnl_sched_init(int32_t preemptive);
 uint16_t krnl_schedule(void);
 void krnl_dispatcher(void);

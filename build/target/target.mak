@@ -1,1 +1,1 @@
-ARCH = avr/atmega328p
+ARCH = none

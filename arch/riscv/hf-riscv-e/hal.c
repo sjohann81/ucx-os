@@ -417,7 +417,7 @@ void _interrupt_tick(void)
 	_ei(1);
 }
 
-void _context_init(uint8_t *ctx, size_t sp, size_t ss, size_t ra)
+void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)
 {
 	uint32_t *ctx_p;
 	

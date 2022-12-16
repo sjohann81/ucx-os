@@ -102,7 +102,6 @@ int32_t ucx_task_add(void *task, uint16_t stack_size)
 		tcb_last->tcb_next = kcb_p->tcb_p;
 	kcb_p->tcb_p->tcb_next = kcb_p->tcb_first;
 	kcb_p->tcb_p->task = task;
-	kcb_p->tcb_p->context_p = (uint8_t *)kcb_p->tcb_p->context;
 	kcb_p->tcb_p->delay = 0;
 	kcb_p->tcb_p->stack_sz = stack_size;
 	kcb_p->tcb_p->id = kcb_p->id++;
@@ -122,7 +121,7 @@ int32_t ucx_task_add(void *task, uint16_t stack_size)
 		memset(kcb_p->tcb_p->stack, 0x33, 4);
 		memset((kcb_p->tcb_p->stack) + kcb_p->tcb_p->stack_sz - 4, 0x33, 4);
 		
-		_context_init(kcb_p->tcb_p->context_p, (size_t)kcb_p->tcb_p->stack,
+		_context_init(&kcb_p->tcb_p->context, (size_t)kcb_p->tcb_p->stack,
 			kcb_p->tcb_p->stack_sz, (size_t)task);
 		
 		printf("task %d, stack: %08x, size %d\n", kcb_p->tcb_p->id,
