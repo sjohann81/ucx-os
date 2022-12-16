@@ -352,16 +352,6 @@ extern uint32_t _end;			/* Start address of the heap memory, defined in linker s
 #define ADC2				(*(volatile uint32_t *)(ADC_BASE + 0x4800))
 #define ADC3				(*(volatile uint32_t *)(ADC_BASE + 0x4c00))
 
-#define XTEA_BASE			0xfa000000
-#define XTEA_CONTROL			(*(volatile uint32_t *)(XTEA_BASE + 0x000))
-#define XTEA_KEY0			(*(volatile uint32_t *)(XTEA_BASE + 0x010))
-#define XTEA_KEY1			(*(volatile uint32_t *)(XTEA_BASE + 0x020))
-#define XTEA_KEY2			(*(volatile uint32_t *)(XTEA_BASE + 0x030))
-#define XTEA_KEY3			(*(volatile uint32_t *)(XTEA_BASE + 0x040))
-#define XTEA_IN0			(*(volatile uint32_t *)(XTEA_BASE + 0x050))
-#define XTEA_IN1			(*(volatile uint32_t *)(XTEA_BASE + 0x060))
-#define XTEA_OUT0			(*(volatile uint32_t *)(XTEA_BASE + 0x070))
-#define XTEA_OUT1			(*(volatile uint32_t *)(XTEA_BASE + 0x080))
 
 /* hardware dependent C library stuff */
 #define CONTEXT_SP	4
