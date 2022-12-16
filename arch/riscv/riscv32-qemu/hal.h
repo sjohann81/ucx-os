@@ -70,6 +70,9 @@ extern uint32_t _end;			/* Start address of the heap memory, defined in linker s
 #define MTIMECMP_H			(*(volatile uint32_t *)(0x02004004))
 
 /* hardware dependent C library stuff */
+#define CONTEXT_SP	14
+#define CONTEXT_RA	15
+
 typedef uint32_t jmp_buf[20];
 
 int32_t _interrupt_set(int32_t s);
@@ -88,6 +91,7 @@ void _hardware_init(void);
 void _timer_enable(void);
 void _timer_disable(void);
 void _interrupt_tick(void);
+void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra);
 
 uint64_t mtime_r(void);
 void mtime_w(uint64_t val);
@@ -127,4 +131,4 @@ void mtimecmp_w(uint64_t val);
 
 void krnl_dispatcher(void);
 
-#define DEFAULT_GUARD_SIZE	4096
+#define DEFAULT_STACK_SIZE	4096
