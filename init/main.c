@@ -20,12 +20,11 @@ int32_t main(void)
 	kcb_p->id = 0;
 	
 	printf("UCX/OS boot on %s\n", __ARCH__);
-#ifndef UCX_OS_HEAP_SIZE
+#ifndef UNKNOWN_HEAP
 	ucx_heap_init((size_t *)&_heap_start, (size_t)&_heap_size);
 	printf("heap_init(), %d bytes free\n", (size_t)&_heap_size);
 #else
 	ucx_heap_init((size_t *)&__bss_end, ((size_t)&__stack - (size_t)&__bss_end - DEFAULT_STACK_SIZE));
-	
 	printf("heap_init(), %d bytes free\n", ((size_t)&__stack - (size_t)&__bss_end - DEFAULT_STACK_SIZE));
 #endif
 	pr = app_main();
