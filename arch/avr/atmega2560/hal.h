@@ -11,6 +11,10 @@
 #include <util/delay.h>
 #include <stddef.h>
 
+extern uint32_t __bss_start;
+extern uint32_t __bss_end;
+extern uint32_t __stack;
+
 #define HAS_SIZE_T
 
 #define __ARCH__	"ATMEGA2560"
@@ -71,4 +75,4 @@ void _context_init(uint8_t *ctx, size_t sp, size_t ss, size_t ra);
 
 void krnl_dispatcher(void);
 
-#define DEFAULT_GUARD_SIZE	512
+#define DEFAULT_STACK_SIZE	512

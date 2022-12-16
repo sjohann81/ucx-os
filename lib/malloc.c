@@ -9,9 +9,9 @@
 
 #include <ucx.h>
 
-#ifdef UCX_OS_HEAP_SIZE
-char _heap[UCX_OS_HEAP_SIZE];
-#endif
+//#ifdef UCX_OS_HEAP_SIZE
+//char _heap[UCX_OS_HEAP_SIZE];
+//#endif
 
 struct mem_block_s *first_free;
 struct mem_block_s *last_free;

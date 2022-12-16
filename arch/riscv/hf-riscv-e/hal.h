@@ -421,4 +421,4 @@ void _context_init(uint8_t *ctx, size_t sp, size_t ss, size_t ra);
 
 void krnl_dispatcher(void);
 
-#define DEFAULT_GUARD_SIZE	2048
+#define DEFAULT_STACK_SIZE	2048
