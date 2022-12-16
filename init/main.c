@@ -24,7 +24,6 @@ int32_t main(void)
 	ucx_heap_init((size_t *)&_heap_start, (size_t)&_heap_size);
 	printf("heap_init(), %d bytes free\n", (size_t)&_heap_size);
 #else
-//	ucx_heap_init((size_t *)&_heap, UCX_OS_HEAP_SIZE);
 	ucx_heap_init((size_t *)&__bss_end, ((size_t)&__stack - (size_t)&__bss_end - DEFAULT_STACK_SIZE));
 	
 	printf("heap_init(), %d bytes free\n", ((size_t)&__stack - (size_t)&__bss_end - DEFAULT_STACK_SIZE));

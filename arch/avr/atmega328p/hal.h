@@ -9,6 +9,13 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include <stddef.h>
+
+extern uint32_t __bss_start;
+extern uint32_t __bss_end;
+extern uint32_t __stack;
+
+#define HAS_SIZE_T
 
 #define __ARCH__	"ATMEGA328p"
 
@@ -16,6 +23,10 @@
 #define _di()				_interrupt_set(0)
 #define _ei(S)				_interrupt_set(S)
 #define _enable_interrupts()		_interrupt_set(1)
+
+#define CONTEXT_SP	18
+#define CONTEXT_SR	20
+#define CONTEXT_RA	21
 
 char _interrupt_set(char s);
 
@@ -29,6 +40,7 @@ void _hardware_init(void);
 void _timer_enable(void);
 void _timer_disable(void);
 void _interrupt_tick(void);
+void _context_init(uint8_t *ctx, size_t sp, size_t ss, size_t ra);
 
 #define strcpy(dst, src)		ucx_strcpy(dst, src)
 #define strncpy(s1, s2, n)		ucx_strncpy(s1, s2, n)
@@ -63,4 +75,4 @@ void _interrupt_tick(void);
 
 void krnl_dispatcher(void);
 
-#define DEFAULT_GUARD_SIZE	256
+#define DEFAULT_STACK_SIZE	256
