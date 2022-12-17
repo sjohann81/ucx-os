@@ -28,7 +28,7 @@ Different toolchains based on GCC and LLVM can be used to build the kernel and a
 ## Features
 
 - Small footprint (4kB ~ 8kB) for the kernel;
-- Lightweight task model (fibers) where tasks share the same stack;
+- Lightweight task model (fibers) where tasks share the same memory region;
 - Preemptive / cooperative scheduling based on a priority round robin (RR) scheduler;
 - Task synchronization using semaphores or pipeline channels;
 - Dynamic memory allocation;
@@ -57,7 +57,7 @@ The programming model is very simple and intented to be generic for the developm
 
 ### Tasks, the stack, setjmp() / longjmp()
 
-Tasks are basic resources managed by the kernel. In this model, tasks are lightweight execution routines that run indefinitely (tasks never finish) and share the same stack area. During bootup, the kernel initializes all tasks recursively and allocates stack memory for each task local storage. As the same stack is shared by all tasks, context switches are easily implemented by portable setjmp() and longjmp() library calls. This ensures very fast context switches, as less state storage is needed for each task and also allows the kernel to run even on severely memory constrained architectures.
+Tasks are basic resources managed by the kernel. In this model, tasks are lightweight execution routines that run indefinitely (tasks never finish) and share the same memory region. During bootup, the kernel initializes all tasks and allocates stack memory for each task local storage. Context switches are easily implemented by portable setjmp() and longjmp() library calls. This ensures very fast context switches, as less state storage is needed for each task and also allows the kernel to run even on severely memory constrained architectures.
 
 ### Scheduling (cooperative / preemptive)
 
@@ -67,9 +67,9 @@ A priority round-robin algorithm performs the scheduling of tasks. By default, a
 
 ### Stack allocation
 
-Memory used for stack inside a task function is allocated from a global stack and divided in two parts. The first part is generally used for task data structures and local task variables, and it is allocated during the first execution of a task. The second part, also known as *guard space*, is allocated after task initialization (after a call to ucx_task_init()). The size of this region is specified when a task is added so it can't be changed. During execution, the guard space will be used for dynamic stack allocation during function calls, temporary variables and also to keep processor state during interrupts.
+Memory used for stack inside a task function is allocated from the heap. The *heap* is a region of memory that is managed by a memory allocator, which is used by both the kernel and applications. Data stored in the task stack is consisted by local task variables and data structures. The size of the stack is configurable per a task basis and is specified when a task is added to the system. During execution, the stack space will be used for dynamic allocation during function calls, temporary variables and also to keep processor state during interrupts.
 
-Each architecture HAL defines a default value for the guard space in a macro (DEFAULT_GUARD_SIZE). Memory constrained architectures, such as the ATMEGA328p have a very limited default guard space of 256 bytes, but other architectures have more (2kB for example). Different tasks may have different guard space sizes. It is up to the user to specify such value according to the application needs.
+Each architecture HAL defines a default value for the stack space in a macro (DEFAULT_STACK_SIZE). Memory constrained architectures, such as the ATMEGA328p have a very limited default stack space of 256 bytes, but other architectures have more (2kB for example). Different tasks may have different stack space sizes, and it is up to the user to specify such value according to the application needs.
 
 ### Task synchronization (pipes, semaphores)
 
@@ -85,25 +85,21 @@ System calls are divided in three classes. The *task* class of system calls are 
 | Task			| Semaphore		| Pipe			|
 | :-------------------- | :-------------------- | :-------------------- |
 | ucx_task_add()	| ucx_sem_create()	| ucx_pipe_create()	|
-| ucx_task_init()	| ucx_sem_destroy()	| ucx_pipe_destroy()	|
-| ucx_task_yield()	| ucx_wait()		| ucx_pipe_flush()	|
-| ucx_task_delay()	| ucx_signal()		| ucx_pipe_size()	|
-| ucx_task_suspend()	|			| ucx_pipe_get()	|
-| ucx_task_resume()	|			| ucx_pipe_put()	|
-| ucx_task_priority()	|			| ucx_pipe_read()	|
-| ucx_task_id()		|			| ucx_pipe_write()	|
-| ucx_task_wfi()	|			|			|
+| ucx_task_yield()	| ucx_sem_destroy()	| ucx_pipe_destroy()	|
+| ucx_task_delay()	| ucx_wait()		| ucx_pipe_flush()	|
+| ucx_task_suspend()	| ucx_signal()		| ucx_pipe_size()	|
+| ucx_task_resume()	|			| ucx_pipe_get()	|
+| ucx_task_priority()	|			| ucx_pipe_put()	|
+| ucx_task_id()		|			| ucx_pipe_read()	|
+| ucx_task_wfi()	|			| ucx_pipe_write()	|
 | ucx_task_count()	|			|			|
+
 
 #### Task
 
 ##### ucx_task_add()
 
-- *Parameters: void \*task, uint16_t guard_size. Returns: int32_t (0, success or -1, fail).* Adds an application task to the system with a TASK_STOPPED state. *\*task* is a pointer to a task function and *guard_size* is a stack reservation amount for recursion and dynamic allocation during task execution. *guard_size* does not include the amount of memory used for local storage allocation (which is automatically allocated in the stack). This function is called during system initialization inside *app_main* and should not be called inside a task. 
-
-##### ucx_task_init()
-
-- *Parameters: none. Returns: nothing.* Initializes a task for execution, putting it in the TASK_READY or TASK_RUNNING state. This function is called once inside a task, after local storage declaration and before the main task loop and should not be called outside the scope of a task.
+- *Parameters: void \*task, uint16_t stack_size. Returns: int32_t (0, success or -1, fail).* Adds an application task to the system with a TASK_STOPPED state. *\*task* is a pointer to a task function and *stack_size* is a stack reservation amount in the heap for recursion and dynamic allocation during task execution and for local storage allocation (which is automatically allocated in the stack). This function is called during system initialization inside *app_main*. 
 
 ##### ucx_task_yield()
 
