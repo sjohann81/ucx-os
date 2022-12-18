@@ -70,7 +70,9 @@ ucx: incl hal
 		
 ## kernel + application link
 link:
-ifeq ('$(ARCH)', 'avr/atmega328p')
+ifeq ('$(ARCH)', 'avr/atmega32')
+	$(LD) $(LDFLAGS) -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
+else ifeq ('$(ARCH)', 'avr/atmega328p')
 	$(LD) $(LDFLAGS) -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
 else ifeq ('$(ARCH)', 'avr/atmega2560')
 	$(LD) $(LDFLAGS) -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
