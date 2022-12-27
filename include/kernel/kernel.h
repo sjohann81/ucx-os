@@ -37,7 +37,6 @@ extern struct kcb_s *kcb_p;
 #define CRITICAL_ENTER		_timer_disable
 #define CRITICAL_LEAVE		_timer_enable
 
-void krnl_sched_init(int32_t preemptive);
 uint16_t krnl_schedule(void);
 void krnl_dispatcher(void);
 

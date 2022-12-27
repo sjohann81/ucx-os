@@ -30,8 +30,12 @@ int32_t main(void)
 	pr = app_main();
 	
 	setjmp(kcb_p->context);
+	kcb_p->tcb_p = kcb_p->tcb_first;
 	
-	krnl_sched_init(pr);
+	if (pr)
+		_timer_enable();
+
+	_dispatch_init(kcb_p->tcb_p->context);
 	
 	/* never reached */
 	return 0;

@@ -116,6 +116,19 @@ longjmp:
 	lw	ra, 20(a0)
 	ori	a0, a1, 0
 	ret
+	
+	.global   _dispatch_init
+_dispatch_init:
+	lw	s0, 0(a0)
+	lw	s1, 4(a0)
+	lw	gp, 8(a0)
+	lw	tp, 12(a0)
+	lw	sp, 16(a0)
+	lw	ra, 20(a0)
+	li	a5, 0xf0000030
+	ori	a5, a5, 0x1
+	sb	a5, 0(a5)
+	ret
 
 # system call interface: syscall(service, arg0, arg1, arg2)
 	.global syscall

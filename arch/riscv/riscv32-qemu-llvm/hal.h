@@ -78,6 +78,7 @@ typedef uint32_t jmp_buf[20];
 int32_t _interrupt_set(int32_t s);
 int32_t setjmp(jmp_buf env);
 void longjmp(jmp_buf env, int32_t val);
+void _dispatch_init(jmp_buf env);
 
 void _putchar(char value);
 int32_t _kbhit(void);

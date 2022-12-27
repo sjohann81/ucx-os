@@ -122,3 +122,25 @@ longjmp:
 	ld    ra, 120(a0)
 	ori   a0, a1, 0
 	ret
+	
+	.global   _dispatch_init
+_dispatch_init:
+	ld    s0, 0(a0)
+	ld    s1, 8(a0)
+	ld    s2, 16(a0)
+	ld    s3, 24(a0)
+	ld    s4, 32(a0)
+	ld    s5, 40(a0)
+	ld    s6, 48(a0)
+	ld    s7, 56(a0)
+	ld    s8, 64(a0)
+	ld    s9, 72(a0)
+	ld    s10,80(a0)
+	ld    s11,88(a0)
+	ld    gp, 96(a0)
+	ld    tp, 104(a0)
+	ld    sp, 112(a0)
+	ld    ra, 120(a0)
+	addi  a5, zero, 128
+	csrw  mie, a5
+	ret

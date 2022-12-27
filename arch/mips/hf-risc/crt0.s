@@ -139,8 +139,9 @@ _interrupt_set:
 
 	li	$v1, 0xf0000030
 	lw	$v0, 0($v1)
-	jr	$ra
 	sw	$a0, 0($v1)
+	jr	$ra
+	nop
 
 	.set reorder
 .end _interrupt_set
@@ -165,6 +166,7 @@ setjmp:
 
 	ori   $v0,  $zero, 0
 	jr    $ra
+	nop
 
 	.set reorder
 .end setjmp
@@ -190,14 +192,41 @@ longjmp:
 
 	ori   $v0,  $a1, 0
 	jr    $ra
+	nop
 
 	.set reorder
 .end longjmp
+
+	.global   _dispatch_init
+	.ent     _dispatch_init
+_dispatch_init:
+	.set noreorder
+
+	lw    $s0, 0($a0)
+	lw    $s1, 4($a0)
+	lw    $s2, 8($a0)
+	lw    $s3, 12($a0)
+	lw    $s4, 16($a0)
+	lw    $s5, 20($a0)
+	lw    $s6, 24($a0)
+	lw    $s7, 28($a0)
+	lw    $fp, 32($a0)
+	lw    $gp, 36($a0)
+	lw    $sp, 40($a0)
+	lw    $ra, 44($a0)
+	ori	$k1, $zero, 0x1
+	li	$k0, 0xf0000030
+	sw	$k1, 0($k0)
+	jr    $ra
+	nop
+
+	.set reorder
+.end _dispatch_init
 
 
 	.global syscall
 	.ent syscall
 syscall:
-	nop
 	jr	$ra
+	nop
 .end syscall

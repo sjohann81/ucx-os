@@ -40,6 +40,7 @@ void _hardware_init(void);
 void _timer_enable(void);
 void _timer_disable(void);
 void _interrupt_tick(void);
+void _dispatch_init(jmp_buf env);
 void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra);
 
 #define strcpy(dst, src)		ucx_strcpy(dst, src)
