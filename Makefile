@@ -42,11 +42,12 @@ debug: serial
 ## RISC-V / Qemu
 run_riscv32:
 	echo "hit Ctrl+a x to quit"
-	qemu-system-riscv32 -machine virt -nographic -bios $(BUILD_TARGET_DIR)/image.bin -serial mon:stdio
+#	qemu-system-riscv32 -machine virt -nographic -bios $(BUILD_TARGET_DIR)/image.bin -serial mon:stdio
+	qemu-system-riscv32 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic
 
 run_riscv64:
 	echo "hit Ctrl+a x to quit"
-	qemu-system-riscv64 -machine virt -nographic -bios $(BUILD_TARGET_DIR)/image.bin -serial mon:stdio
+	qemu-system-riscv64 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic
 	
 run_versatilepb:
 	echo "hit Ctrl+a x to quit"
@@ -130,6 +131,10 @@ progress: rebuild
 	
 suspend: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/suspend.o app/suspend.c
+	@$(MAKE) --no-print-directory link
+
+test64: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/test64.o app/test64.c
 	@$(MAKE) --no-print-directory link
 
 test_fixed: rebuild
