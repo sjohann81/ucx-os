@@ -9,7 +9,7 @@ CFLAGS_STRIP = -fdata-sections -ffunction-sections
 LDFLAGS_STRIP = --gc-sections
 
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
-CFLAGS = -Wall -O2 -c -march=armv6 -msoft-float -mabi=atpcs -marm -ffreestanding -nostdlib -fomit-frame-pointer $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) -DTERM_BAUD=$(SERIAL_BAUD)
+CFLAGS = -Wall -O2 -c -march=armv6 -msoft-float -mabi=atpcs -marm -ffreestanding -nostdlib $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) -DTERM_BAUD=$(SERIAL_BAUD)
 LDFLAGS = $(LDFLAGS_STRIP)
 LDSCRIPT = $(ARCH_DIR)/versatilepb.ld
 ARFLAGS = r
@@ -26,4 +26,5 @@ AR = arm-none-eabi-ar
 hal:
 	$(CC) $(CFLAGS) -o crt0.o $(ARCH_DIR)/crt0.s
 	$(CC) $(CFLAGS) \
-		$(ARCH_DIR)/hal.c 
+		$(ARCH_DIR)/hal.c \
+		$(ARCH_DIR)/../../common/muldiv.c

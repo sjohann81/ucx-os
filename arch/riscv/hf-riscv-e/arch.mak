@@ -10,7 +10,7 @@ LDFLAGS_STRIP = --gc-sections
 
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
 ASFLAGS = -march=rv32e -mabi=ilp32e #-fPIC
-CFLAGS = -Wall -march=rv32e -mabi=ilp32e -O2 -c -mstrict-align -ffreestanding -nostdlib -ffixed-a5 -fomit-frame-pointer $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) #-mrvc -fPIC -DDEBUG_PORT
+CFLAGS = -Wall -march=rv32e -mabi=ilp32e -O2 -c -mstrict-align -ffreestanding -nostdlib -ffixed-a5 $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) #-mrvc -fPIC -DDEBUG_PORT
 ARFLAGS = r
 
 LDFLAGS = -melf32lriscv $(LDFLAGS_STRIP)
@@ -29,4 +29,5 @@ hal:
 	$(AS) $(ASFLAGS) -o crt0.o $(ARCH_DIR)/crt0.s
 	$(CC) $(CFLAGS) \
 		$(ARCH_DIR)/hal.c \
-		$(ARCH_DIR)/interrupt.c
+		$(ARCH_DIR)/interrupt.c \
+		$(ARCH_DIR)/../../common/muldiv.c
