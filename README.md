@@ -17,6 +17,7 @@ Currently, UCX/OS supports the following targets:
 
 #### AVR (8 bit)
 - ATMEGA328p
+- ATMEGA32
 - ATMEGA2560
 
 
