@@ -54,20 +54,34 @@ run_versatilepb:
 	qemu-system-arm -cpu arm1176 -m 128 -M versatilepb -serial stdio -kernel $(BUILD_TARGET_DIR)/image.elf
 
 ## kernel
-ucx: incl hal
-	$(CC) $(CFLAGS) \
-		$(SRC_DIR)/lib/libc.c \
-		$(SRC_DIR)/lib/dump.c \
-		$(SRC_DIR)/lib/malloc.c \
-		$(SRC_DIR)/lib/list.c \
-		$(SRC_DIR)/lib/queue.c \
-		$(SRC_DIR)/kernel/pipe.c \
-		$(SRC_DIR)/kernel/semaphore.c \
-		$(SRC_DIR)/kernel/ucx.c \
-		$(SRC_DIR)/init/main.c
-		mv *.o $(SRC_DIR)/build/kernel
+ucx: incl hal libs kernel
+	mv *.o $(SRC_DIR)/build/kernel
 	$(AR) $(ARFLAGS) $(BUILD_TARGET_DIR)/libucxos.a \
 		$(BUILD_KERNEL_DIR)/*.o
+
+kernel: pipe.o semaphore.o ucx.o main.o
+
+main.o: $(SRC_DIR)/init/main.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/init/main.c
+ucx.o: $(SRC_DIR)/kernel/ucx.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/ucx.c
+semaphore.o: $(SRC_DIR)/kernel/semaphore.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/semaphore.c
+pipe.o: $(SRC_DIR)/kernel/pipe.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/pipe.c
+
+libs: libc.o dump.o malloc.o list.o queue.o
+
+queue.o: $(SRC_DIR)/lib/queue.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/lib/queue.c
+list.o: $(SRC_DIR)/lib/list.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/lib/list.c
+malloc.o: $(SRC_DIR)/lib/malloc.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/lib/malloc.c
+dump.o: $(SRC_DIR)/lib/dump.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/lib/dump.c
+libc.o: $(SRC_DIR)/lib/libc.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/lib/libc.c
 		
 ## kernel + application link
 link:
