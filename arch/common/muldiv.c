@@ -1,8 +1,12 @@
+/* file:          muldiv.c
+ * description:   software implementation of 64-bit multiply/divide/
+ *                remainder/shift operations on 32 bit machines
+ * date:          12/2022
+ * author:        Sergio Johann Filho <sergio.johann@acad.pucrs.br>
+ */
+
 #include <hal.h>
 
-/*
-software implementation of multiply/divide and 64-bit routines
-*/
 
 uint32_t __mulsi3(uint32_t a, uint32_t b)
 {
