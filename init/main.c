@@ -14,11 +14,6 @@ int32_t main(void)
 	
 	_hardware_init();
 	
-	kcb_p->tcb_p = 0;
-	kcb_p->tcb_first = 0;
-	kcb_p->ctx_switches = 0;
-	kcb_p->id = 0;
-	
 	printf("UCX/OS boot on %s\n", __ARCH__);
 #ifndef UNKNOWN_HEAP
 	ucx_heap_init((size_t *)&_heap_start, (size_t)&_heap_size);

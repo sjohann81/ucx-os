@@ -6,7 +6,13 @@
 
 #include <ucx.h>
 
-struct kcb_s kernel_state;
+struct kcb_s kernel_state = {
+		.tcb_p = 0,
+		.tcb_first = 0,
+		.ctx_switches = 0,
+		.id = 0
+	};
+	
 struct kcb_s *kcb_p = &kernel_state;
 
 
@@ -88,6 +94,7 @@ int32_t ucx_task_add(void *task, uint16_t stack_size)
 
 	if (tcb_last)
 		tcb_last->tcb_next = kcb_p->tcb_p;
+
 	kcb_p->tcb_p->tcb_next = kcb_p->tcb_first;
 	kcb_p->tcb_p->task = task;
 	kcb_p->tcb_p->delay = 0;
@@ -95,7 +102,6 @@ int32_t ucx_task_add(void *task, uint16_t stack_size)
 	kcb_p->tcb_p->id = kcb_p->id++;
 	kcb_p->tcb_p->state = TASK_STOPPED;
 	kcb_p->tcb_p->priority = TASK_NORMAL_PRIO;
-
 	kcb_p->tcb_p->stack = malloc(kcb_p->tcb_p->stack_sz);
 	
 	if (!kcb_p->tcb_p->stack) {
@@ -104,20 +110,18 @@ int32_t ucx_task_add(void *task, uint16_t stack_size)
 		for (;;);
 	}
 	
-//	if (!setjmp(kcb_p->tcb_p->context)) {
-		memset(kcb_p->tcb_p->stack, 0x69, kcb_p->tcb_p->stack_sz);
-		memset(kcb_p->tcb_p->stack, 0x33, 4);
-		memset((kcb_p->tcb_p->stack) + kcb_p->tcb_p->stack_sz - 4, 0x33, 4);
-		
-		_context_init(&kcb_p->tcb_p->context, (size_t)kcb_p->tcb_p->stack,
-			kcb_p->tcb_p->stack_sz, (size_t)task);
-		
-		printf("task %d: %08x, stack: %08x, size %d\n", kcb_p->tcb_p->id,
-			(uint32_t)kcb_p->tcb_p->task, (uint32_t)kcb_p->tcb_p->stack,
-			kcb_p->tcb_p->stack_sz);
-		
-		kcb_p->tcb_p->state = TASK_READY;
-//	}
+	memset(kcb_p->tcb_p->stack, 0x69, kcb_p->tcb_p->stack_sz);
+	memset(kcb_p->tcb_p->stack, 0x33, 4);
+	memset((kcb_p->tcb_p->stack) + kcb_p->tcb_p->stack_sz - 4, 0x33, 4);
+	
+	_context_init(&kcb_p->tcb_p->context, (size_t)kcb_p->tcb_p->stack,
+		kcb_p->tcb_p->stack_sz, (size_t)task);
+	
+	printf("task %d: %08x, stack: %08x, size %d\n", kcb_p->tcb_p->id,
+		(uint32_t)kcb_p->tcb_p->task, (uint32_t)kcb_p->tcb_p->stack,
+		kcb_p->tcb_p->stack_sz);
+	
+	kcb_p->tcb_p->state = TASK_READY;
 
 	return 0;
 }
