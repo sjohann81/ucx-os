@@ -10,7 +10,7 @@ void ucx_printhex(int n, int digits)
 {
 	int a;
 
-	while (digits > 0){
+	while (digits > 0) {
 		digits--;
 		a = (n >> (digits << 2)) & 0xf;
 		if (a > 9)
@@ -27,14 +27,21 @@ int32_t ucx_hexdump(char *buf, uint32_t size)
 	char ch;
 
 	buf = (char *)((size_t)buf & ~0xf);
+	
 	for (k = 0; k < size; k += 16) {
-		_putchar('\n'); ucx_printhex((size_t)buf + k, 8); _putchar(' ');
-		for(l = 0; l < 16; l++){
+		_putchar('\n');
+		ucx_printhex((size_t)buf + k, 8);
+		_putchar(' ');
+		
+		for (l = 0; l < 16; l++) {
 			ucx_printhex((uint8_t)buf[k + l], 2);
 			_putchar(' ');
-			if (l == 7) _putchar(' ');
+			if (l == 7)
+				_putchar(' ');
 		}
+		
 		_putchar(' '); _putchar('|');
+		
 		for (l = 0; l < 16; l++) {
 			ch = (uint8_t)buf[k + l];
 			if ((ch >= 32) && (ch <= 126))
@@ -42,6 +49,7 @@ int32_t ucx_hexdump(char *buf, uint32_t size)
 			else
 				_putchar('.');
 		}
+		
 		_putchar('|');
 	}
 
