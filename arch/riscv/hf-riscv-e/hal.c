@@ -101,32 +101,51 @@ uint64_t _read_us(void)
 
 /* kernel auxiliary routines */
 
+#if TICK_FREQ > 0
 void timer1ctc_handler(void)
 {
 	krnl_dispatcher();
 }
 
+#else
+
+void timer0b_handler(void)
+{
+	krnl_dispatcher();
+}
+#endif
+
 void _hardware_init(void)
 {
 	_di();
+#if TICK_FREQ > 0
 	TIMER1PRE = TIMERPRE_DIV16;
 
 	/* unlock TIMER1 for reset */
 	TIMER1 = TIMERSET;
 	TIMER1 = 0;
 
-	/* TIMER1 frequency: (39063 * 16) = 250000 cycles (10ms timer @ 25MHz) */
-	TIMER1CTC = 15625;
+	/* TIMER1 frequency: 100 interrupts/s (every 250000 cycles, 10ms timer @ 25MHz) */
+	TIMER1CTC = (CPU_SPEED / TICK_FREQ) / TIMER1PRE;
+#endif
 }
 
 void _timer_enable(void)
 {
+#if TICK_FREQ > 0
 	TIMERMASK |= MASK_TIMER1CTC;		/* enable interrupt mask for TIMER1 CTC events */
+#else
+	TIMERMASK |= MASK_TIMER0B;		/* enable interrupt mask for TIMER0B events */
+#endif
 }
 
 void _timer_disable(void)
 {
+#if TICK_FREQ > 0
 	TIMERMASK &= ~MASK_TIMER1CTC;		/* disable interrupt mask for TIMER1 CTC events */
+#else
+	TIMERMASK &= ~MASK_TIMER0B;		/* disable interrupt mask for TIMER0B events */
+#endif
 }
 
 void _interrupt_tick(void)

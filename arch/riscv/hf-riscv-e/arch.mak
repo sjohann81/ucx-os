@@ -1,16 +1,19 @@
 # this is stuff specific to this architecture
 ARCH_DIR = $(SRC_DIR)/arch/$(ARCH)
-INC_DIRS  = -I $(ARCH_DIR)
+INC_DIRS = -I $(ARCH_DIR)
 
-F_CLK=25000000
+# core speed
+F_CLK = 25000000
+# timer frequency (100 -> 100 ints/s -> 10ms tick time. 0 -> timer0 fixed frequency)
+F_TICK = 0
 
-#remove unreferenced functions
+# remove unreferenced functions
 CFLAGS_STRIP = -fdata-sections -ffunction-sections
 LDFLAGS_STRIP = --gc-sections
 
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
 ASFLAGS = -march=rv32e -mabi=ilp32e #-fPIC
-CFLAGS = -Wall -march=rv32e -mabi=ilp32e -O2 -c -mstrict-align -ffreestanding -nostdlib -ffixed-a5 $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) #-mrvc -fPIC -DDEBUG_PORT
+CFLAGS = -Wall -march=rv32e -mabi=ilp32e -O2 -c -mstrict-align -ffreestanding -nostdlib -ffixed-a5 $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DTICK_FREQ=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) #-mrvc -fPIC -DDEBUG_PORT
 ARFLAGS = r
 
 LDFLAGS = -melf32lriscv $(LDFLAGS_STRIP)
