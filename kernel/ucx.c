@@ -7,11 +7,11 @@
 #include <ucx.h>
 
 struct kcb_s kernel_state = {
-		.tcb_p = 0,
-		.tcb_first = 0,
-		.ctx_switches = 0,
-		.id = 0
-	};
+	.tcb_p = 0,
+	.tcb_first = 0,
+	.ctx_switches = 0,
+	.id = 0
+};
 	
 struct kcb_s *kcb_p = &kernel_state;
 
@@ -86,12 +86,14 @@ int32_t ucx_task_add(void *task, uint16_t stack_size)
 	struct tcb_s *tcb_last = kcb_p->tcb_p;
 	
 	kcb_p->tcb_p = (struct tcb_s *)malloc(sizeof(struct tcb_s));
+	
 	if (kcb_p->tcb_first == 0)
 		kcb_p->tcb_first = kcb_p->tcb_p;
 
 	if (!kcb_p->tcb_p)
 		return -1;
-
+		
+	CRITICAL_ENTER();
 	if (tcb_last)
 		tcb_last->tcb_next = kcb_p->tcb_p;
 
@@ -116,6 +118,7 @@ int32_t ucx_task_add(void *task, uint16_t stack_size)
 	
 	_context_init(&kcb_p->tcb_p->context, (size_t)kcb_p->tcb_p->stack,
 		kcb_p->tcb_p->stack_sz, (size_t)task);
+	CRITICAL_LEAVE();
 	
 	printf("task %d: %08x, stack: %08x, size %d\n", kcb_p->tcb_p->id,
 		(uint32_t)kcb_p->tcb_p->task, (uint32_t)kcb_p->tcb_p->stack,
@@ -123,6 +126,7 @@ int32_t ucx_task_add(void *task, uint16_t stack_size)
 	
 	kcb_p->tcb_p->state = TASK_READY;
 
+	/* FIXME: return task id */
 	return 0;
 }
 
@@ -138,8 +142,10 @@ void ucx_task_yield()
 
 void ucx_task_delay(uint16_t ticks)
 {
+	CRITICAL_ENTER();
 	kcb_p->tcb_p->delay = ticks;
 	kcb_p->tcb_p->state = TASK_BLOCKED;
+	CRITICAL_LEAVE();
 	ucx_task_yield();
 }
 
@@ -211,7 +217,9 @@ int32_t ucx_task_priority(uint16_t id, uint16_t priority)
 	
 	for (;; tcb_ptr = tcb_ptr->tcb_next) {
 		if (tcb_ptr->id == id) {
+			CRITICAL_ENTER();
 			tcb_ptr->priority = priority;
+			CRITICAL_LEAVE();
 			break;
 		}
 		if (tcb_ptr->tcb_next == kcb_p->tcb_first)
