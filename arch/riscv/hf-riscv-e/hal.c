@@ -49,11 +49,11 @@ void _delay_ms(uint32_t msec)
 
 	last = TIMER0;
 	delta = msecs = 0;
-	cycles_per_msec = CPU_SPEED / 1000;
+	cycles_per_msec = F_CPU / 1000;
 	while (msec > msecs) {
 		cur = TIMER0;
 		if (cur < last)
-			delta += (cur + (CPU_SPEED - last));
+			delta += (cur + (F_CPU - last));
 		else
 			delta += (cur - last);
 		last = cur;
@@ -71,11 +71,11 @@ void _delay_us(uint32_t usec)
 
 	last = TIMER0;
 	delta = usecs = 0;
-	cycles_per_usec = CPU_SPEED / 1000000;
+	cycles_per_usec = F_CPU / 1000000;
 	while (usec > usecs) {
 		cur = TIMER0;
 		if (cur < last)
-			delta += (cur + (CPU_SPEED - last));
+			delta += (cur + (F_CPU - last));
 		else
 			delta += (cur - last);
 		last = cur;
@@ -96,7 +96,7 @@ uint64_t _read_us(void)
 	tref = TIMER0;
 	timeref = ((uint64_t)tval2 << 32) + (uint64_t)TIMER0;
 
-	return (timeref / (CPU_SPEED / 1000000));
+	return (timeref / (F_CPU / 1000000));
 }
 
 /* kernel auxiliary routines */
@@ -118,6 +118,17 @@ void timer0b_handler(void)
 void _hardware_init(void)
 {
 	_di();
+	
+#ifndef DEBUG_PORT
+	uint16_t d;
+
+	d = (uint16_t)(F_CPU / USART_BAUD);
+	UART0DIV = d;
+	UART0 = 0;
+
+	PAALTCFG0 |= MASK_UART0;
+#endif
+
 #if TICK_FREQ > 0
 	TIMER1PRE = TIMERPRE_DIV16;
 
@@ -126,7 +137,7 @@ void _hardware_init(void)
 	TIMER1 = 0;
 
 	/* TIMER1 frequency: 100 interrupts/s (every 250000 cycles, 10ms timer @ 25MHz) */
-	TIMER1CTC = (CPU_SPEED / TICK_FREQ) / TIMER1PRE;
+	TIMER1CTC = (F_CPU / F_TIMER) / TIMER1PRE;
 #endif
 }
 

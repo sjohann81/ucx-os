@@ -244,15 +244,6 @@ void irq0_handler(void)
 
 void irq_enable(void)
 {
-#ifndef DEBUG_PORT
-	uint16_t d;
-
-	d = (uint16_t)(CPU_SPEED / 57600);
-	UART0DIV = d;
-	UART0 = 0;
-
-	PAALTCFG0 |= MASK_UART0;
-#endif
 	/* enable mask for Segment 0 (tied to IRQ0 line) */
 	IRQ_MASK = MASK_IRQ0;
 	/* global interrupts enable */
