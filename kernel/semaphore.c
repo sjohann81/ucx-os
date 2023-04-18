@@ -63,6 +63,7 @@ void ucx_signal(struct sem_s *s)
 	CRITICAL_ENTER();
 	s->count++;
 	if (s->count <= 0) {
+		/* FIXME: unblock the task with the highest priority instead of the first one */
 		tcb_sem = ucx_queue_dequeue(s->sem_queue);
 		tcb_sem->state = TASK_READY;
 	}
