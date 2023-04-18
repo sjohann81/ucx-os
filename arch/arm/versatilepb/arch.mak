@@ -3,13 +3,14 @@ ARCH_DIR = $(SRC_DIR)/arch/$(ARCH)
 INC_DIRS  = -I $(ARCH_DIR)
 
 F_CLK=250000000
+SERIAL_BAUDRATE=57600
 
 #remove unreferenced functions
 CFLAGS_STRIP = -fdata-sections -ffunction-sections
 LDFLAGS_STRIP = --gc-sections
 
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
-CFLAGS = -Wall -O2 -c -march=armv6 -msoft-float -mabi=atpcs -marm -ffreestanding -nostdlib $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) -DTERM_BAUD=$(SERIAL_BAUD)
+CFLAGS = -Wall -O2 -c -march=armv6 -msoft-float -mabi=atpcs -marm -ffreestanding -nostdlib $(INC_DIRS) -DF_CPU=${F_CLK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) -DTERM_BAUD=$(SERIAL_BAUDRATE)
 LDFLAGS = $(LDFLAGS_STRIP)
 LDSCRIPT = $(ARCH_DIR)/versatilepb.ld
 ARFLAGS = r
