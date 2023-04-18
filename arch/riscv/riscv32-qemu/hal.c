@@ -45,11 +45,11 @@ void _delay_ms(uint32_t msec)
 
 	last = MTIME_L;
 	delta = msecs = 0;
-	cycles_per_msec = CPU_SPEED / 1000;
+	cycles_per_msec = F_CPU / 1000;
 	while (msec > msecs) {
 		cur = MTIME_L;
 		if (cur < last)
-			delta += (cur + (CPU_SPEED - last));
+			delta += (cur + (F_CPU - last));
 		else
 			delta += (cur - last);
 		last = cur;
@@ -67,11 +67,11 @@ void _delay_us(uint32_t usec)
 
 	last = MTIME_L;
 	delta = usecs = 0;
-	cycles_per_usec = CPU_SPEED / 1000000;
+	cycles_per_usec = F_CPU / 1000000;
 	while (usec > usecs) {
 		cur = MTIME_L;
 		if (cur < last)
-			delta += (cur + (CPU_SPEED - last));
+			delta += (cur + (F_CPU - last));
 		else
 			delta += (cur - last);
 		last = cur;
@@ -84,7 +84,7 @@ void _delay_us(uint32_t usec)
 
 static void uart_init(uint32_t baud)
 {
-	uint32_t divisor = CPU_SPEED / (16 * baud);
+	uint32_t divisor = F_CPU / (16 * baud);
 
 	NS16550A_UART0_CTRL_ADDR(NS16550A_LCR) = NS16550A_LCR_DLAB;
 	NS16550A_UART0_CTRL_ADDR(NS16550A_DLM) = (divisor >> 8) & 0xff;
@@ -103,7 +103,7 @@ void _irq_handler(uint32_t cause, uint32_t *stack)
 	
 	val = read_csr(mcause);
 	if (mtime_r() > mtimecmp_r()) {
-		mtimecmp_w(mtime_r() + 0x1ffff);
+		mtimecmp_w(mtime_r() + (F_CPU / F_TIMER));
 		krnl_dispatcher();
 	} else {
 		printf("[%x]\n", val);
@@ -127,7 +127,7 @@ uint64_t _read_us(void)
 	tref = _readcounter();
 	timeref = ((uint64_t)tval2 << 32) + (uint64_t)_readcounter();
 
-	return (timeref / (CPU_SPEED / 1000000));
+	return (timeref / (F_CPU / 1000000));
 }
 
 // https://forums.sifive.com/t/timer-and-interrupt/3456/5
@@ -177,8 +177,8 @@ void _panic(void)
 
 void _hardware_init(void)
 {
-	uart_init(TERM_BAUD);
-	mtimecmp_w(mtime_r() + 0x1ffff);
+	uart_init(USART_BAUD);
+	mtimecmp_w(mtime_r() + (F_CPU / F_TIMER));
 }
 
 void _timer_enable(void)
