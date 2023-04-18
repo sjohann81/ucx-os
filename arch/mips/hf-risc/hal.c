@@ -49,11 +49,11 @@ void _delay_ms(uint32_t msec)
 
 	last = TIMER0;
 	delta = msecs = 0;
-	cycles_per_msec = CPU_SPEED / 1000;
+	cycles_per_msec = F_CPU / 1000;
 	while (msec > msecs) {
 		cur = TIMER0;
 		if (cur < last)
-			delta += (cur + (CPU_SPEED - last));
+			delta += (cur + (F_CPU - last));
 		else
 			delta += (cur - last);
 		last = cur;
@@ -71,11 +71,11 @@ void _delay_us(uint32_t usec)
 
 	last = TIMER0;
 	delta = usecs = 0;
-	cycles_per_usec = CPU_SPEED / 1000000;
+	cycles_per_usec = F_CPU / 1000000;
 	while (usec > usecs) {
 		cur = TIMER0;
 		if (cur < last)
-			delta += (cur + (CPU_SPEED - last));
+			delta += (cur + (F_CPU - last));
 		else
 			delta += (cur - last);
 		last = cur;
@@ -96,37 +96,67 @@ uint64_t _read_us(void)
 	tref = TIMER0;
 	timeref = ((uint64_t)tval2 << 32) + (uint64_t)TIMER0;
 
-	return (timeref / (CPU_SPEED / 1000000));
+	return (timeref / (F_CPU / 1000000));
 }
 
 /* kernel auxiliary routines */
 
+#if TICK_FREQ > 0
 void timer1ctc_handler(void)
 {
 	krnl_dispatcher();
 }
 
+#else
+
+void timer0b_handler(void)
+{
+	krnl_dispatcher();
+}
+#endif
+
 void _hardware_init(void)
 {
 	_di();
+	
+#ifndef DEBUG_PORT
+	uint16_t d;
+
+	d = (uint16_t)(F_CPU / USART_BAUD);
+	UART0DIV = d;
+	UART0 = 0;
+
+	PAALTCFG0 |= MASK_UART0;
+#endif
+
+#if TICK_FREQ > 0
 	TIMER1PRE = TIMERPRE_DIV16;
 
 	/* unlock TIMER1 for reset */
 	TIMER1 = TIMERSET;
 	TIMER1 = 0;
 
-	/* TIMER1 frequency: (39063 * 16) = 250000 cycles (10ms timer @ 25MHz) */
-	TIMER1CTC = 15625;
+	/* TIMER1 frequency: 100 interrupts/s (every 250000 cycles, 10ms timer @ 25MHz) */
+	TIMER1CTC = (F_CPU / F_TIMER) / TIMER1PRE;
+#endif
 }
 
 void _timer_enable(void)
 {
+#if TICK_FREQ > 0
 	TIMERMASK |= MASK_TIMER1CTC;		/* enable interrupt mask for TIMER1 CTC events */
+#else
+	TIMERMASK |= MASK_TIMER0B;		/* enable interrupt mask for TIMER0B events */
+#endif
 }
 
 void _timer_disable(void)
 {
+#if TICK_FREQ > 0
 	TIMERMASK &= ~MASK_TIMER1CTC;		/* disable interrupt mask for TIMER1 CTC events */
+#else
+	TIMERMASK &= ~MASK_TIMER0B;		/* disable interrupt mask for TIMER0B events */
+#endif
 }
 
 void _interrupt_tick(void)
