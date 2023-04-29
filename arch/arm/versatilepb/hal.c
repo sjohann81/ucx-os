@@ -145,15 +145,15 @@ void _panic(void)
 
 void _hardware_init(void)
 {
-	uart_init(TERM_BAUD);
+	uart_init(USART_BAUD);
 	
-#if TIME_SLICE == 0
+#if F_TIMER == 0
 	TIMER0_LOAD = 10000;
 #else
-	TIMER0_LOAD = TIME_SLICE;
+	TIMER0_LOAD = F_CPU / F_TIMER;
 #endif
 	TIMER0_CONTROL = TIMER_EN | TIMER_PERIODIC | TIMER_32BIT | TIMER_INTEN;
-	TIMER3_CONTROL = TIMER_EN | TIMER_32BIT;
+//	TIMER3_CONTROL = TIMER_EN | TIMER_32BIT;
 	
 	_irq_register(INTMASK_TIMERINT0_1, krnl_dispatcher);
 	_timer_disable();
