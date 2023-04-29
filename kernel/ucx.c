@@ -9,7 +9,7 @@
 struct kcb_s kernel_state = {
 	.tcb_p = 0,
 	.tcb_first = 0,
-	.events = {0},
+	.events = 0,
 	.ctx_switches = 0,
 	.id = 0
 };

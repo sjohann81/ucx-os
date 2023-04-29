@@ -27,8 +27,12 @@ int32_t main(void)
 	setjmp(kcb_p->context);
 	kcb_p->tcb_p = kcb_p->tcb_first;
 	
-	if (pr)
+	if (pr) {
+		kcb_p->preemptive = 'y';
 		_timer_enable();
+	} else {
+		kcb_p->preemptive = 'n';
+	}
 
 	_dispatch_init(kcb_p->tcb_p->context);
 	
