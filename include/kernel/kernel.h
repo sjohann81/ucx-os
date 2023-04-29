@@ -26,6 +26,7 @@ struct kcb_s {
 	jmp_buf context;
 	struct tcb_s *tcb_p;
 	struct tcb_s *tcb_first;
+	struct queue_s events;
 	volatile uint32_t ctx_switches;
 	uint16_t id;
 };
@@ -41,6 +42,7 @@ uint16_t krnl_schedule(void);
 void krnl_dispatcher(void);
 
 int32_t ucx_task_add(void *task, uint16_t stack_size);
+int32_t ucx_task_remove(uint16_t id);
 void ucx_task_yield();
 void ucx_task_delay(uint16_t ticks);
 int32_t ucx_task_suspend(uint16_t id);
