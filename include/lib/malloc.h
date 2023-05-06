@@ -1,7 +1,3 @@
-#ifndef HAS_SIZE_T
-typedef unsigned long size_t;
-#endif
-
 #define align4(x) ((((x) + 3) >> 2) << 2)
 
 struct mem_block_s {
