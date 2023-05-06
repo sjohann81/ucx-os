@@ -14,7 +14,7 @@ CFLAGS_STRIP = -fdata-sections -ffunction-sections
 LDFLAGS_STRIP = --gc-sections
 
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
-CFLAGS = -Wall -O2 -c -march=armv6 -msoft-float -mabi=atpcs -marmz -ffreestanding -nostdlib $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) #-mthumb -mthumb-interwork
+CFLAGS = -Wall -O2 -c -march=armv6 -msoft-float -mabi=atpcs -marm -ffreestanding -nostdlib $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) #-mthumb -mthumb-interwork
 LDFLAGS = $(LDFLAGS_STRIP)
 LDSCRIPT = $(ARCH_DIR)/versatilepb.ld
 ARFLAGS = r
