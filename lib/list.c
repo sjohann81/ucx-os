@@ -58,10 +58,10 @@ void *ucx_list_peek(struct list_s *lst, int32_t pos)
 	int32_t i = 0;
 
 	t1 = lst;
-
-	while ((t1 = t1->next)) {
+	while (t1->next) {
+		t1 = t1->next;
 		if (i++ == pos)
-			return (void *)t1->elem;
+			return t1->elem;
 	}
 
 	return 0;
@@ -73,9 +73,11 @@ int32_t ucx_list_poke(struct list_s *lst, void *item, int32_t pos)
 	int32_t i = 0;
 
 	t1 = lst;
-	while ((t1 = t1->next)){
-		if (i++ == pos){
+	while (t1->next) {
+		t1 = t1->next;
+		if (i++ == pos) {
 			t1->elem = item;
+			
 			return 0;
 		}
 	}
@@ -89,8 +91,10 @@ int32_t ucx_list_count(struct list_s *lst)
 	int32_t i = 0;
 
 	t1 = lst;
-	while ((t1 = t1->next))
+	while (t1->next) {
+		t1 = t1->next;
 		i++;
+	}
 
 	return i;
 }
@@ -104,12 +108,11 @@ int32_t ucx_list_insert(struct list_s *lst, void *item, int32_t pos)
 
 	if (t1) {
 		t1->elem = item;
-		t1->next = 0;
 		t2 = lst;
 
 		while (t2->next) {
+			if (i++ == pos) break;
 			t2 = t2->next;
-			if (++i == pos) break;
 		}
 
 		t1->next = t2->next;
@@ -129,7 +132,8 @@ int32_t ucx_list_remove(struct list_s *lst, int32_t pos)
 	t1 = lst;
 	t2 = t1;
 
-	while ((t1 = t1->next)) {
+	while (t1->next) {
+		t1 = t1->next;
 		if (i++ == pos) {
 			t2->next = t1->next;
 			free(t1);
