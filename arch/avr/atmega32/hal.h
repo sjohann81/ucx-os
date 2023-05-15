@@ -21,7 +21,7 @@ extern uint32_t __stack;
 
 /* disable interrupts, return previous int status / enable interrupts */
 #define _di()				_interrupt_set(0)
-#define _ei(S)				_interrupt_set(S)
+#define _ei()				_interrupt_set(1)
 #define _enable_interrupts()		_interrupt_set(1)
 
 #define CONTEXT_SP	18

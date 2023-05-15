@@ -161,7 +161,7 @@ void _timer_disable(void)
 
 void _interrupt_tick(void)
 {
-	_ei(1);
+	_ei();
 }
 
 void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)

@@ -36,8 +36,8 @@ extern struct kcb_s *kcb_p;
 
 /* kernel API */
 
-#define CRITICAL_ENTER()({kcb_p->preemptive == 'y' ? _timer_disable() : 0; })
-#define CRITICAL_LEAVE()({kcb_p->preemptive == 'y' ? _timer_enable() : 0; })
+#define CRITICAL_ENTER()({kcb_p->preemptive == 'y' ? _di() : 0; })
+#define CRITICAL_LEAVE()({kcb_p->preemptive == 'y' ? _ei() : 0; })
 
 uint16_t krnl_schedule(void);
 void krnl_dispatcher(void);

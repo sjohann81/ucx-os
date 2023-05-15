@@ -32,7 +32,7 @@ extern uint32_t _end;			/* Start address of the heap memory, defined in linker s
 
 /* disable interrupts, return previous int status / enable interrupts */
 #define _di()				_interrupt_set(0)
-#define _ei(S)				_interrupt_set(S)
+#define _ei()				_interrupt_set(1)
 #define _enable_interrupts()		write_csr(mie, 128)
 
 #define read_csr(reg) ({ uint32_t __tmp; asm volatile ("csrr %0, " #reg : "=r"(__tmp)); __tmp; })

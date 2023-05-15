@@ -138,8 +138,8 @@ https://github.com/Luminger/Alice-1121-Modem/blob/master/kernel/linux/include/as
 typedef uint32_t jmp_buf[20];
 
 void _enable_interrupts(void);
-void _ei(uint32_t status);
-uint32_t _di(void);
+void _ei(void);
+void _di(void);
 int32_t setjmp(jmp_buf env);
 void longjmp(jmp_buf env, int32_t val);
 void _dispatch_init(jmp_buf env);
