@@ -23,7 +23,7 @@ int32_t main(void)
 	printf("heap_init(), %d bytes free\n", ((size_t)&__stack - (size_t)&__bss_end - DEFAULT_STACK_SIZE));
 #endif
 	pr = app_main();
-	
+
 	setjmp(kcb_p->context);
 	kcb_p->tcb_p = kcb_p->tcb_first;
 	

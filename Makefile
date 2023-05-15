@@ -59,12 +59,14 @@ ucx: incl hal libs kernel
 	$(AR) $(ARFLAGS) $(BUILD_TARGET_DIR)/libucxos.a \
 		$(BUILD_KERNEL_DIR)/*.o
 
-kernel: pipe.o semaphore.o ucx.o main.o
+kernel: pipe.o semaphore.o sched.o ucx.o main.o
 
 main.o: $(SRC_DIR)/init/main.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/init/main.c
 ucx.o: $(SRC_DIR)/kernel/ucx.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/ucx.c
+sched.o: $(SRC_DIR)/kernel/sched.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/sched.c
 semaphore.o: $(SRC_DIR)/kernel/semaphore.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/semaphore.c
 pipe.o: $(SRC_DIR)/kernel/pipe.c
@@ -167,6 +169,7 @@ clean:
 	find '$(BUILD_APP_DIR)' '$(BUILD_KERNEL_DIR)' -type f -name '*.o' -delete
 	find '$(BUILD_TARGET_DIR)' -type f -name '*.o' -delete -o -name '*~' \
 		-delete -o -name 'image.*' -delete -o -name 'code.*' -delete
+	find '$(SRC_DIR)' -type f -name '*.o' -delete
 
 veryclean: clean
 	echo "ARCH = none" > $(BUILD_TARGET_DIR)/target.mak
