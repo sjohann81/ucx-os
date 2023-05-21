@@ -15,7 +15,7 @@ void logger(void)
 		ms = _read_us() / 1000 - ms;
 		for (i = 0; i < N_TASKS; i++)
 			printf("%08x ", cnt[i]);
-		printf("ms: %d\n", ms);
+		printf("ms: %d (total: %d)\n", ms, _read_us() / 1000);
 	}
 }
 
