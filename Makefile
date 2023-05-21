@@ -1,5 +1,6 @@
 TARGET_LIST = \
-	'arm/versatilepb' 'avr/atmega328p' 'avr/atmega2560' \
+	'arm/versatilepb'  'arm/stm32f401_blackpill' \
+	'avr/atmega32' 'avr/atmega328p' 'avr/atmega2560' \
 	'mips/hf-risc' 'riscv/hf-riscv' 'riscv/hf-riscv-e' \
 	'riscv/hf-riscv-llvm' 'riscv/riscv32-qemu' 'riscv/riscv32-qemu-llvm' \
 	'riscv/riscv64-qemu' 'riscv/riscv64-qemu-llvm'
