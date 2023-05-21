@@ -1,6 +1,6 @@
 /* file:          hal.c
- * description:   hardware abstraction layer for ARM (Versatilepb)
- * date:          11/2022
+ * description:   hardware abstraction layer (HAL) definitions ARM (stm32)
+ * date:          05/2023
  * author:        Sergio Johann Filho <sergio.johann@acad.pucrs.br>
  */
 
