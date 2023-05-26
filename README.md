@@ -11,6 +11,7 @@ Currently, UCX/OS supports the following targets:
 
 #### ARM
 - Versatilepb
+- STM32F4xx (Blackpill)
 
 #### MIPS (32 bit)
 - HF-RISC
