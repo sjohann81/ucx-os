@@ -1,0 +1,11 @@
+There is a problem with entering DFU in the black pill, which is caused by floating RX1 pin (PA10) it is close to BOOT and RST buttons.
+Place a pull-down resistor (4k7 or 10k) between PA10 and GND. Then proceed with normal DFU mode: hold BOOT0, hit RESET then release BOOT0.
+
+Another problem is the USB port...
+
+To enable USB enumeration, put a 1k5 resistor between USB D+ (PA12) and 3.3v. This made the USB CDC serial driver work. Another option
+is to put a 1k5 resistor between PA12 and PA15. In this case, PA15 is used as a software pull-up for the USB bus. This enables DFU
+programming / reset / USB uart debugging without unpluging the device.
+
+modemmanager clashes with the virtual usb port, remove it:
+sudo apt-get --purge remove modemmanager
