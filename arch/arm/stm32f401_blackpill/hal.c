@@ -12,10 +12,11 @@
 #include <jiffies.h>
 
 #ifdef USB_SERIAL
-//#include "stm32_ub_usb_cdc.h"
+
 #include "usbd_cdc_vcp.h"
 
 USB_OTG_CORE_HANDLE USB_OTG_dev;
+
 #endif
 
 /*
