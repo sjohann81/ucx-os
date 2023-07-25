@@ -14,21 +14,21 @@ CFLAGS_STRIP = -fdata-sections -ffunction-sections
 LDFLAGS_STRIP = --gc-sections
 
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
-ASFLAGS = -march=rv32im -mabi=ilp32 #-fPIC
-CFLAGS = -Wall -march=rv32im -mabi=ilp32 -O2 -c -mstrict-align -ffreestanding -nostdlib -fomit-frame-pointer $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP)
+ASFLAGS = -march=rv32imzicsr -mabi=ilp32 #-fPIC
+CFLAGS = -Wall -march=rv32imzicsr -mabi=ilp32 -O2 -c -mstrict-align -ffreestanding -nostdlib -fomit-frame-pointer $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP)
 ARFLAGS = r
 
 LDFLAGS = -melf32lriscv $(LDFLAGS_STRIP)
 LDSCRIPT = $(ARCH_DIR)/riscv32-qemu.ld
 
-CC = riscv32-unknown-elf-gcc
-AS = riscv32-unknown-elf-as
-LD = riscv32-unknown-elf-ld
-DUMP = riscv32-unknown-elf-objdump -Mno-aliases
-READ = riscv32-unknown-elf-readelf
-OBJ = riscv32-unknown-elf-objcopy
-SIZE = riscv32-unknown-elf-size
-AR = riscv32-unknown-elf-ar
+CC = riscv64-unknown-elf-gcc
+AS = riscv64-unknown-elf-as
+LD = riscv64-unknown-elf-ld
+DUMP = riscv64-unknown-elf-objdump -Mno-aliases
+READ = riscv64-unknown-elf-readelf
+OBJ = riscv64-unknown-elf-objcopy
+SIZE = riscv64-unknown-elf-size
+AR = riscv64-unknown-elf-ar
 
 hal:
 	$(AS) $(ASFLAGS) -o crt0.o $(ARCH_DIR)/crt0.s

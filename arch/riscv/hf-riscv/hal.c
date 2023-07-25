@@ -12,29 +12,35 @@ libc basic I/O support
 */
 
 #ifndef DEBUG_PORT
-void _putchar(char value){		// polled putchar()
+void _putchar(char value)		// polled putchar()
+{
 	while (UARTCAUSE & MASK_UART0_WRITEBUSY);
 	UART0 = value;
 }
 
-int32_t _kbhit(void){
+int32_t _kbhit(void)
+{
 	return UARTCAUSE & MASK_UART0_DATAAVAIL;
 }
 
-int32_t _getchar(void){			// polled getch()
+int32_t _getchar(void)			// polled getch()
+{
 	while (!_kbhit());
 	return UART0;
 }
 #else
-void _putchar(char value){		// polled putchar()
+void _putchar(char value)		// polled putchar()
+{
 	DEBUG_ADDR = value;
 }
 
-int32_t _kbhit(void){
+int32_t _kbhit(void)
+{
 	return 0;
 }
 
-int32_t _getchar(void){			// polled getch()
+int32_t _getchar(void)			// polled getch()
+{
 	return DEBUG_ADDR;
 }
 #endif

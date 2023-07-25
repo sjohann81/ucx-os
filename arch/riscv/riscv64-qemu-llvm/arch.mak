@@ -14,7 +14,7 @@ CFLAGS = -Wall --target=riscv64 -march=rv64im -mabi=lp64 -O2 -c -ffreestanding -
 ARFLAGS = r
 
 LDFLAGS = -melf64lriscv $(LDFLAGS_STRIP)
-LDSCRIPT = $(ARCH_DIR)/riscv64-qemu.ld
+LDSCRIPT = $(ARCH_DIR)/../hf-risc64-qemu/riscv64-qemu.ld
 
 CC = clang
 AS = riscv64-unknown-elf-as
@@ -28,4 +28,6 @@ AR = riscv64-unknown-elf-ar
 hal:
 	$(AS) $(ASFLAGS) -o crt0.o $(ARCH_DIR)/crt0.s
 	$(CC) $(CFLAGS) \
-		$(ARCH_DIR)/hal.c 
+		$(ARCH_DIR)/../hf-risc64-qemu/hal.c \
+		$(ARCH_DIR)/../../common/muldiv.c
+

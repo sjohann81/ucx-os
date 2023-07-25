@@ -33,6 +33,6 @@ AR = riscv32-unknown-elf-ar
 hal:
 	$(AS) $(ASFLAGS) -o crt0.o $(ARCH_DIR)/crt0.s
 	$(CC) $(CFLAGS) \
-		$(ARCH_DIR)/hal.c \
-		$(ARCH_DIR)/interrupt.c \
+		$(ARCH_DIR)/../hf-riscv/hal.c \
+		$(ARCH_DIR)/../hf-riscv/interrupt.c \
 		$(ARCH_DIR)/../../common/muldiv.c
