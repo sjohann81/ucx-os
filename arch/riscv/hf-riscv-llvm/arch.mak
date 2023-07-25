@@ -22,13 +22,13 @@ LDFLAGS = -melf32lriscv $(LDFLAGS_STRIP)
 LDSCRIPT = $(ARCH_DIR)/hf-risc.ld
 
 CC = clang
-AS = riscv32-unknown-elf-as
-LD = riscv32-unknown-elf-ld
-DUMP = riscv32-unknown-elf-objdump -Mno-aliases
-READ = riscv32-unknown-elf-readelf
-OBJ = riscv32-unknown-elf-objcopy
-SIZE = riscv32-unknown-elf-size
-AR = riscv32-unknown-elf-ar
+AS = riscv64-unknown-elf-as
+LD = riscv64-unknown-elf-ld
+DUMP = riscv64-unknown-elf-objdump -Mno-aliases
+READ = riscv64-unknown-elf-readelf
+OBJ = riscv64-unknown-elf-objcopy
+SIZE = riscv64-unknown-elf-size
+AR = riscv64-unknown-elf-ar
 
 hal:
 	$(AS) $(ASFLAGS) -o crt0.o $(ARCH_DIR)/../hf-riscv/crt0.s
