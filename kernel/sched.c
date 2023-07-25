@@ -44,7 +44,21 @@ static void krnl_delay_update(void)
 }
 
 
-/* task scheduler and dispatcher */
+/*
+ * The scheduler switches tasks based on task states and priorities, using
+ * a priority driven round robin algorithm. Current interrupted task is checked
+ * for its state and if RUNNING, it is changed to READY. Task priority is
+ * kept in the TCB entry in 16 bits, where the 8 MSBs hold the task
+ * priority and the 8 LSBs keep current task priority, decremented on each
+ * round - so high priority tasks have a higher chance of 'winning' the cpu.
+ * Only a task on the READY state is considered as a viable option. NOTICE - 
+ * if no task is ready (e.g. no 'idle' task added to the system and no other
+ * task ready) the kernel will hang forever in that inner do .. while loop
+ * and this is fine, as there is no hope in such system.
+ * 
+ * In the end, a task is selected for execution, has its priority reassigned
+ * and its state changed to RUNNING.
+ */
 
 uint16_t krnl_schedule(void)
 {
@@ -63,6 +77,19 @@ uint16_t krnl_schedule(void)
 	
 	return kcb_p->tcb_p->id;
 }
+
+
+/*  
+ * Kernel task dispatch and yield routines. This is highly platform dependent,
+ * so it is implemented by generic calls to _dispatch() and _yield(), defined
+ * (or not) in a platform HAL. When not implemented, both dispatch() and yield(),
+ * defined as weak symbols will be used by default, and context switch based on
+ * setjmp() and longjmp() calls is implemented. On the other hand, if there is
+ * specific hardware support or expectations for the context switch, the mechanism
+ * should be defined in the HAL, implementing both _dispatch() and _yield().
+ * 
+ * You are not expected to understand this.
+ */
 
 void krnl_dispatcher(void)
 {

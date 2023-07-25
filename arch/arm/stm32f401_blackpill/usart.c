@@ -1,7 +1,7 @@
 /* file:          usart.c
  * description:   hardware supported USART port driver management and routines
  * date:          05/2023
- * author:        Sergio Johann Filho <sergio@oneiot.com.br>
+ * author:        Sergio Johann Filho <sergio.johann@acad.pucrs.br>
  */
 
 #include <stm32f4xx.h>
