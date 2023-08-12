@@ -7,11 +7,12 @@ Currently, UCX/OS supports the following targets:
 #### RISC-V (32 / 64 bit)
 - RV32I (Qemu)
 - RV64I (Qemu)
-- HF-RISCV
+- HF-RISCV (RV32E / RV32I)
 
 #### ARM
 - Versatilepb
-- STM32F4xx (Blackpill)
+- STM32F401 (Blackpill)
+- STM32F407 (Discovery)
 
 #### MIPS (32 bit)
 - HF-RISC
