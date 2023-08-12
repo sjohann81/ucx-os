@@ -6,54 +6,46 @@
 
 #include <ucx.h>
 
-char *ucx_strcpy(char *dst, char *src)
+char *ucx_strcpy(char *s1, const char *s2)
 {
-	char *dstSave=dst;
-	int32_t c;
+	char *os1 = s1;
 
-	do {
-		c = *dst++ = *src++;
-	} while(c);
+	while ((*s1++ = *s2++));
 	
-	return dstSave;
+	return os1;
 }
 
-char *ucx_strncpy(char *s1, char *s2, int32_t n)
+char *ucx_strncpy(char *s1, const char *s2, int32_t n)
 {
 	int32_t i;
-	char *os1;
+	char *os1 = s1;
 
-	os1 = s1;
 	for (i = 0; i < n; i++) {
 		if ((*s1++ = *s2++) == '\0') {
 			while (++i < n)
 				*s1++ = '\0';
-			return (os1);
+			return os1;
 		}
 	}
 	
-	return (os1);
+	return os1;
 }
 
-char *ucx_strcat(char *dst, char *src)
+char *ucx_strcat(char *s1, const char *s2)
 {
-	int32_t c;
-	char *dstSave=dst;
+	char *os1 = s1;
 
-	while (*dst)
-		++dst;
-	do {
-		c = *dst++ = *src++;
-	} while(c);
-
-	return dstSave;
+	while (*s1++);
+	--s1;
+	while ((*s1++ = *s2++));
+	
+	return os1;
 }
 
-char *ucx_strncat(char *s1, char *s2, int32_t n)
+char *ucx_strncat(char *s1, const char *s2, int32_t n)
 {
-	char *os1;
+	char *os1 = s1;
 
-	os1 = s1;
 	while (*s1++);
 	--s1;
 	while ((*s1++ = *s2++)) {
@@ -63,10 +55,10 @@ char *ucx_strncat(char *s1, char *s2, int32_t n)
 		}
 	}
 		
-	return (os1);
+	return os1;
 }
 
-int32_t ucx_strcmp(char *s1, char *s2)
+int32_t ucx_strcmp(const char *s1, const char *s2)
 {
 	while (*s1 == *s2++)
 		if (*s1++ == '\0')
@@ -75,56 +67,58 @@ int32_t ucx_strcmp(char *s1, char *s2)
 	return (*s1 - *--s2);
 }
 
-int32_t ucx_strncmp(char *s1, char *s2, int32_t n)
+int32_t ucx_strncmp(const char *s1, const char *s2, int32_t n)
 {
 	while (--n >= 0 && *s1 == *s2++)
 		if (*s1++ == '\0')
 			return 0;
 
-	return (n<0 ? 0 : *s1 - *--s2);
+	return (n < 0 ? 0 : *s1 - *--s2);
 }
 
-char *ucx_strstr(char *string, char *find)
+char *ucx_strstr(const char *s1, const char *s2)
 {
 	int32_t i;
 
 	while (1) {
-		for (i = 0; string[i] == find[i] && find[i]; ++i);
-		if (find[i] == 0)
-			return (char *)string;
-		if (*string++ == 0)
+		for (i = 0; s1[i] == s2[i] && s2[i]; ++i);
+		if (s2[i] == 0)
+			return (char *)s1;
+			
+		if (*s1++ == 0)
 			return 0;
 	}
 }
 
-int32_t ucx_strlen(char *s)
+int32_t ucx_strlen(const char *s1)
 {
 	int32_t n;
 
 	n = 0;
-	while (*s++)
+	while (*s1++)
 		n++;
 
 	return n;
 }
 
-char *ucx_strchr(char *s, int32_t c)
+char *ucx_strchr(const char *s1, int32_t c)
 {
-	while (*s != (char)c)
-		if (!*s++)
+	while (*s1 != (char)c)
+		if (!*s1++)
 			return 0;
 
-	return (char *)s;
+	return (char *)s1;
 }
 
-char *ucx_strpbrk(char *str, char *set)
+char *ucx_strpbrk(const char *s1, const char *s2)
 {
-	char c, *p;
+	char c;
+	const char *p;
 
-	for (c = *str; c != 0; str++, c = *str) {
-		for (p = set; *p != 0; p++) {
+	for (c = *s1; c != 0; s1++, c = *s1) {
+		for (p = s2; *p != 0; p++) {
 			if (c == *p) {
-				return str;
+				return (char *)s1;
 			}
 		}
 	}
@@ -132,29 +126,31 @@ char *ucx_strpbrk(char *str, char *set)
 
 }
 
-char *ucx_strsep(char **pp, char *delim)
+char *ucx_strsep(char **pp, const char *delim)
 {
 	char *p, *q;
 
 	if (!(p = *pp))
 		return 0;
+
 	if ((q = ucx_strpbrk(p, delim))) {
 		*pp = q + 1;
 		*q = '\0';
-	}else	*pp = 0;
+	} else
+		*pp = 0;
 
 	return p;
 }
 
-char *ucx_strtok(char *s, char *delim)
+char *ucx_strtok(char *s, const char *delim)
 {
-	char *spanp;
+	const char *spanp;
 	int32_t c, sc;
 	char *tok;
 	static char *last;
 
-	if (s == NULL && (s = last) == NULL)
-		return NULL;
+	if (s == 0 && (s = last) == 0)
+		return 0;
 
 	cont:
 	c = *s++;
@@ -164,8 +160,8 @@ char *ucx_strtok(char *s, char *delim)
 	}
 
 	if (c == 0) {
-		last = NULL;
-		return NULL;
+		last = 0;
+		return 0;
 	}
 	tok = s - 1;
 
@@ -175,7 +171,7 @@ char *ucx_strtok(char *s, char *delim)
 		do {
 			if ((sc = *spanp++) == c) {
 				if (c == 0)
-					s = NULL;
+					s = 0;
 				else
 					s[-1] = 0;
 				last = s;
@@ -185,7 +181,7 @@ char *ucx_strtok(char *s, char *delim)
 	}
 }
 
-int32_t ucx_strtol(char *s, char **end, int32_t base)
+int32_t ucx_strtol(const char *s, char **end, int32_t base)
 {
 	int32_t i;
 	uint32_t ch, value=0, neg=0;
@@ -218,10 +214,35 @@ int32_t ucx_strtol(char *s, char **end, int32_t base)
 	return value;
 }
 
-void *ucx_memcpy(void *dst, void *src, uint32_t n)
+int32_t ucx_atoi(const char *s)
+{
+	int32_t n, f;
+
+	n = 0;
+	f = 0;
+	
+	for (;;s++) {
+		switch (*s) {
+		case ' ':
+		case '\t':
+			continue;
+		case '-':
+			f++;
+		case '+':
+			s++;
+		}
+		break;
+	}
+	while (*s >= '0' && *s <= '9')
+		n = n * 10 + *s++ - '0';
+
+	return (f ? -n : n);
+}
+
+void *ucx_memcpy(void *dst, const void *src, uint32_t n)
 {
 	char *r1 = dst;
-	char *r2 = src;
+	const char *r2 = src;
 
 	while (n--)
 		*r1++ = *r2++;
@@ -229,7 +250,7 @@ void *ucx_memcpy(void *dst, void *src, uint32_t n)
 	return dst;
 }
 
-void *ucx_memmove(void *dst, void *src, uint32_t n)
+void *ucx_memmove(void *dst, const void *src, uint32_t n)
 {
 	char *s = (char *)dst;
 	char *p = (char *)src;
@@ -247,7 +268,7 @@ void *ucx_memmove(void *dst, void *src, uint32_t n)
 	return dst;
 }
 
-int32_t ucx_memcmp(void *cs, void *ct, uint32_t n)
+int32_t ucx_memcmp(const void *cs, const void *ct, uint32_t n)
 {
 	char *r1 = (char *)cs;
 	char *r2 = (char *)ct;
@@ -273,7 +294,7 @@ void *ucx_memset(void *s, int32_t c, uint32_t n)
 
 int32_t ucx_abs(int32_t n)
 {
-	return n>=0 ? n:-n;
+	return n >= 0 ? n : -n;
 }
 
 
@@ -290,7 +311,7 @@ void ucx_srand(uint32_t seed)
 	rand1 = seed;
 }
 
-int32_t ucx_puts(char *str)
+int32_t ucx_puts(const char *str)
 {
 	while (*str)
 		_putchar(*str++);
@@ -308,9 +329,10 @@ char *ucx_gets(char *s)
 	while ((c = _getchar()) != '\n' && c >= 0)
 		*cs++ = c;
 	if (c < 0 && cs == s)
-		return(NULL);
+		return 0;
 	*cs++ = '\0';
-	return(s);
+	
+	return s;
 }
 
 char *ucx_getline(char *s)
@@ -327,7 +349,7 @@ char *ucx_getline(char *s)
 		*cs++ = c;
 	}
 	if (c < 0 && cs == s)
-		return NULL;
+		return 0;
 		
 	*cs++ = '\0';
 	
@@ -396,7 +418,7 @@ static int ucx_vsprintf(char **buf, const char *fmt, va_list args)
 			continue;
 		case 's':
 			str = va_arg(args, char *);
-			if (str == NULL)
+			if (str == 0)
 				str = "<NULL>";
 			for (; *str && width != 0; str++, width--) {
 				printchar(p, *str);
