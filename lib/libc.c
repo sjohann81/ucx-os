@@ -181,6 +181,18 @@ char *ucx_strtok(char *s, const char *delim)
 	}
 }
 
+char *ucx_strtok_r(char *s, const char *delim, char **holder)
+{
+	if (s)
+		*holder = s;
+
+	do {
+		s = strsep(holder, delim);
+	} while (s && !*s);
+
+	return s;
+}
+
 int32_t ucx_strtol(const char *s, char **end, int32_t base)
 {
 	int32_t i;
@@ -332,6 +344,24 @@ char *ucx_gets(char *s)
 		return 0;
 	*cs++ = '\0';
 	
+	return s;
+}
+
+char *ucx_fgets(char *s, int n, void *f)
+{
+	int ch;
+	char *p = s;
+
+	while (n > 1) {
+		ch = _getchar();
+		*p++ = ch;
+		n--;
+		if (ch == '\n')
+			break;
+	}
+	if (n)
+		*p = '\0';
+
 	return s;
 }
 
