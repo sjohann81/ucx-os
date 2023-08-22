@@ -15,7 +15,7 @@ struct sem_s *ucx_semcreate(int32_t value)
 	if (!s)
 		return 0;
 	
-	s->sem_queue = ucx_queue_create(ucx_task_count());
+	s->sem_queue = queue_create(ucx_task_count());
 	
 	if ((!s->sem_queue) || (value < 0)) {
 		free(s);
@@ -31,7 +31,7 @@ struct sem_s *ucx_semcreate(int32_t value)
 int32_t ucx_semdestroy(struct sem_s *s)
 {
 	
-	if (ucx_queue_destroy(s->sem_queue)) {
+	if (queue_destroy(s->sem_queue)) {
 		return -1;
 	} else {
 		free(s);
@@ -47,7 +47,7 @@ void ucx_wait(struct sem_s *s)
 	CRITICAL_ENTER();
 	s->count--;
 	if (s->count < 0) {
-		ucx_queue_enqueue(s->sem_queue, kcb_p->tcb_p);
+		queue_enqueue(s->sem_queue, kcb_p->tcb_p);
 		kcb_p->tcb_p->state = TASK_BLOCKED;
 		CRITICAL_LEAVE();
 		ucx_task_wfi();
@@ -64,7 +64,7 @@ void ucx_signal(struct sem_s *s)
 	s->count++;
 	if (s->count <= 0) {
 		/* FIXME: unblock the task with the highest priority instead of the first one */
-		tcb_sem = ucx_queue_dequeue(s->sem_queue);
+		tcb_sem = queue_dequeue(s->sem_queue);
 		tcb_sem->state = TASK_READY;
 	}
 	CRITICAL_LEAVE();
