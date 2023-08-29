@@ -34,16 +34,17 @@ struct kcb_s {
 extern struct kcb_s *kcb;
 
 /* kernel API */
-
 #define CRITICAL_ENTER()({kcb->preemptive == 'y' ? _di() : 0; })
 #define CRITICAL_LEAVE()({kcb->preemptive == 'y' ? _ei() : 0; })
 
+void krnl_panic(uint32_t ecode);
+uint16_t krnl_schedule(void);
+void krnl_dispatcher(void);
 /* actual dispatch/yield implementation may be platform dependent */
 void _dispatch(void);
 void _yield(void);
-uint16_t krnl_schedule(void);
-void krnl_dispatcher(void);
 
+/* task management API */
 int32_t ucx_task_add(void *task, uint16_t stack_size);
 int32_t ucx_task_remove(uint16_t id);
 void ucx_task_yield();
@@ -54,5 +55,5 @@ int32_t ucx_task_priority(uint16_t id, uint16_t priority);
 uint16_t ucx_task_id();
 void ucx_task_wfi();
 uint16_t ucx_task_count();
-void ucx_panic(uint32_t ecode);
+
 int32_t app_main();

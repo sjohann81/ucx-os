@@ -25,20 +25,14 @@ int32_t main(void)
 #endif
 	kcb->tasks = list_create();
 	
-	if (!kcb->tasks) {
-		printf("\n*** HALT - kcb alloc failed\n");
-		
-		for (;;);
-	}
+	if (!kcb->tasks)
+		krnl_panic(ERR_KCB_ALLOC);
 
 	pr = app_main();
 	setjmp(kcb->context);
 	
-	if (!kcb->tasks->length) {
-		printf("\n*** HALT - no tasks to run\n");
-		
-		for (;;);
-	}
+	if (!kcb->tasks->length)
+		krnl_panic(ERR_NO_TASKS);
 
 	if (pr) {
 		kcb->preemptive = 'y';
