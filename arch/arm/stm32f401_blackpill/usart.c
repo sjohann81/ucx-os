@@ -14,7 +14,7 @@
 
 /* USART definitions, data structures and basic routines */
 
-#define RX_BUFFER_SIZE		128
+#define RX_BUFFER_SIZE		1024
 #define RX_BUFFER_MASK		(RX_BUFFER_SIZE - 1)
 
 struct uart_s {
