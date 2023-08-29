@@ -10,11 +10,12 @@
 
 int32_t main(void)
 {
+	struct tcb_s *task;
 	int32_t pr;
 	
 	_hardware_init();
 	
-	printf("UCX/OS boot on %s\n", __ARCH__);
+	printf("UCX/OS v%s boot on %s\n", __VER__, __ARCH__);
 #ifndef UNKNOWN_HEAP
 	ucx_heap_init((size_t *)&_heap_start, (size_t)&_heap_size);
 	printf("heap_init(), %d bytes free\n", (size_t)&_heap_size);
@@ -22,19 +23,33 @@ int32_t main(void)
 	ucx_heap_init((size_t *)&__bss_end, ((size_t)&__stack - (size_t)&__bss_end - DEFAULT_STACK_SIZE));
 	printf("heap_init(), %d bytes free\n", ((size_t)&__stack - (size_t)&__bss_end - DEFAULT_STACK_SIZE));
 #endif
-	pr = app_main();
-
-	setjmp(kcb_p->context);
-	kcb_p->tcb_p = kcb_p->tcb_first;
+	kcb->tasks = list_create();
 	
-	if (pr) {
-		kcb_p->preemptive = 'y';
-		_timer_enable();
-	} else {
-		kcb_p->preemptive = 'n';
+	if (!kcb->tasks) {
+		printf("\n*** HALT - kcb alloc failed\n");
+		
+		for (;;);
 	}
 
-	_dispatch_init(kcb_p->tcb_p->context);
+	pr = app_main();
+	setjmp(kcb->context);
+	
+	if (!kcb->tasks->length) {
+		printf("\n*** HALT - no tasks to run\n");
+		
+		for (;;);
+	}
+
+	if (pr) {
+		kcb->preemptive = 'y';
+		_timer_enable();
+	} else {
+		kcb->preemptive = 'n';
+	}
+
+	kcb->task_current = kcb->tasks->head->next;
+	task = kcb->task_current->data;
+	_dispatch_init(task->context);
 	
 	/* never reached */
 	return 0;

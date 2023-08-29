@@ -10,7 +10,6 @@ enum {TASK_STOPPED, TASK_READY, TASK_RUNNING, TASK_BLOCKED, TASK_SUSPENDED};
 
 /* task control block node */
 struct tcb_s {
-	struct tcb_s *tcb_next;
 	void (*task)(void);
 	jmp_buf context;		/* jmp_buf is architecture specific */
 	size_t *stack;
@@ -23,22 +22,25 @@ struct tcb_s {
 
 /* kernel control block */
 struct kcb_s {
+	struct list_s *tasks;
+	struct node_s *task_current;
 	jmp_buf context;
-	struct tcb_s *tcb_p;
-	struct tcb_s *tcb_first;
 	struct queue_s *events;
 	volatile uint32_t ctx_switches;
 	char preemptive;
 	uint16_t id;
 };
 
-extern struct kcb_s *kcb_p;
+extern struct kcb_s *kcb;
 
 /* kernel API */
 
-#define CRITICAL_ENTER()({kcb_p->preemptive == 'y' ? _di() : 0; })
-#define CRITICAL_LEAVE()({kcb_p->preemptive == 'y' ? _ei() : 0; })
+#define CRITICAL_ENTER()({kcb->preemptive == 'y' ? _di() : 0; })
+#define CRITICAL_LEAVE()({kcb->preemptive == 'y' ? _ei() : 0; })
 
+/* actual dispatch/yield implementation may be platform dependent */
+void _dispatch(void);
+void _yield(void);
 uint16_t krnl_schedule(void);
 void krnl_dispatcher(void);
 
@@ -52,4 +54,5 @@ int32_t ucx_task_priority(uint16_t id, uint16_t priority);
 uint16_t ucx_task_id();
 void ucx_task_wfi();
 uint16_t ucx_task_count();
+void ucx_panic(uint32_t ecode);
 int32_t app_main();

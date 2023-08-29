@@ -8,41 +8,39 @@
 
 
 /* actual dispatch/yield implementation may be platform dependent */
-
 void _dispatch(void) __attribute__ ((weak, alias ("dispatch")));
 void _yield(void) __attribute__ ((weak, alias ("yield")));
 
 
 /* kernel auxiliary functions */
 
-static void krnl_stack_check(void)
+static void stack_check(void)
 {
+	struct tcb_s *task = kcb->task_current->data;
 	uint32_t check = 0x33333333;
-	uint32_t *stack_p = (uint32_t *)kcb_p->tcb_p->stack;
-	
+	uint32_t *stack_p = (uint32_t *)task->stack;
+
 	if (*stack_p != check) {
-		ucx_hexdump((void *)kcb_p->tcb_p->stack, kcb_p->tcb_p->stack_sz);
-		printf("\n*** HALT - task %d, stack %08x (%d) check failed\n", kcb_p->tcb_p->id,
-			(uint32_t)kcb_p->tcb_p->stack, (uint32_t)kcb_p->tcb_p->stack_sz);
-		for (;;);
+		hexdump((void *)task->stack, task->stack_sz);
+		printf("\n*** task %d, stack: %08x (size %d)\n", task->id,
+			(uint32_t)task->stack, (uint32_t)task->stack_sz);
+		ucx_panic(ERR_STACK_CHECK);
 	}
 		
 }
 
-static void krnl_delay_update(void)
+static struct node_s *delay_update(struct node_s *node, void *arg)
 {
-	struct tcb_s *tcb_ptr = kcb_p->tcb_first;
+	struct tcb_s *task = node->data;
 	
-	for (;;	tcb_ptr = tcb_ptr->tcb_next) {
-		if (tcb_ptr->state == TASK_BLOCKED && tcb_ptr->delay > 0) {
-			tcb_ptr->delay--;
-			if (tcb_ptr->delay == 0)
-				tcb_ptr->state = TASK_READY;
-		}
-		if (tcb_ptr->tcb_next == kcb_p->tcb_first) break;
+	if (task->state == TASK_BLOCKED && task->delay > 0) {
+		task->delay--;
+		if (task->delay == 0)
+			task->state = TASK_READY;
 	}
+	
+	return 0;
 }
-
 
 /*
  * The scheduler switches tasks based on task states and priorities, using
@@ -62,22 +60,27 @@ static void krnl_delay_update(void)
 
 uint16_t krnl_schedule(void)
 {
-	if (kcb_p->tcb_p->state == TASK_RUNNING)
-		kcb_p->tcb_p->state = TASK_READY;
+	struct tcb_s *task = kcb->task_current->data;
 	
+	if (task->state == TASK_RUNNING)
+		task->state = TASK_READY;
+		
 	do {
 		do {
-			kcb_p->tcb_p = kcb_p->tcb_p->tcb_next;
-		} while (kcb_p->tcb_p->state != TASK_READY);
-	} while (--kcb_p->tcb_p->priority & 0xff);
+			kcb->task_current = kcb->task_current->next;
+			if (kcb->task_current == kcb->tasks->tail)
+				kcb->task_current = kcb->tasks->head->next;
+				
+			task = kcb->task_current->data;
+		} while (task->state != TASK_READY);
+	} while (--task->priority & 0xff);
 	
-	kcb_p->tcb_p->priority |= (kcb_p->tcb_p->priority >> 8) & 0xff;
-	kcb_p->tcb_p->state = TASK_RUNNING;
-	kcb_p->ctx_switches++;
+	task->priority |= (task->priority >> 8) & 0xff;
+	task->state = TASK_RUNNING;
+	kcb->ctx_switches++;
 	
-	return kcb_p->tcb_p->id;
+	return task->id;
 }
-
 
 /*  
  * Kernel task dispatch and yield routines. This is highly platform dependent,
@@ -96,29 +99,30 @@ void krnl_dispatcher(void)
 	_dispatch();
 }
 
-void ucx_task_yield()
-{
-	_yield();
-}
-
 void dispatch(void)
 {
-	if (!setjmp(kcb_p->tcb_p->context)) {
-		krnl_delay_update();
-		krnl_stack_check();
+	struct tcb_s *task = kcb->task_current->data;
+	
+	if (!setjmp(task->context)) {
+		stack_check();
+		list_foreach(kcb->tasks, delay_update, (void *)0);
 		krnl_schedule();
 		_interrupt_tick();
-		longjmp(kcb_p->tcb_p->context, 1);
+		task = kcb->task_current->data;
+		longjmp(task->context, 1);
 	}
 }
 
 void yield(void)
 {
-	if (!setjmp(kcb_p->tcb_p->context)) {
-		/* TODO: check if we need to run a delay update on yields. maybe only on a non-preemtive execution? */ 
-		krnl_delay_update();
-		krnl_stack_check();
+	struct tcb_s *task = kcb->task_current->data;
+	
+	if (!setjmp(task->context)) {
+		stack_check();
+		if (kcb->preemptive == 'n')
+			list_foreach(kcb->tasks, delay_update, (void *)0);
 		krnl_schedule();
-		longjmp(kcb_p->tcb_p->context, 1);
+		task = kcb->task_current->data;
+		longjmp(task->context, 1);
 	}
 }

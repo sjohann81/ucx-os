@@ -42,13 +42,14 @@ int32_t ucx_semdestroy(struct sem_s *s)
 
 void ucx_wait(struct sem_s *s)
 {
-	extern struct kcb_s *kcb_p;
+	struct tcb_s *tcb_sem;
 	
 	CRITICAL_ENTER();
 	s->count--;
 	if (s->count < 0) {
-		queue_enqueue(s->sem_queue, kcb_p->tcb_p);
-		kcb_p->tcb_p->state = TASK_BLOCKED;
+		tcb_sem = kcb->task_current->data;
+		queue_enqueue(s->sem_queue, tcb_sem);
+		tcb_sem->state = TASK_BLOCKED;
 		CRITICAL_LEAVE();
 		ucx_task_wfi();
 	} else {
@@ -58,12 +59,11 @@ void ucx_wait(struct sem_s *s)
 
 void ucx_signal(struct sem_s *s)
 {
-	struct tcb_s *tcb_sem; 
+	struct tcb_s *tcb_sem;
 	
 	CRITICAL_ENTER();
 	s->count++;
 	if (s->count <= 0) {
-		/* FIXME: unblock the task with the highest priority instead of the first one */
 		tcb_sem = queue_dequeue(s->sem_queue);
 		tcb_sem->state = TASK_READY;
 	}

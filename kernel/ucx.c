@@ -7,79 +7,100 @@
 #include <ucx.h>
 
 struct kcb_s kernel_state = {
-	.tcb_p = 0,
-	.tcb_first = 0,
+	.tasks = 0,
+	.task_current = 0,
 	.events = 0,
 	.ctx_switches = 0,
 	.id = 0
 };
 	
-struct kcb_s *kcb_p = &kernel_state;
+struct kcb_s *kcb = &kernel_state;
+
+static struct node_s *idcmp(struct node_s *node, void *arg)
+{
+	struct tcb_s *task = node->data;
+	uint16_t id = (size_t)arg;
+	
+	if (task->id == id)
+		return node;
+	else
+		return 0;
+}
 
 
 /* task management / API */
 
 int32_t ucx_task_add(void *task, uint16_t stack_size)
 {
-	struct tcb_s *tcb_last = kcb_p->tcb_p;
-	
-	kcb_p->tcb_p = (struct tcb_s *)malloc(sizeof(struct tcb_s));
-	
-	if (kcb_p->tcb_first == 0)
-		kcb_p->tcb_first = kcb_p->tcb_p;
+	struct tcb_s *new_tcb = malloc(sizeof(struct tcb_s)); // FIXME: not thread safe
+	struct node_s *new_task;
 
-	if (!kcb_p->tcb_p)
-		return -1;
-		
 	CRITICAL_ENTER();
-	if (tcb_last)
-		tcb_last->tcb_next = kcb_p->tcb_p;
-
-	kcb_p->tcb_p->tcb_next = kcb_p->tcb_first;
-	kcb_p->tcb_p->task = task;
-	kcb_p->tcb_p->delay = 0;
-	kcb_p->tcb_p->stack_sz = stack_size;
-	kcb_p->tcb_p->id = kcb_p->id++;
-	kcb_p->tcb_p->state = TASK_STOPPED;
-	kcb_p->tcb_p->priority = TASK_NORMAL_PRIO;
-	kcb_p->tcb_p->stack = malloc(kcb_p->tcb_p->stack_sz);
-	
-	if (!kcb_p->tcb_p->stack) {
-		printf("\n*** HALT - task %d, stack alloc failed\n", kcb_p->tcb_p->id);
 		
-		for (;;);
-	}
+	if (!new_tcb)
+		ucx_panic(ERR_TCB_ALLOC);
 	
-	memset(kcb_p->tcb_p->stack, 0x69, kcb_p->tcb_p->stack_sz);
-	memset(kcb_p->tcb_p->stack, 0x33, 4);
-	memset((kcb_p->tcb_p->stack) + kcb_p->tcb_p->stack_sz - 4, 0x33, 4);
+	new_task = list_pushback(kcb->tasks, new_tcb);
 	
-	_context_init(&kcb_p->tcb_p->context, (size_t)kcb_p->tcb_p->stack,
-		kcb_p->tcb_p->stack_sz, (size_t)task);
-	CRITICAL_LEAVE();
+	if (!new_task)
+		ucx_panic(ERR_TCB_ALLOC);
 	
-	printf("task %d: %08x, stack: %08x, size %d\n", kcb_p->tcb_p->id,
-		(uint32_t)kcb_p->tcb_p->task, (uint32_t)kcb_p->tcb_p->stack,
-		kcb_p->tcb_p->stack_sz);
-	
-	kcb_p->tcb_p->state = TASK_READY;
+	new_task->data = new_tcb;
+	new_tcb->task = task;
+	new_tcb->delay = 0;
+	new_tcb->stack_sz = stack_size;
+	new_tcb->id = kcb->id++;
+	new_tcb->state = TASK_STOPPED;
+	new_tcb->priority = TASK_NORMAL_PRIO;
+	new_tcb->stack = malloc(stack_size);
+		
+	if (!new_tcb->stack)
+		ucx_panic(ERR_STACK_ALLOC);
 
-	/* FIXME: return task id */
+	CRITICAL_LEAVE();
+
+	memset(new_tcb->stack, 0x69, stack_size);
+	memset(new_tcb->stack, 0x33, 4);
+	memset((new_tcb->stack) + stack_size - 4, 0x33, 4);
+	
+	_context_init(&new_tcb->context, (size_t)new_tcb->stack,
+		stack_size, (size_t)task);
+
+	printf("task %d: %08x, stack: %08x, size %d\n", new_tcb->id,
+		(uint32_t)new_tcb->task, (uint32_t)new_tcb->stack,
+		new_tcb->stack_sz);
+	
+	new_tcb->state = TASK_READY;
+
+	return ERR_OK;
+}
+
+int32_t ucx_task_remove(uint16_t id)
+{
 	return 0;
 }
 
-void ucx_task_delay(uint16_t ticks)
+
+void ucx_task_yield()
 {
+	_yield();
+}
+
+void ucx_task_delay(uint16_t ticks)		// FIXME: delay any task
+{
+	struct tcb_s *task;
+	
 	CRITICAL_ENTER();
-	kcb_p->tcb_p->delay = ticks;
-	kcb_p->tcb_p->state = TASK_BLOCKED;
+	task = kcb->task_current->data;
+	task->delay = ticks;
+	task->state = TASK_BLOCKED;
 	CRITICAL_LEAVE();
 	ucx_task_yield();
 }
 
 int32_t ucx_task_suspend(uint16_t id)
 {
-	struct tcb_s *tcb_ptr = kcb_p->tcb_first;
+/*	struct tcb_s *tcb_ptr = kcb_p->tcb_first;
 	
 	for (;; tcb_ptr = tcb_ptr->tcb_next) {
 		if (tcb_ptr->id == id) {
@@ -99,13 +120,13 @@ int32_t ucx_task_suspend(uint16_t id)
 	
 	if (kcb_p->tcb_p->id == id)
 		ucx_task_yield();
-	
+*/	
 	return 0;
 }
 
 int32_t ucx_task_resume(uint16_t id)
 {
-	struct tcb_s *tcb_ptr = kcb_p->tcb_first;
+/*	struct tcb_s *tcb_ptr = kcb_p->tcb_first;
 	
 	for (;; tcb_ptr = tcb_ptr->tcb_next) {
 		if (tcb_ptr->id == id) {
@@ -124,13 +145,14 @@ int32_t ucx_task_resume(uint16_t id)
 	}
 	if (kcb_p->tcb_p->id == id)
 		ucx_task_yield();
-	
+*/	
 	return 0;
 }
 
 int32_t ucx_task_priority(uint16_t id, uint16_t priority)
 {
-	struct tcb_s *tcb_ptr = kcb_p->tcb_first;
+	struct node_s *node;
+	struct tcb_s *task;
 
 	switch (priority) {
 	case TASK_CRIT_PRIO:
@@ -140,37 +162,54 @@ int32_t ucx_task_priority(uint16_t id, uint16_t priority)
 	case TASK_IDLE_PRIO:
 		break;
 	default:
-		return -1;
+		return ERR_TASK_INVALID_PRIO;
 	}
+
+	CRITICAL_ENTER();
+	node = list_foreach(kcb->tasks, idcmp, (void *)id);
 	
-	for (;; tcb_ptr = tcb_ptr->tcb_next) {
-		if (tcb_ptr->id == id) {
-			CRITICAL_ENTER();
-			tcb_ptr->priority = priority;
-			CRITICAL_LEAVE();
-			break;
-		}
-		if (tcb_ptr->tcb_next == kcb_p->tcb_first)
-			return -1;
+	if (!node) {
+		CRITICAL_LEAVE();
+		
+		return ERR_TASK_NOT_FOUND;
 	}
-	
-	return 0;
+
+	task = node->data;
+	task->priority = priority;
+	CRITICAL_LEAVE();
+
+	return ERR_OK;
 }
 
 uint16_t ucx_task_id()
 {
-	return kcb_p->tcb_p->id;
+	struct tcb_s *task = kcb->task_current->data;
+	
+	return task->id;
 }
 
 void ucx_task_wfi()
 {
 	volatile uint32_t s;
 	
-	s = kcb_p->ctx_switches;
-	while (s == kcb_p->ctx_switches);
+	s = kcb->ctx_switches;
+	while (s == kcb->ctx_switches);
 }
 
 uint16_t ucx_task_count()
 {
-	return kcb_p->id + 1;
+	return kcb->tasks->length;
+}
+
+void ucx_panic(uint32_t ecode)
+{
+	int err;
+	
+	_di();
+	printf("\n*** HALT (%08x) - ", ecode);
+	for (err = 0; perror[err].ecode != ERR_UNKNOWN; err++)
+		if (perror[err].ecode == ecode) break;
+	printf("%s\n", perror[err].desc);
+	
+	for (;;);
 }
