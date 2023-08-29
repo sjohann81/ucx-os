@@ -6,7 +6,7 @@
 
 #include <ucx.h>
 
-void ucx_printhex(int n, int digits)
+void printhex(int n, int digits)
 {
 	int a;
 
@@ -21,7 +21,7 @@ void ucx_printhex(int n, int digits)
 	}
 }
 
-int32_t ucx_hexdump(char *buf, uint32_t size)
+int32_t hexdump(char *buf, uint32_t size)
 {
 	uint32_t k, l;
 	char ch;
@@ -30,11 +30,11 @@ int32_t ucx_hexdump(char *buf, uint32_t size)
 	
 	for (k = 0; k < size; k += 16) {
 		_putchar('\n');
-		ucx_printhex((size_t)buf + k, 8);
+		printhex((size_t)buf + k, 8);
 		_putchar(' ');
 		
 		for (l = 0; l < 16; l++) {
-			ucx_printhex((uint8_t)buf[k + l], 2);
+			printhex((uint8_t)buf[k + l], 2);
 			_putchar(' ');
 			if (l == 7)
 				_putchar(' ');
