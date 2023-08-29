@@ -93,9 +93,7 @@ void _interrupt_tick(void)
 
 void _dispatch_init(jmp_buf env)
 {
-	extern struct kcb_s *kcb_p;
-	
-	longjmp(kcb_p->tcb_p->context, 1);
+	longjmp(env, 1);
 }
 
 void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)
