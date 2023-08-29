@@ -1,5 +1,7 @@
+VERSION = 0.90
+
 TARGET_LIST = \
-	'arm/versatilepb'  'arm/stm32f401_blackpill' \
+	'arm/stm32f401_blackpill' 'arm/stm32f407_discovery' 'arm/versatilepb' \
 	'avr/atmega32' 'avr/atmega328p' 'avr/atmega2560' \
 	'mips/hf-risc' 'riscv/hf-riscv' 'riscv/hf-riscv-e' \
 	'riscv/hf-riscv-llvm' 'riscv/riscv32-qemu' 'riscv/riscv32-qemu-llvm' \
@@ -21,6 +23,7 @@ BUILD_TARGET_DIR = $(BUILD_DIR)/target
 -include $(BUILD_TARGET_DIR)/target.mak
 -include $(SRC_DIR)/arch/$(ARCH)/arch.mak
 INC_DIRS += -I $(SRC_DIR)/include
+CFLAGS += -D__VER__=\"$(VERSION)\"
 
 incl:
 ifeq ('$(ARCH)', 'none')
@@ -60,7 +63,7 @@ ucx: incl hal libs kernel
 	$(AR) $(ARFLAGS) $(BUILD_TARGET_DIR)/libucxos.a \
 		$(BUILD_KERNEL_DIR)/*.o
 
-kernel: pipe.o semaphore.o sched.o ucx.o main.o
+kernel: pipe.o semaphore.o ecodes.o sched.o ucx.o main.o
 
 main.o: $(SRC_DIR)/init/main.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/init/main.c
@@ -68,6 +71,8 @@ ucx.o: $(SRC_DIR)/kernel/ucx.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/ucx.c
 sched.o: $(SRC_DIR)/kernel/sched.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/sched.c
+ecodes.o: $(SRC_DIR)/kernel/ecodes.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/ecodes.c
 semaphore.o: $(SRC_DIR)/kernel/semaphore.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/semaphore.c
 pipe.o: $(SRC_DIR)/kernel/pipe.c
@@ -121,7 +126,7 @@ hello: rebuild
 hello_p: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/hello_preempt.o app/hello_preempt.c
 	@$(MAKE) --no-print-directory link
-
+	
 mutex: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/mutex.o app/mutex.c
 	@$(MAKE) --no-print-directory link
@@ -161,6 +166,7 @@ test_fixed: rebuild
 timer: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/timer.o app/timer.c
 	@$(MAKE) --no-print-directory link
+
 
 # clean and rebuild rules
 rebuild:
