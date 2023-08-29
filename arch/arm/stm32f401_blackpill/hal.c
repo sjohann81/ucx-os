@@ -8,7 +8,9 @@
 #include <usart.h>
 #include <lib/libc.h>
 #include <lib/dump.h>
+#include <lib/list.h>
 #include <kernel/kernel.h>
+#include <kernel/ecodes.h>
 #include <jiffies.h>
 
 #ifdef USB_SERIAL
@@ -329,6 +331,7 @@ volatile uint32_t *task_psp, *new_task_psp;
 void SysTick_Handler(void)
 {
 	static uint32_t tval2 = 0, tref = 0;
+	struct tcb_s *task = kcb->task_current->data;
 
 	// update microsecond counter
 	if (jf_value() < tref) tval2++;
@@ -336,9 +339,10 @@ void SysTick_Handler(void)
 	timeref = ((uint64_t)tval2 << 16) + (uint64_t)jf_value();
 
 	// save current PSP, call the scheduler and get new PSP
-	task_psp = &kcb_p->tcb_p->context[CONTEXT_PSP];
+	task_psp = &task->context[CONTEXT_PSP];
 	krnl_dispatcher();
-	new_task_psp = &kcb_p->tcb_p->context[CONTEXT_PSP];
+	task = kcb->task_current->data;
+	new_task_psp = &task->context[CONTEXT_PSP];
 	
 	/* trigger PendSV interrupt to perform a task schedule and context switch */
 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
@@ -377,36 +381,39 @@ void _cpu_idle(void)
 
 static void _stack_check(void)
 {
+	struct tcb_s *task = kcb->task_current->data;
 	uint32_t check = 0x33333333;
-	uint32_t *stack_p = (uint32_t *)kcb_p->tcb_p->stack;
-	
+	uint32_t *stack_p = (uint32_t *)task->stack;
+
 	if (*stack_p != check) {
-		ucx_hexdump((void *)kcb_p->tcb_p->stack, kcb_p->tcb_p->stack_sz);
-		printf("\n*** HALT - task %d, stack %08x (%d) check failed\n", kcb_p->tcb_p->id,
-			(uint32_t)kcb_p->tcb_p->stack, (uint32_t)kcb_p->tcb_p->stack_sz);
-		for (;;);
+		hexdump((void *)task->stack, task->stack_sz);
+		printf("\n*** task %d, stack: %08x (size %d)\n", task->id,
+			(uint32_t)task->stack, (uint32_t)task->stack_sz);
+		krnl_panic(ERR_STACK_CHECK);
 	}
 		
 }
 
-static void _delay_update(void)
+static struct node_s *_delay_update(struct node_s *node, void *arg)
 {
-	struct tcb_s *tcb_ptr = kcb_p->tcb_first;
+	struct tcb_s *task = node->data;
 	
-	for (;;	tcb_ptr = tcb_ptr->tcb_next) {
-		if (tcb_ptr->state == TASK_BLOCKED && tcb_ptr->delay > 0) {
-			tcb_ptr->delay--;
-			if (tcb_ptr->delay == 0)
-				tcb_ptr->state = TASK_READY;
-		}
-		if (tcb_ptr->tcb_next == kcb_p->tcb_first) break;
+	if (task->state == TASK_BLOCKED && task->delay > 0) {
+		task->delay--;
+		if (task->delay == 0)
+			task->state = TASK_READY;
 	}
+	
+	return 0;
 }
 
 void _dispatch(void)
 {
-	_delay_update();
+	if (!kcb->tasks->length)
+		krnl_panic(ERR_NO_TASKS);
+		
 	_stack_check();
+	list_foreach(kcb->tasks, _delay_update, (void *)0);
 	krnl_schedule();
 }
 
@@ -483,6 +490,7 @@ void _hardware_init(void)
 void _dispatch_init(jmp_buf env)
 {
 	uint32_t *ctx_p;
+	struct tcb_s *task = kcb->task_current->data;
 	
 	ctx_p = (uint32_t *)env;
 	// Set PSP to top of task 0 stack
@@ -492,7 +500,7 @@ void _dispatch_init(jmp_buf env)
 	// Execute ISB after changing CONTROL (architectural recommendation)
 	__ISB();
 	
-	kcb_p->tcb_p->task();
+	task->task();
 }
 
 void _di(void)
