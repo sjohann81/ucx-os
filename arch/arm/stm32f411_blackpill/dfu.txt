@@ -1,0 +1,10 @@
+Programming the STM32 BlackPill via DFU protocol
+================================================
+
+There is a problem with entering DFU programming mode in the BlackPill, which is caused by a floating RX1 pin (PA10) which is close to BOOT and RST buttons (this is a board issue). To overcome this, place a pull-down resistor (4k7 or 10k) between PA10 and GND, then proceed with normal DFU mode: hold BOOT0, hit RESET then release BOOT0.
+
+Another issue is the USB port. To enable USB enumeration, put a 1k5 resistor between USB D+ (PA12) and 3.3v - this makes the USB CDC serial driver work. Another option is to put a 1k5 resistor between PA12 and PA15. In this case, PA15 is used as a software pull-up for the USB bus. This enables DFU programming / reset / USB uart debugging without unpluging the device.
+
+On Debian, sometimes modemmanager clashes with the virtual usb port, so removing it solves the issue:
+
+sudo apt-get --purge remove modemmanager

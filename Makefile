@@ -1,7 +1,8 @@
 VERSION = 0.90
 
 TARGET_LIST = \
-	'arm/stm32f401_blackpill' 'arm/stm32f407_discovery' 'arm/versatilepb' \
+	'arm/stm32f401_blackpill' 'arm/stm32f411_blackpill' \
+	'arm/stm32f407_discovery' 'arm/versatilepb' \
 	'avr/atmega32' 'avr/atmega328p' 'avr/atmega2560' \
 	'mips/hf-risc' 'riscv/hf-riscv' 'riscv/hf-riscv-e' \
 	'riscv/hf-riscv-llvm' 'riscv/riscv32-qemu' 'riscv/riscv32-qemu-llvm' \
