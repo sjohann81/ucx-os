@@ -11,7 +11,7 @@ Currently, UCX/OS supports the following targets:
 
 #### ARM
 - Versatilepb
-- STM32F401 (Blackpill)
+- STM32F401 / STM32F411 (Black Pill)
 - STM32F407 (Discovery)
 
 #### MIPS (32 bit)
@@ -85,17 +85,17 @@ In real world applications, tasks of the same application have some kind of inte
 
 System calls are divided in three classes. The *task* class of system calls are used for task control and information. The *semaphore* class of system calls are used for task synchronization and the *pipe* class of system calls are used as a basic communication mechanism between tasks. At this moment, system calls are implemented as simple library calls, but this will change in the near future for architectures that suport hardware exceptions and different modes of operation.
 
-| Task			| Semaphore		| Pipe			|
-| :-------------------- | :-------------------- | :-------------------- |
-| ucx_task_add()	| ucx_sem_create()	| ucx_pipe_create()	|
-| ucx_task_yield()	| ucx_sem_destroy()	| ucx_pipe_destroy()	|
-| ucx_task_delay()	| ucx_wait()		| ucx_pipe_flush()	|
-| ucx_task_suspend()	| ucx_signal()		| ucx_pipe_size()	|
-| ucx_task_resume()	|			| ucx_pipe_get()	|
-| ucx_task_priority()	|			| ucx_pipe_put()	|
-| ucx_task_id()		|			| ucx_pipe_read()	|
-| ucx_task_wfi()	|			| ucx_pipe_write()	|
-| ucx_task_count()	|			|			|
+| Task			| Semaphore		| Pipe			| Event			|
+| :-------------------- | :-------------------- | :-------------------- | :-------------------- |
+| ucx_task_add()	| ucx_sem_create()	| ucx_pipe_create()	| ucx_event_queue()	|
+| ucx_task_yield()	| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_event_add()	|
+| ucx_task_delay()	| ucx_wait()		| ucx_pipe_flush()	| ucx_event_remove()	|
+| ucx_task_suspend()	| ucx_signal()		| ucx_pipe_size()	| 			|
+| ucx_task_resume()	|			| ucx_pipe_get()	| 			|
+| ucx_task_priority()	|			| ucx_pipe_put()	| 			|
+| ucx_task_id()		|			| ucx_pipe_read()	| 			|
+| ucx_task_wfi()	|			| ucx_pipe_write()	| 			|
+| ucx_task_count()	|			|			| 			|
 
 
 #### Task
@@ -103,6 +103,10 @@ System calls are divided in three classes. The *task* class of system calls are 
 ##### ucx_task_add()
 
 - *Parameters: void \*task, uint16_t stack_size. Returns: int32_t (0, success or -1, fail).* Adds an application task to the system with a TASK_STOPPED state. *\*task* is a pointer to a task function and *stack_size* is a stack reservation amount in the heap for recursion and dynamic allocation during task execution and for local storage allocation (which is automatically allocated in the stack). This function is called during system initialization inside *app_main*. 
+
+##### ucx_task_remove()
+
+- Not implemented (yet).
 
 ##### ucx_task_yield()
 
@@ -114,39 +118,58 @@ System calls are divided in three classes. The *task* class of system calls are 
 
 ##### ucx_task_suspend()
 
+- Puts a task in the TASK_SUSPENDED state until another tasks resumes it from this state.
+
 ##### ucx_task_resume()
+
+- Resumes a task from the TASK_SUSPENDED state, returning it to the TASK_READY state.
 
 ##### ucx_task_priority()
 
+- Changes a task priority from the default priority. Valid priorities are TASK_IDLE_PRIO, TASK_LOW_PRIO, TASK_NORMAL_PRIO (default), TASK_HIGH_PRIO and TASK_CRIT_PRIO. These priorities are relative for the task set, according to a priority round-robin scheduler.
+
 ##### ucx_task_id()
+
+- Returns the current task id number.
 
 ##### ucx_task_wfi()
 
+- Blocks the current task until its scheduling quantum expires.
+
 ##### ucx_task_count()
+
+- Returns the number of tasks in the system.
+
 
 #### Semaphore
 
-(TODO)
+Semaphore is a basic task synchronization primitive, with Dijkstra's semantics. The implementation of semaphores in the kernel associates a counter and queue for each semaphore instance.
 
 #### Pipe
 
-(TODO)
+Pipes are basic character oriented communication channels between tasks. Pipes can be used to synchronize and pass data between tasks, and they are implemented using blocking semantics. Each pipe can have a configurable size, essentially acting as a data buffer.
 
+#### Events
+
+Events are callback functions which are put in a queue for future execution. Events are functions that run only once, and must always return. Events are a feature being developed and are not implemented yet.
 
 ### Library API
 
-Lists and queues are basic data structures which are provided to applications as an API. Lists are simply linked lists with automatic memory management. Queues are circular data structures and have a defined size on their creation aligned to the next power of two. This results in an efficient implementation of circular queues, as no modular arithmetic needs to be performed for insertion and removal of items.
+Lists and queues are basic data structures which are provided to applications as an API. Lists are doubly linked lists with sentinel nodes at both ends, so less operations are needed when adding or removing items. Queues are circular data structures and have a defined size on their creation aligned to the next power of two. This results in an efficient implementation of circular queues, as no modular arithmetic needs to be performed for insertion and removal of items.
 
 | List 			| Queue			|
 | :-------------------- | :-------------------- |
-| ucx_list_create()	| ucx_queue_create()	|
-| ucx_list_destroy()	| ucx_queue_destroy()	|
-| ucx_list_add()	| ucx_queue_count()	|
-| ucx_list_peek()	| ucx_queue_enqueue()	|
-| ucx_list_poke()	| ucx_queue_dequeue()	|
-| ucx_list_count()	| ucx_queue_peek()	|
-| ucx_list_insert()	| 			|
-| ucx_list_remove()	| 			|
+| list_create()		| queue_create()	|
+| list_destroy()	| queue_destroy()	|
+| list_push()		| queue_count()		|
+| list_pushback()	| queue_enqueue()	|
+| list_pop()		| queue_dequeue()	|
+| list_popback()	| queue_peek()		|
+| list_insert()		| 			|
+| list_remove()		| 			|
+| list_index()		| 			|
+| list_foreach()	| 			|
+
 
 #### List
 
@@ -164,8 +187,8 @@ Below is a table of the implemented functions from the standard C library. These
 | :------------ | :------------ | :------------ | :------------ | :------------ |
 | strcpy()	| strncpy()	| strcat()	| strncat()	| strcmp()	|
 | strncmp()	| strstr()	| strlen()	| strchr()	| strpbrk()	|
-| strsep()	| strtok()	| strtok_r()	| strtol()	| memcpy()	|
-| memmove()	| memcmp()	| memset()	| abs()		| random()	|
-| srand()	| puts()	| gets()	| fgets()	| getline()	|
-| vsprintf()	| printf()	| sprintf()	| free()	| malloc()	|
-| calloc()	| realloc()	|
+| strsep()	| strtok()	| strtok_r()	| strtol()	| atoi()	|
+| memcpy()	| memmove()	| memcmp()	| memset()	| abs()		|
+| random()	| srand()	| puts()	| gets()	| fgets()	|
+| getline()	| vsprintf()	| printf()	| sprintf()	| free()	|
+| malloc()	| calloc()	| realloc()	|
