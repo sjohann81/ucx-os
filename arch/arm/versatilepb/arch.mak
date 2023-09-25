@@ -33,3 +33,7 @@ hal:
 	$(CC) $(CFLAGS) \
 		$(ARCH_DIR)/hal.c \
 		$(ARCH_DIR)/../../common/muldiv.c
+
+run_versatilepb:
+	echo "hit Ctrl+a x to quit"
+	qemu-system-arm -cpu arm1176 -m 128 -M versatilepb -serial stdio -kernel $(BUILD_TARGET_DIR)/image.elf
