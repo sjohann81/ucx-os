@@ -1,4 +1,4 @@
-VERSION = 0.90
+VERSION = 0.91
 
 TARGET_LIST = \
 	'arm/stm32f401_blackpill' 'arm/stm32f411_blackpill' \
@@ -34,7 +34,6 @@ else
 	@echo "ARCH = $(ARCH)" > $(BUILD_TARGET_DIR)/target.mak
 endif
 
-
 serial:
 	stty ${SERIAL_BAUD} raw cs8 -parenb -crtscts clocal cread ignpar ignbrk -ixon -ixoff -ixany -brkint -icrnl -imaxbel -opost -onlcr -isig -icanon -iexten -echo -echoe -echok -echoctl -echoke -F ${SERIAL_DEVICE}
 
@@ -44,32 +43,20 @@ load: serial
 debug: serial
 	cat ${SERIAL_DEVICE}
 
-## RISC-V / Qemu
-run_riscv32:
-	echo "hit Ctrl+a x to quit"
-#	qemu-system-riscv32 -machine virt -nographic -bios $(BUILD_TARGET_DIR)/image.bin -serial mon:stdio
-	qemu-system-riscv32 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic
-
-run_riscv64:
-	echo "hit Ctrl+a x to quit"
-	qemu-system-riscv64 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic
-	
-run_versatilepb:
-	echo "hit Ctrl+a x to quit"
-	qemu-system-arm -cpu arm1176 -m 128 -M versatilepb -serial stdio -kernel $(BUILD_TARGET_DIR)/image.elf
-
 ## kernel
 ucx: incl hal libs kernel
 	mv *.o $(SRC_DIR)/build/kernel
 	$(AR) $(ARFLAGS) $(BUILD_TARGET_DIR)/libucxos.a \
 		$(BUILD_KERNEL_DIR)/*.o
 
-kernel: pipe.o semaphore.o ecodes.o ucx.o main.o
+kernel: pipe.o semaphore.o ecodes.o syscalls.o ucx.o main.o
 
 main.o: $(SRC_DIR)/init/main.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/init/main.c
 ucx.o: $(SRC_DIR)/kernel/ucx.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/ucx.c
+syscalls.o: $(SRC_DIR)/kernel/syscalls.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/syscalls.c
 ecodes.o: $(SRC_DIR)/kernel/ecodes.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/ecodes.c
 semaphore.o: $(SRC_DIR)/kernel/semaphore.c
@@ -180,4 +167,3 @@ clean:
 veryclean: clean
 	echo "ARCH = none" > $(BUILD_TARGET_DIR)/target.mak
 	find '$(BUILD_TARGET_DIR)' -type f -name '*.a' -delete
-
