@@ -67,12 +67,14 @@ hal:
 		$(ARCH_DIR)/../../common/stm32/usb_cdc/usbd_usr.c
 
 usb_serial:
-	sudo chmod 666 ${SERIAL_DEV}
 	stty -F ${SERIAL_DEV} ${SERIAL_BR} raw cs8 -echo
 
 usb_load:
 	echo '' > ${SERIAL_DEV}
 	cat ${SERIAL_DEV}
+	
+sim:
+	qemu-system-gnuarmeclipse -cpu cortex-m4 -machine STM32F4-Discovery -s --verbose --verbose -serial mon:stdio -kernel $(BUILD_TARGET_DIR)/image.bin
 
 flash:
 	dfu-util -a 0 -s 0x08000000 -D build/target/image.bin

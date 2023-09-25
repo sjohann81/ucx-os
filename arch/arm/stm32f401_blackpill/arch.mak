@@ -66,7 +66,6 @@ hal:
 		$(ARCH_DIR)/../../common/stm32/usb_cdc/usbd_usr.c
 
 usb_serial:
-	sudo chmod 666 ${SERIAL_DEV}
 	stty -F ${SERIAL_DEV} ${SERIAL_BR} raw cs8 -echo
 
 usb_load:
