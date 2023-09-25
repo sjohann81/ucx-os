@@ -8,6 +8,8 @@
 #include <kernel/semaphore.h>
 #include <kernel/event.h>
 #include <kernel/kernel.h>
+#include <kernel/errno.h>
+#include <kernel/stat.h>
 #include <kernel/ecodes.h>
 #include <stdarg.h>
 
