@@ -34,3 +34,7 @@ hal:
 	$(AS) $(ASFLAGS) -o crt0.o $(ARCH_DIR)/crt0.s
 	$(CC) $(CFLAGS) \
 		$(ARCH_DIR)/hal.c 
+
+run_riscv64:
+	echo "hit Ctrl+a x to quit"
+	qemu-system-riscv64 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic

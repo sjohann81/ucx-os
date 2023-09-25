@@ -35,3 +35,8 @@ hal:
 	$(CC) $(CFLAGS) \
 		$(ARCH_DIR)/../riscv32-qemu/hal.c \
 		$(ARCH_DIR)/../../common/muldiv.c
+
+run_riscv32:
+	echo "hit Ctrl+a x to quit"
+#	qemu-system-riscv32 -machine virt -nographic -bios $(BUILD_TARGET_DIR)/image.bin -serial mon:stdio
+	qemu-system-riscv32 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic

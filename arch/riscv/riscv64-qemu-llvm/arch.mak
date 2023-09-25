@@ -2,7 +2,12 @@
 ARCH_DIR = $(SRC_DIR)/arch/$(ARCH)
 INC_DIRS  = -I $(ARCH_DIR)
 
+# core speed
 F_CLK=10000000
+# uart baud rate
+SERIAL_BAUDRATE=57600
+# timer interrupt frequency (100 -> 100 ints/s -> 10ms tick time. 0 -> timer0 fixed frequency)
+F_TICK = 100
 
 #remove unreferenced functions
 CFLAGS_STRIP = -fdata-sections -ffunction-sections
@@ -31,3 +36,6 @@ hal:
 		$(ARCH_DIR)/../hf-risc64-qemu/hal.c \
 		$(ARCH_DIR)/../../common/muldiv.c
 
+run_riscv64:
+	echo "hit Ctrl+a x to quit"
+	qemu-system-riscv64 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic
