@@ -1,5 +1,7 @@
 #include <hal.h>
 #include <lib/libc.h>
+#include <lib/ieee754.h>
+#include <lib/math.h>
 #include <lib/dump.h>
 #include <lib/list.h>
 #include <lib/queue.h>
