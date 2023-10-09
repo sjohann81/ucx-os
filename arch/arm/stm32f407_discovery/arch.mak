@@ -1,6 +1,7 @@
 # this is stuff specific to this architecture
 ARCH_DIR = $(SRC_DIR)/arch/$(ARCH)
 INC_DIRS  = -I $(ARCH_DIR) \
+	-I $(ARCH_DIR)/../../common \
 	-I $(ARCH_DIR)/../../common/stm32/cmsis/core \
 	-I $(ARCH_DIR)/../../common/stm32/cmsis/device \
 	-I $(ARCH_DIR)/../../common/stm32/usb_cdc

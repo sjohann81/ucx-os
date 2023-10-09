@@ -5,6 +5,7 @@
  */
 
 #include <hal.h>
+#include <aeabi_float.h>
 #include <usart.h>
 #include <lib/libc.h>
 #include <lib/dump.h>
