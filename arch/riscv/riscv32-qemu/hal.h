@@ -113,6 +113,8 @@ void mtimecmp_w(uint64_t val);
 #define strtok(s, delim)		ucx_strtok(s, delim)
 #define strtok_r(s, delim, holder)	ucx_strtok_r(s, delim, holder)
 #define strtol(s, end, base)		ucx_strtol(s, end, base)
+#define atoi(s)				ucx_atoi(s)
+#define itoa(i, s, base)		ucx_itoa(i, s, base)
 #define memcpy(dst, src, n)		ucx_memcpy(dst, src, n)
 #define memmove(dst, src, n)		ucx_memmove(dst, src, n)
 #define memcmp(cs, ct, n)		ucx_memcmp(cs, ct, n)
