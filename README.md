@@ -188,7 +188,7 @@ Below is a table of the implemented functions from the standard C library. These
 | strcpy()	| strncpy()	| strcat()	| strncat()	| strcmp()	|
 | strncmp()	| strstr()	| strlen()	| strchr()	| strpbrk()	|
 | strsep()	| strtok()	| strtok_r()	| strtol()	| atoi()	|
-| memcpy()	| memmove()	| memcmp()	| memset()	| abs()		|
-| random()	| srand()	| puts()	| gets()	| fgets()	|
-| getline()	| vsprintf()	| printf()	| sprintf()	| free()	|
+| itoa()	| memcpy()	| memmove()	| memcmp()	| memset()	|
+| abs()		| random()	| srand()	| puts()	| gets()	|
+| fgets()	| getline()	| printf()	| sprintf()	| free()	|
 | malloc()	| calloc()	| realloc()	|
