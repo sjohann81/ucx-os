@@ -937,7 +937,8 @@ int __nedf2 (double a1, double a2){
 	return (d1.ll != d2.ll);
 }
 
-float atof(const char *p){
+float atof(const char *p)
+{
 	float val, power;
 	int32_t i, sign;
 
@@ -952,7 +953,7 @@ float atof(const char *p){
 
 	if (p[i] == '.')
 		i++;
-	for (power = 1.0f; isdigit(p[i]); i++){
+	for (power = 1.0f; isdigit(p[i]); i++) {
 		val = 10.0f * val + (p[i] - '0');
 		power *= 10.0f;
 	}
@@ -960,14 +961,15 @@ float atof(const char *p){
 	return sign * val / power;
 }
 
-int32_t ftoa(float f, char *outbuf, int32_t precision){
+int32_t ftoa(float f, char *outbuf, int32_t precision)
+{
 	int32_t mantissa, int_part, frac_part, exp2, i;
 	char *p;
 	union float_long fl;
 
 	p = outbuf;
 
-	if (f < 0.0){
+	if (f < 0.0) {
 		*p = '-';
 		f = -f;
 		p++;
@@ -982,35 +984,34 @@ int32_t ftoa(float f, char *outbuf, int32_t precision){
 
 	if (exp2 >= 31){
 		return -1;	/* too large */
-	}else{
-		if (exp2 < -23){
+	} else {
+		if (exp2 < -23) {
 //			return -1;	/* too small */
-		}else{
-			if (exp2 >= 23){
+		} else {
+			if (exp2 >= 23) {
 				int_part = mantissa << (exp2 - 23);
-			}else{
-				if (exp2 >= 0){
+			} else {
+				if (exp2 >= 0) {
 					int_part = mantissa >> (23 - exp2);
 					frac_part = (mantissa << (exp2 + 1)) & 0xffffff;
-				}else{
+				} else {
 					frac_part = (mantissa & 0xffffff) >> (-(exp2 + 1));
 				}
 			}
 		}
 	}
 
-	if (int_part == 0){
+	if (int_part == 0) {
 		*p = '0';
 		p++;
-	}else{
-//		itoa(int_part, p, 10);
-		sprintf(p, "%d", int_part);
+	} else {
+		itoa(int_part, p, 10);
 		while(*p) p++;
 	}
 	*p = '.';
 	p++;
 
-	for (i = 0; i < precision; i++){
+	for (i = 0; i < precision; i++) {
 		frac_part = (frac_part << 3) + (frac_part << 1);
 		*p = (frac_part >> 24) + '0';
 		p++;
