@@ -74,7 +74,7 @@ usb_load:
 	echo '' > ${SERIAL_DEV}
 	cat ${SERIAL_DEV}
 	
-sim:
+run_stm32f407:
 	qemu-system-gnuarmeclipse -cpu cortex-m4 -machine STM32F4-Discovery -s --verbose --verbose -serial mon:stdio -kernel $(BUILD_TARGET_DIR)/image.bin
 
 flash:
