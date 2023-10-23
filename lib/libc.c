@@ -251,6 +251,44 @@ int32_t ucx_atoi(const char *s)
 	return (f ? -n : n);
 }
 
+void ucx_itoa(int32_t i, char *s, int32_t base)
+{
+	char c;
+	char *p = s;
+	char *q = s;
+	uint32_t h;
+
+	if (base == 16) {
+		h = (uint32_t)i;
+		do {
+			*q++ = '0' + (h % base);
+		} while (h /= base);
+		if ((i >= 0) && (i < 16)) *q++ = '0';
+		for (*q = 0; p <= --q; p++){
+			(*p > '9') ? (c = *p + 39) : (c = *p);
+			(*q > '9') ? (*p = *q + 39) : (*p = *q);
+			*q = c;
+		}
+	} else {
+		if (i >= 0) {
+			do {
+				*q++ = '0' + (i % base);
+			} while (i /= base);
+		} else {
+			*q++ = '-';
+			p++;
+			do {
+				*q++ = '0' - (i % base);
+			} while (i /= base);
+		}
+		for (*q = 0; p <= --q; p++) {
+			c = *p;
+			*p = *q;
+			*q = c;
+		}
+	}
+}
+
 void *ucx_memcpy(void *dst, const void *src, uint32_t n)
 {
 	char *r1 = dst;

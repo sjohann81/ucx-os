@@ -55,6 +55,7 @@ char *ucx_strtok(char *s, const char *delim);
 char *ucx_strtok_r(char *s, const char *delim, char **holder);
 int32_t ucx_strtol(const char *s, char **end, int32_t base);
 int32_t ucx_atoi(const char *s);
+void ucx_itoa(int32_t i, char *s, int32_t base);
 void *ucx_memcpy(void *dst, const void *src, uint32_t n);
 void *ucx_memmove(void *dst, const void *src, uint32_t n);
 int32_t ucx_memcmp(const void *cs, const void *ct, uint32_t n);
