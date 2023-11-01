@@ -44,6 +44,8 @@ hal:
 		$(ARCH_DIR)/../stm32f401_blackpill/usart.c \
 		$(ARCH_DIR)/../stm32f401_blackpill/jiffies.c \
 		$(ARCH_DIR)/../../common/muldiv.c \
+		$(ARCH_DIR)/../../common/ieee754.c \
+		$(ARCH_DIR)/../../common/math.c \
 		$(ARCH_DIR)/../../common/stm32/cmsis/device/stm32f4xx_rcc.c \
 		$(ARCH_DIR)/../../common/stm32/cmsis/device/stm32f4xx_gpio.c \
 		$(ARCH_DIR)/../../common/stm32/cmsis/device/stm32f4xx_tim.c \
