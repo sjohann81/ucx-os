@@ -3,6 +3,7 @@ software implementation of IEEE single-precision floating point
 */
 
 #include <ucx.h>
+#include "ieee754.h"
 
 /* add two floats */
 float __addsf3(float a1, float a2){
