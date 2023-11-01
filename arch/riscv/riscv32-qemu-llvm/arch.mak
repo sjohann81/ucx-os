@@ -34,7 +34,9 @@ hal:
 	$(AS) $(ASFLAGS) -o crt0.o $(ARCH_DIR)/../riscv32-qemu/crt0.s
 	$(CC) $(CFLAGS) \
 		$(ARCH_DIR)/../riscv32-qemu/hal.c \
-		$(ARCH_DIR)/../../common/muldiv.c
+		$(ARCH_DIR)/../../common/muldiv.c \
+		$(ARCH_DIR)/../../common/ieee754.c \
+		$(ARCH_DIR)/../../common/math.c
 
 run_riscv32:
 	echo "hit Ctrl+a x to quit"

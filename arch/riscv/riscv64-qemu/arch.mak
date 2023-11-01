@@ -33,8 +33,10 @@ AR = riscv64-unknown-elf-ar
 hal:
 	$(AS) $(ASFLAGS) -o crt0.o $(ARCH_DIR)/crt0.s
 	$(CC) $(CFLAGS) \
-		$(ARCH_DIR)/hal.c 
+		$(ARCH_DIR)/hal.c \
+		$(ARCH_DIR)/../../common/ieee754.c \
+		$(ARCH_DIR)/../../common/math.c
 
 run_riscv64:
 	echo "hit Ctrl+a x to quit"
-	qemu-system-riscv64 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic
+	qemu-system-riscv64 -smp 2 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic

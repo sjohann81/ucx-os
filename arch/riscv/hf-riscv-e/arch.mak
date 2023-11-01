@@ -35,4 +35,6 @@ hal:
 	$(CC) $(CFLAGS) \
 		$(ARCH_DIR)/../hf-riscv/hal.c \
 		$(ARCH_DIR)/../hf-riscv/interrupt.c \
-		$(ARCH_DIR)/../../common/muldiv.c
+		$(ARCH_DIR)/../../common/muldiv.c \
+		$(ARCH_DIR)/../../common/ieee754.c \
+		$(ARCH_DIR)/../../common/math.c
