@@ -388,8 +388,8 @@ static void _stack_check(void)
 
 	if (*stack_p != check) {
 		hexdump((void *)task->stack, task->stack_sz);
-		printf("\n*** task %d, stack: %08x (size %d)\n", task->id,
-			(uint32_t)task->stack, (uint32_t)task->stack_sz);
+		printf("\n*** task %d, stack: 0x%p (size %d)\n", task->id,
+			task->stack, task->stack_sz);
 		krnl_panic(ERR_STACK_CHECK);
 	}
 		
