@@ -32,7 +32,9 @@ hal:
 	$(CC) $(CFLAGS) -o crt0.o $(ARCH_DIR)/crt0.s
 	$(CC) $(CFLAGS) \
 		$(ARCH_DIR)/hal.c \
-		$(ARCH_DIR)/../../common/muldiv.c
+		$(ARCH_DIR)/../../common/muldiv.c \
+		$(ARCH_DIR)/../../common/ieee754.c \
+		$(ARCH_DIR)/../../common/math.c \
 
 run_versatilepb:
 	echo "hit Ctrl+a x to quit"
