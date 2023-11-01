@@ -3,6 +3,12 @@
 
 	.global _entry
 _entry:
+	# stop all harts (except 0)
+	csrr	t0, mhartid
+	beq	zero, t0, _boothart0
+	wfi
+	
+_boothart0:
 	la	a3, _sbss
 	la	a2, _ebss
 	la	gp, _gp
@@ -15,6 +21,18 @@ BSS_CLEAR:
 	sw	zero, 0(a3)
 	addi	a3, a3, 4
 	blt	a3, a2, BSS_CLEAR
+
+	# configure system status and clear interrupts
+	csrw	mstatus, zero
+	csrw	mip, zero
+
+	# disable S-Mode interrupt and exec handling
+	csrw	mideleg, zero
+	csrw	medeleg, zero
+
+	# enable MEI when unmasked (if MIE=1)
+	li	t0, 0x800
+	csrw	mie, t0
 
 	# setup trap vector
 	la	t0, _isr
