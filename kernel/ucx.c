@@ -27,8 +27,8 @@ static void stack_check(void)
 
 	if (*stack_p != check) {
 		hexdump((void *)task->stack, task->stack_sz);
-		printf("\n*** task %d, stack: %08x (size %d)\n", task->id,
-			(uint32_t)task->stack, (uint32_t)task->stack_sz);
+		printf("\n*** task %d, stack: 0x%p (size %d)\n", task->id,
+			task->stack, task->stack_sz);
 		krnl_panic(ERR_STACK_CHECK);
 	}
 		
@@ -212,9 +212,9 @@ int32_t ucx_task_add(void *task, uint16_t stack_size)
 	_context_init(&new_tcb->context, (size_t)new_tcb->stack,
 		stack_size, (size_t)task);
 
-	printf("task %d: %08x, stack: %08x, size %d\n", new_tcb->id,
-		(uint32_t)new_tcb->task, (uint32_t)new_tcb->stack,
-		new_tcb->stack_sz);
+	printf("task %d: 0x%p, stack: 0x%p, size %d\n", new_tcb->id,
+		new_tcb->task, new_tcb->stack, new_tcb->stack_sz);
+
 	
 	new_tcb->state = TASK_READY;
 

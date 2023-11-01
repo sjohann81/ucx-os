@@ -1,4 +1,4 @@
-VERSION = 0.92
+VERSION = 0.93
 
 TARGET_LIST = \
 	'arm/stm32f401_blackpill' 'arm/stm32f411_blackpill' \
@@ -23,7 +23,7 @@ BUILD_TARGET_DIR = $(BUILD_DIR)/target
 
 -include $(BUILD_TARGET_DIR)/target.mak
 -include $(SRC_DIR)/arch/$(ARCH)/arch.mak
-INC_DIRS += -I $(SRC_DIR)/include
+INC_DIRS += -I $(SRC_DIR)/include -I $(SRC_DIR)/include/lib -I $(SRC_DIR)/arch/common
 CFLAGS += -D__VER__=\"$(VERSION)\"
 
 incl:
@@ -64,7 +64,7 @@ semaphore.o: $(SRC_DIR)/kernel/semaphore.c
 pipe.o: $(SRC_DIR)/kernel/pipe.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/pipe.c
 
-libs: libc.o ieee754.o math.o dump.o malloc.o list.o queue.o
+libs: libc.o dump.o malloc.o list.o queue.o
 
 queue.o: $(SRC_DIR)/lib/queue.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/lib/queue.c
@@ -74,10 +74,6 @@ malloc.o: $(SRC_DIR)/lib/malloc.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/lib/malloc.c
 dump.o: $(SRC_DIR)/lib/dump.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/lib/dump.c
-math.o: $(SRC_DIR)/lib/math.c
-	$(CC) $(CFLAGS) $(SRC_DIR)/lib/math.c
-ieee754.o: $(SRC_DIR)/lib/ieee754.c
-	$(CC) $(CFLAGS) $(SRC_DIR)/lib/ieee754.c
 libc.o: $(SRC_DIR)/lib/libc.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/lib/libc.c
 		
