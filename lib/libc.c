@@ -508,6 +508,11 @@ static int ucx_vsprintf(char **buf, const char *fmt, va_list args)
 		case 'u':
 			num = va_arg(args, int);
 			break;
+		case 'p':
+			base = 16;
+			num = va_arg(args, size_t);
+			width = sizeof(size_t);
+			break;
 		default:
 			continue;
 		}
