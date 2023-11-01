@@ -19,7 +19,7 @@ log(1+x/a)=			0.1096701778662660506187957060995936986397E-18
 */
 
 #include <ucx.h>
-#include <lib/fixed.h>
+#include <fixed.h>
 
 fixed_t epsilon(void)
 {
