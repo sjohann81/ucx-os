@@ -6,7 +6,7 @@
 
 #include <ucx.h>
 
-struct sem_s *ucx_semcreate(int32_t value)
+struct sem_s *ucx_sem_create(uint16_t max_tasks, int32_t value)
 {
 	struct sem_s *s;
 	
@@ -15,7 +15,7 @@ struct sem_s *ucx_semcreate(int32_t value)
 	if (!s)
 		return 0;
 	
-	s->sem_queue = queue_create(ucx_task_count());
+	s->sem_queue = queue_create(max_tasks);
 	
 	if ((!s->sem_queue) || (value < 0)) {
 		free(s);
@@ -28,7 +28,7 @@ struct sem_s *ucx_semcreate(int32_t value)
 	}
 }
 
-int32_t ucx_semdestroy(struct sem_s *s)
+int32_t ucx_sem_destroy(struct sem_s *s)
 {
 	
 	if (queue_destroy(s->sem_queue)) {
@@ -40,7 +40,7 @@ int32_t ucx_semdestroy(struct sem_s *s)
 	}
 }
 
-void ucx_wait(struct sem_s *s)
+void ucx_sem_wait(struct sem_s *s)
 {
 	struct tcb_s *tcb_sem;
 	
@@ -57,7 +57,7 @@ void ucx_wait(struct sem_s *s)
 	}
 }
 
-void ucx_signal(struct sem_s *s)
+void ucx_sem_signal(struct sem_s *s)
 {
 	struct tcb_s *tcb_sem;
 	
