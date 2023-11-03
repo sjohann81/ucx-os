@@ -74,10 +74,10 @@ int32_t queue_enqueue(struct queue_s *q, void *data)
 {
 	int32_t tail;
 
-	if (q->tail == q->head && q->elem)
+	tail = (q->tail + 1) & q->mask;
+	if (tail == q->head)
 		return -1;
 
-	tail = (q->tail + 1) & q->mask;
 	q->pdata[q->tail] = data;
 	q->tail = tail;
 	q->elem++;
