@@ -87,12 +87,12 @@ System calls are divided in three classes. The *task* class of system calls are 
 
 | Task			| Semaphore		| Pipe			| Event			|
 | :-------------------- | :-------------------- | :-------------------- | :-------------------- |
-| ucx_task_add()	| ucx_sem_create()	| ucx_pipe_create()	| ucx_event_queue()	|
-| ucx_task_yield()	| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_event_add()	|
-| ucx_task_delay()	| ucx_wait()		| ucx_pipe_flush()	| ucx_event_remove()	|
-| ucx_task_suspend()	| ucx_signal()		| ucx_pipe_size()	| 			|
-| ucx_task_resume()	|			| ucx_pipe_get()	| 			|
-| ucx_task_priority()	|			| ucx_pipe_put()	| 			|
+| ucx_task_add()	| ucx_sem_create()	| ucx_pipe_create()	| ucx_eq_create()	|
+| ucx_task_yield()	| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_eq_destroy()	|
+| ucx_task_delay()	| ucx_sem_wait()	| ucx_pipe_flush()	| ucx_event_post()	|
+| ucx_task_suspend()	| ucx_sem_signal()	| ucx_pipe_size()	| ucx_event_poll()	|
+| ucx_task_resume()	|			| ucx_pipe_get()	| ucx_event_get()	|
+| ucx_task_priority()	|			| ucx_pipe_put()	| ucx_event_dispatch()	|
 | ucx_task_id()		|			| ucx_pipe_read()	| 			|
 | ucx_task_wfi()	|			| ucx_pipe_write()	| 			|
 | ucx_task_count()	|			|			| 			|
@@ -155,7 +155,7 @@ Events are callback functions which are put in a queue for future execution. Eve
 
 ### Library API
 
-Lists and queues are basic data structures which are provided to applications as an API. Lists are doubly linked lists with sentinel nodes at both ends, so less operations are needed when adding or removing items. Queues are circular data structures and have a defined size on their creation aligned to the next power of two. This results in an efficient implementation of circular queues, as no modular arithmetic needs to be performed for insertion and removal of items.
+Lists and queues are basic data structures which are provided to applications as an API. Lists are implemented as doubly linked lists with sentinel nodes at both ends, so less operations are needed when adding or removing items. Queues are circular data structures and have a defined size on their creation aligned to the next power of two. This results in an efficient implementation of circular queues, as no modular arithmetic needs to be performed for insertion and removal of items.
 
 | List 			| Queue			|
 | :-------------------- | :-------------------- |
