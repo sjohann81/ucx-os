@@ -49,7 +49,7 @@ ucx: incl hal libs kernel
 	$(AR) $(ARFLAGS) $(BUILD_TARGET_DIR)/libucxos.a \
 		$(BUILD_KERNEL_DIR)/*.o
 
-kernel: pipe.o semaphore.o ecodes.o syscalls.o ucx.o main.o
+kernel: event.o pipe.o semaphore.o ecodes.o syscalls.o ucx.o main.o
 
 main.o: $(SRC_DIR)/init/main.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/init/main.c
@@ -63,6 +63,8 @@ semaphore.o: $(SRC_DIR)/kernel/semaphore.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/semaphore.c
 pipe.o: $(SRC_DIR)/kernel/pipe.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/pipe.c
+event.o: $(SRC_DIR)/kernel/event.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/event.c
 
 libs: libc.o dump.o malloc.o list.o queue.o
 
@@ -103,6 +105,10 @@ delay: rebuild
 
 echo: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/echo.o app/echo.c
+	@$(MAKE) --no-print-directory link
+
+events: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/events.o app/events.c
 	@$(MAKE) --no-print-directory link
 
 hello: rebuild
