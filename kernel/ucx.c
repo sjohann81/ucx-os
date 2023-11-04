@@ -179,12 +179,12 @@ int32_t ucx_task_add(void *task, uint16_t stack_size)
 	struct tcb_s *new_tcb;
 	struct node_s *new_task;
 
-	CRITICAL_ENTER();
-	
 	new_tcb = malloc(sizeof(struct tcb_s));
 		
 	if (!new_tcb)
 		krnl_panic(ERR_TCB_ALLOC);
+
+	CRITICAL_ENTER();
 	
 	new_task = list_pushback(kcb->tasks, new_tcb);
 	

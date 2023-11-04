@@ -24,7 +24,7 @@ BUILD_TARGET_DIR = $(BUILD_DIR)/target
 -include $(BUILD_TARGET_DIR)/target.mak
 -include $(SRC_DIR)/arch/$(ARCH)/arch.mak
 INC_DIRS += -I $(SRC_DIR)/include -I $(SRC_DIR)/include/lib -I $(SRC_DIR)/arch/common
-CFLAGS += -D__VER__=\"$(VERSION)\"
+CFLAGS += -D__VER__=\"$(VERSION)\" #-DALT_ALLOCATOR
 
 incl:
 ifeq ('$(ARCH)', 'none')
