@@ -125,11 +125,11 @@ void *list_popback(struct list_s *list)
 	if (!list->head->next->next)
 		return 0;
 	
-	node = list->head->next;	
+	node = list->tail->prev;
 	val = node->data;
 	
-	node->next->prev = list->head;
-	list->head->next = node->next;
+	node->prev->next = list->tail;
+	list->tail->prev = node->prev;
 	list->length--;
 	
 	free(node);
