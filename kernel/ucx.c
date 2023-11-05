@@ -215,7 +215,6 @@ int32_t ucx_task_add(void *task, uint16_t stack_size)
 	printf("task %d: 0x%p, stack: 0x%p, size %d\n", new_tcb->id,
 		new_tcb->task, new_tcb->stack, new_tcb->stack_sz);
 
-	
 	new_tcb->state = TASK_READY;
 
 	return ERR_OK;

@@ -11,7 +11,7 @@ struct list_s *list_create()
 	struct list_s *list;
 	struct node_s *head, *tail;
 	
-	list = malloc(sizeof(struct node_s));
+	list = malloc(sizeof(struct list_s));
 	
 	if (!list)
 		return 0;
