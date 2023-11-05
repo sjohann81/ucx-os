@@ -155,20 +155,20 @@ Events are callback functions which are put in a queue for future execution. Eve
 
 ### Library API
 
-Lists and queues are basic data structures which are provided to applications as an API. Lists are implemented as doubly linked lists with sentinel nodes at both ends, so less operations are needed when adding or removing items. Queues are circular data structures and have a defined size on their creation aligned to the next power of two. This results in an efficient implementation of circular queues, as no modular arithmetic needs to be performed for insertion and removal of items.
+Lists and queues are basic data structures which are provided to applications as an API. Lists are implemented as singly or doubly linked lists with sentinel nodes at both ends, so less operations are needed when adding or removing items. Queues are circular data structures and have a defined size on their creation aligned to the next power of two. This results in an efficient implementation of circular queues, as no modular arithmetic needs to be performed for insertion and removal of items.
 
-| List 			| Queue			|
-| :-------------------- | :-------------------- |
-| list_create()		| queue_create()	|
-| list_destroy()	| queue_destroy()	|
-| list_push()		| queue_count()		|
-| list_pushback()	| queue_enqueue()	|
-| list_pop()		| queue_dequeue()	|
-| list_popback()	| queue_peek()		|
-| list_insert()		| 			|
-| list_remove()		| 			|
-| list_index()		| 			|
-| list_foreach()	| 			|
+| List (singly)		| List (doubly)		|Queue			|
+| :-------------------- | :-------------------- | :-------------------- |
+| list_create()		| dlist_create()	| queue_create()	|
+| list_destroy()	| dlist_destroy()	| queue_destroy()	|
+| list_push()		| dlist_push()		| queue_count()		|
+| list_pushback()	| dlist_pushback()	| queue_enqueue()	|
+| list_pop()		| dlist_pop()		| queue_dequeue()	|
+| list_popback()	| dlist_popback()	| queue_peek()		|
+| list_insert()		| dlist_insert()	|			|
+| list_remove()		| dlist_remove()	|			|
+| list_index()		| dlist_index()		|			|
+| list_foreach()	| dlist_foreach()	|			|
 
 
 #### List
