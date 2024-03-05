@@ -11,5 +11,6 @@
 #include <kernel/errno.h>
 #include <kernel/stat.h>
 #include <kernel/ecodes.h>
+#include <kernel/syscall.h>
 #include <stdarg.h>
 

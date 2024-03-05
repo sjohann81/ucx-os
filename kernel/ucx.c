@@ -222,7 +222,29 @@ int32_t ucx_task_add(void *task, uint16_t stack_size)
 
 int32_t ucx_task_remove(uint16_t id)
 {
-	return 0;
+	struct node_s *node;
+	struct tcb_s *task;
+	
+	if (id == ucx_task_id())
+		return ERR_TASK_CANT_REMOVE;
+
+	CRITICAL_ENTER();
+	node = list_foreach(kcb->tasks, idcmp, (void *)(size_t)id);
+	
+	if (!node) {
+		CRITICAL_LEAVE();
+		
+		return ERR_TASK_NOT_FOUND;
+	}
+	
+	task = node->data;
+	free(task->stack);
+	free(task);
+	
+	list_remove(kcb->tasks, node);
+	CRITICAL_LEAVE();
+	
+	return ERR_OK;
 }
 
 void ucx_task_yield()
