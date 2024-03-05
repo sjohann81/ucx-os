@@ -49,14 +49,14 @@ ucx: incl hal libs kernel
 	$(AR) $(ARFLAGS) $(BUILD_TARGET_DIR)/libucxos.a \
 		$(BUILD_KERNEL_DIR)/*.o
 
-kernel: event.o pipe.o semaphore.o ecodes.o syscalls.o ucx.o main.o
+kernel: event.o pipe.o semaphore.o ecodes.o syscall.o ucx.o main.o
 
 main.o: $(SRC_DIR)/init/main.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/init/main.c
 ucx.o: $(SRC_DIR)/kernel/ucx.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/ucx.c
-syscalls.o: $(SRC_DIR)/kernel/syscalls.c
-	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/syscalls.c
+syscall.o: $(SRC_DIR)/kernel/syscall.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/syscall.c
 ecodes.o: $(SRC_DIR)/kernel/ecodes.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/ecodes.c
 semaphore.o: $(SRC_DIR)/kernel/semaphore.c
