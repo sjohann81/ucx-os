@@ -1,10 +1,104 @@
 #include <ucx.h>
 
-char *__env[1] = { 0 };
-char **environ = __env;
+
+static int (*const syscalls[])() = {
+	/* UNIX syscalls */
+	[SYS_FORK] = sys_fork,
+	[SYS_EXIT] = sys_exit,
+	[SYS_WAIT] = sys_wait,
+	[SYS_PIPE] = sys_pipe,
+	[SYS_KILL] = sys_kill,
+	[SYS_EXEC] = sys_execve,
+	[SYS_DUP] = sys_dup,
+	[SYS_GETPID] = sys_getpid,
+	[SYS_SBRK] = sys_sbrk,
+	[SYS_USLEEP] = sys_usleep,
+	[SYS_STAT] = sys_stat,
+	[SYS_OPEN] = sys_open,
+	[SYS_CLOSE] = sys_close,
+	[SYS_READ] = sys_read,
+	[SYS_WRITE] = sys_write,
+	[SYS_LSEEK] = sys_lseek,
+	[SYS_CHDIR] = sys_chdir,
+	[SYS_MKNOD] = sys_mknod,
+	[SYS_LINK] = sys_link,
+	[SYS_UNLINK] = sys_unlink,
+	/* UCX-OS syscalls */
+	[SYS_TADD] = sys_tadd,
+	[SYS_TREMOVE] = sys_tremove,
+	[SYS_TYIELD] = sys_tyield,
+	[SYS_TDELAY] = sys_tdelay,
+	[SYS_TSUSPEND] = sys_tsuspend,
+	[SYS_TRESUME] = sys_tresume,
+	[SYS_TPRIORITY] = sys_tpriority,
+	[SYS_TID] = sys_tid,
+	[SYS_TWFI] = sys_twfi,
+	[SYS_TCOUNT] = sys_tcount
+};
+
+int syscall(int num, int arg0, int arg1, int arg2)
+{
+	return syscalls[num](arg0, arg1, arg2);
+}
+
+
+char *_env[1] = { 0 };
+char **environ = _env;
 int errno = 0;
 
-void *_sbrk(int incr)
+
+/* UNIX syscalls */
+
+int sys_fork(void)
+{
+	errno = EAGAIN;
+	return -1;
+}
+
+int sys_exit(int status)
+{
+	sys_kill(status, -1);
+	while (1);
+	
+	return -1;
+}
+
+int sys_wait(int *status)
+{
+	errno = ECHILD;
+	return -1;
+}
+
+int sys_pipe(int fildes[2])
+{
+	errno = EFAULT;
+	return -1;
+}
+
+int sys_kill(int pid, int sig)
+{
+	errno = EINVAL;
+	return -1;
+}
+
+int sys_execve(char *name, char **argv, char **env)
+{
+	errno = ENOMEM;
+	return -1;
+}
+
+int sys_dup(int oldfd)
+{
+	errno = EBADF;
+	return -1;
+}
+
+int sys_getpid(void)
+{
+	return 1;
+}
+
+int sys_sbrk(int incr)
 {
 	extern uint32_t _end, _stack;
 	static char *heap_end;
@@ -17,116 +111,134 @@ void *_sbrk(int incr)
 
 	if (heap_end + incr > (char *)_stack) {
 		errno = ENOMEM;
-		return (void *) -1;
+		return -1;
 	}
 
 	heap_end += incr;
 
-	return (void *)prev_heap_end;
+	return (int)prev_heap_end;
 }
 
-int _getpid(void)
+int sys_usleep(int usec)
 {
-	return 1;
+	errno = EINTR;
+	return 0;
 }
 
-int _kill(int pid, int sig)
-{
-	errno = EINVAL;
-	return -1;
-}
-
-void _exit (int status)
-{
-	_kill(status, -1);
-	while (1);
-}
-
-int _write(int file, char *ptr, int len)
-{
-	int idx;
-
-	for (idx = 0; idx < len; idx++)
-		//__io_putchar(*ptr++);
-		_putchar(*ptr++);
-
-	return len;
-}
-
-int _close(int file)
-{
-	return -1;
-}
-
-int _fstat(int file, struct stat *st)
+int sys_stat(char *file, struct stat *st)
 {
 	st->st_mode = S_IFCHR;
 	return 0;
 }
 
-int _isatty(int file)
+int sys_open(char *path, int flags)
 {
-	return 1;
+	return -1;
 }
 
-int _lseek(int file, int ptr, int dir)
+int sys_close(int file)
 {
-	return 0;
+	return -1;
 }
 
-int _read(int file, char *ptr, int len)
+int sys_read(int file, char *ptr, int len)
 {
 	int idx;
 
 	for (idx = 0; idx < len; idx++)
-		//*ptr++ = __io_getchar();
 		*ptr++ = _getchar();
 
 	return len;
 }
 
-int _open(char *path, int flags, ...)
+int sys_write(int file, char *ptr, int len)
 {
+	int idx;
+
+	for (idx = 0; idx < len; idx++)
+		_putchar(*ptr++);
+
+	return len;
+}
+
+int sys_lseek(int file, int ptr, int dir)
+{
+	return 0;
+}
+
+int sys_chdir(const char *path)
+{
+	errno = EFAULT;
 	return -1;
 }
 
-int _wait(int *status)
+int sys_mknod(const char *path, int mode, int dev)
 {
-	errno = ECHILD;
+	errno = EFAULT;
 	return -1;
 }
 
-int _unlink(char *name)
+int sys_unlink(char *name)
 {
 	errno = ENOENT;
 	return -1;
 }
-/*
-int _times(struct tms *buf)
-{
-	return -1;
-}
-*/
-int _stat(char *file, struct stat *st)
-{
-	st->st_mode = S_IFCHR;
-	return 0;
-}
 
-int _link(char *old, char *new)
+int sys_link(char *old, char *new)
 {
 	errno = EMLINK;
 	return -1;
 }
 
-int _fork(void)
+
+/* UCX-OS syscalls */
+
+int sys_tadd(void *task, int stack_size)
 {
-	errno = EAGAIN;
-	return -1;
+	return 1;
 }
 
-int _execve(char *name, char **argv, char **env)
+int sys_tremove(int id)
 {
-	errno = ENOMEM;
-	return -1;
+	return 1;
+}
+
+int sys_tyield(void)
+{
+	return 1;
+}
+
+int sys_tdelay(int ticks)
+{
+	return 1;
+}
+
+int sys_tsuspend(int id)
+{
+	return 1;
+}
+
+int sys_tresume(int id)
+{
+	return 1;
+}
+
+int sys_tpriority(int id, int priority)
+{
+	return 1;
+}
+
+int sys_tid(void)
+{
+	return 1;
+}
+
+int sys_twfi(void)
+{
+	return 1;
+}
+
+int sys_tcount(void)
+{
+	return 1;
 }
