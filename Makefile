@@ -163,6 +163,9 @@ timer: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/timer.o app/timer.c
 	@$(MAKE) --no-print-directory link
 
+timer_kill: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/timer_kill.o app/timer_kill.c
+	@$(MAKE) --no-print-directory link
 
 # clean and rebuild rules
 rebuild:
