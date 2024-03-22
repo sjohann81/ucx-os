@@ -132,6 +132,6 @@ _dispatch_init:
 
 # system call interface: syscall(service, arg0, arg1, arg2)
 	.global syscall
-syscall:
+_syscall:
 	ecall
 	ret
