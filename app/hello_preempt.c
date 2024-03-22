@@ -6,7 +6,7 @@ void task2(void)
 
 	while (1) {
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
-		_delay_ms(2);
+		ucx_task_wfi();
 	}
 }
 
@@ -16,7 +16,7 @@ void task1(void)
 
 	while (1) {
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
-		_delay_ms(2);
+		ucx_task_wfi();
 	}
 }
 
@@ -26,7 +26,7 @@ void task0(void)
 
 	while (1) {
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
-		_delay_ms(2);
+		ucx_task_wfi();
 	}
 }
 
