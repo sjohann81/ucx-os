@@ -26,9 +26,9 @@ struct kcb_s {
 	struct node_s *task_current;
 	jmp_buf context;
 	struct queue_s *events;
-	volatile uint32_t ctx_switches;
+	volatile uint32_t ticks;
+	uint16_t id_next;
 	char preemptive;
-	uint16_t id;
 };
 
 extern struct kcb_s *kcb;
@@ -55,5 +55,6 @@ int32_t ucx_task_priority(uint16_t id, uint16_t priority);
 uint16_t ucx_task_id();
 void ucx_task_wfi();
 uint16_t ucx_task_count();
+uint32_t ucx_ticks();
 
 int32_t app_main();

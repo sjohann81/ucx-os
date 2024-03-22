@@ -10,8 +10,8 @@ struct kcb_s kernel_state = {
 	.tasks = 0,
 	.task_current = 0,
 	.events = 0,
-	.ctx_switches = 0,
-	.id = 0
+	.id_next = 0,
+	.ticks = 0
 };
 	
 struct kcb_s *kcb = &kernel_state;
@@ -115,7 +115,6 @@ uint16_t krnl_schedule(void)
 	
 	task->priority |= (task->priority >> 8) & 0xff;
 	task->state = TASK_RUNNING;
-	kcb->ctx_switches++;
 	
 	return task->id;
 }
@@ -134,6 +133,7 @@ uint16_t krnl_schedule(void)
 
 void krnl_dispatcher(void)
 {
+	kcb->ticks++;
 	_dispatch();
 }
 
@@ -195,7 +195,7 @@ int32_t ucx_task_add(void *task, uint16_t stack_size)
 	new_tcb->task = task;
 	new_tcb->delay = 0;
 	new_tcb->stack_sz = stack_size;
-	new_tcb->id = kcb->id++;
+	new_tcb->id = kcb->id_next++;
 	new_tcb->state = TASK_STOPPED;
 	new_tcb->priority = TASK_NORMAL_PRIO;
 	new_tcb->stack = malloc(stack_size);
@@ -354,8 +354,8 @@ void ucx_task_wfi()
 {
 	volatile uint32_t s;
 	
-	s = kcb->ctx_switches;
-	while (s == kcb->ctx_switches);
+	s = kcb->ticks;
+	while (s == kcb->ticks);
 }
 
 uint16_t ucx_task_count()
@@ -363,4 +363,7 @@ uint16_t ucx_task_count()
 	return kcb->tasks->length;
 }
 
-
+uint32_t ucx_ticks()
+{
+	return kcb->ticks;
+}
