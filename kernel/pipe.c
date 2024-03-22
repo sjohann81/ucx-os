@@ -78,7 +78,7 @@ int32_t ucx_pipe_size(struct pipe_s *pipe)
 	return pipe->size;
 }
 
-int32_t ucx_pipe_get(struct pipe_s *pipe)
+static int32_t ucx_pipe_get(struct pipe_s *pipe)
 {
 	int32_t head, data;
 
@@ -95,7 +95,7 @@ int32_t ucx_pipe_get(struct pipe_s *pipe)
 	return data;
 }
 
-int32_t ucx_pipe_put(struct pipe_s *pipe, char data)
+static int32_t ucx_pipe_put(struct pipe_s *pipe, char data)
 {
 	int32_t tail;
 

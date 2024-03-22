@@ -91,10 +91,10 @@ System calls are divided in three classes. The *task* class of system calls are 
 | ucx_task_yield()	| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_eq_destroy()	|
 | ucx_task_delay()	| ucx_sem_wait()	| ucx_pipe_flush()	| ucx_event_post()	|
 | ucx_task_suspend()	| ucx_sem_signal()	| ucx_pipe_size()	| ucx_event_poll()	|
-| ucx_task_resume()	|			| ucx_pipe_get()	| ucx_event_get()	|
-| ucx_task_priority()	|			| ucx_pipe_put()	| ucx_event_dispatch()	|
-| ucx_task_id()		|			| ucx_pipe_read()	| 			|
-| ucx_task_wfi()	|			| ucx_pipe_write()	| 			|
+| ucx_task_resume()	|			| ucx_pipe_read()	| ucx_event_get()	|
+| ucx_task_priority()	|			| ucx_pipe_write()	| ucx_event_dispatch()	|
+| ucx_task_id()		|			| 			| 			|
+| ucx_task_wfi()	|			| 			| 			|
 | ucx_task_count()	|			|			| 			|
 
 
