@@ -1,4 +1,4 @@
-VERSION = 0.93
+VERSION = 0.94
 
 TARGET_LIST = \
 	'arm/stm32f401_blackpill' 'arm/stm32f411_blackpill' \
@@ -165,6 +165,10 @@ timer: rebuild
 
 timer_kill: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/timer_kill.o app/timer_kill.c
+	@$(MAKE) --no-print-directory link
+
+scall_suspend: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/scall_suspend.o app/scall_suspend.c
 	@$(MAKE) --no-print-directory link
 
 # clean and rebuild rules
