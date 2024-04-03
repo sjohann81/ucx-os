@@ -12,7 +12,7 @@ setjmp:
 	mov	r6, fp
 	mov	r7, sp
 	stmia	r0!, {r3, r4, r5, r6, r7}
-	/* Do not trash r4 .. r7 */
+	/* Do not trash r3 .. r7 */
 	ldmia	r2!, {r3, r4, r5, r6, r7}
 	mov	r0, #0
 	bx	lr
@@ -37,6 +37,8 @@ longjmp:
 1:	bx	r3
 
 
+/* no fpu */
+/*
 	.text
 	.balign 4
 	.globl PendSV_Handler
@@ -53,4 +55,32 @@ PendSV_Handler:
 	ldr	r0, [r1]
 	ldmia	r0!, {r4-r11}
 	msr	psp, r0
+	bx	lr
+*/
+
+/* context + FPU regs */
+	.text
+	.balign 4
+	.globl PendSV_Handler
+	.thumb_func
+	.syntax unified
+PendSV_Handler:
+	mrs	r0, psp
+	isb
+	tst	r14, #0x10
+	it	eq
+	vstmdbeq r0!, {s16-s31} 
+	stmdb	r0!, {r4-r11}
+	ldr	r1, =task_psp
+	ldr	r1, [r1]
+	str	r0, [r1]
+	ldr	r1, =new_task_psp
+	ldr	r1, [r1]
+	ldr	r0, [r1]
+	ldmia	r0!, {r4-r11}
+	tst	r14, #0x10
+	it	eq
+	vldmiaeq r0!, {s16-s31}
+	msr	psp, r0
+	isb
 	bx	lr
