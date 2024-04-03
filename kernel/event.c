@@ -35,7 +35,20 @@ struct eq_s *ucx_eq_create(uint16_t events)
 
 int32_t ucx_eq_destroy(struct eq_s *eq)
 {
-//	ucx_sem_wait(eq->mutex);
+	ucx_sem_wait(eq->mutex);
+	
+	if (queue_count(eq->event_queue)) {
+		ucx_sem_signal(eq->mutex);
+		
+		return ERR_EQ_NOTEMPTY;
+	}
+	
+	queue_destroy(eq->event_queue);
+	
+	if (ucx_sem_destroy(eq->mutex))
+		return ERR_SEM_DEALLOC;
+		
+	free(eq);
 	
 	return 0;
 }
