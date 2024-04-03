@@ -5,7 +5,6 @@
  */
 
 #include <hal.h>
-#include <aeabi_float.h>
 #include <usart.h>
 #include <lib/libc.h>
 #include <lib/dump.h>
@@ -14,13 +13,6 @@
 #include <kernel/ecodes.h>
 #include <jiffies.h>
 
-#ifdef USB_SERIAL
-
-#include "usbd_cdc_vcp.h"
-
-USB_OTG_CORE_HANDLE USB_OTG_dev;
-
-#endif
 
 /*
 libc basic I/O support
@@ -28,37 +20,20 @@ libc basic I/O support
 
 void _putchar(char value)
 {
-#ifdef USB_SERIAL
-	VCP_putchar(value);
-#else
-	uart_tx(1, value);
-#endif
+	uart_tx(USART_PORT, value);
 }
 
 int32_t _kbhit(void)
 {
-#ifdef USB_SERIAL
-	return VCP_kbhit();
-#else
-	if (uart_rxsize(1) > 0)
+	if (uart_rxsize(USART_PORT) > 0)
 		return 1;
 	else
 		return 0;
-#endif
 }
 
 int32_t _getchar(void)
 {
-#ifdef USB_SERIAL
-	uint8_t value;
-	
-	while (1) {
-		if (VCP_getchar(&value))
-			return value;
-	}
-#else
-	return uart_rx(1);
-#endif
+	return uart_rx(USART_PORT);
 }
 
 
@@ -459,30 +434,14 @@ void _hardware_init(void)
 	/* setup TIM11 for jiffies */
 	jf_setup();
 
+	/* configure USART */
+	uart_init(USART_PORT, USART_BAUD, 0);
+
 #ifdef USB_SERIAL
-	/* GPIOA Peripheral clock enable. */
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-
-	/* Configure PA8 in output pushpull mode. */
-	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_15;
-	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	
-	GPIO_SetBits(GPIOA, GPIO_Pin_15);
-	_delay_ms(100);
-
-	USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CDC_cb, &USR_cb);
-
 	char buf[80];
 	
 	/* wait from user data terminal to boot */
 	gets(buf);
-#else
-	/* configure USART 1 */
-	uart_init(1, 57600, 0);
 #endif
 	/* turn board LED off */
 	GPIO_SetBits(GPIOC, GPIO_Pin_13);

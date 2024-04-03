@@ -10,11 +10,15 @@
 #include <stm32f4xx_usart.h>
 #include <hal.h>
 #include <usart.h>
+#include <usbd_cdc_vcp.h>
+
+
+USB_OTG_CORE_HANDLE USB_OTG_dev;
 
 
 /* USART definitions, data structures and basic routines */
 
-#define RX_BUFFER_SIZE		1024
+#define RX_BUFFER_SIZE		128
 #define RX_BUFFER_MASK		(RX_BUFFER_SIZE - 1)
 
 struct uart_s {
@@ -101,6 +105,25 @@ int16_t uart_init(uint8_t port, uint32_t baud, uint8_t polled){
 	struct uart_s *uart_p = 0;
 	
 	switch (port) {
+	case 0:
+		/* USB CDC UART */
+		/* GPIOA Peripheral clock enable. */
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+
+		/* Configure PA8 in output pushpull mode. */
+		GPIO_InitStruct.GPIO_Pin   = GPIO_Pin_15;
+		GPIO_InitStruct.GPIO_Mode  = GPIO_Mode_OUT;
+		GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_2MHz;
+		GPIO_InitStruct.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+		GPIO_Init(GPIOA, &GPIO_InitStruct);
+		
+		GPIO_SetBits(GPIOA, GPIO_Pin_15);
+		_delay_ms(500);
+
+		USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CDC_cb, &USR_cb);
+		
+		return 0;
 	case 1:
 		uart_p = uart1;
 		// Enable clock for GPIOB
@@ -274,6 +297,8 @@ uint16_t uart_rxsize(uint8_t port)
 	uint32_t data = 0;
 	
 	switch (port) {
+	case 0:
+		return VCP_kbhit();
 	case 1:
 		uart_p = uart1;
 		data = USART_GetFlagStatus(USART1, USART_FLAG_RXNE);
@@ -301,7 +326,16 @@ uint16_t uart_rxsize(uint8_t port)
 
 void uart_tx(uint8_t port, uint8_t data)
 {
+	static int bytes = 0;
+	
 	switch (port) {
+	case 0:
+		VCP_putchar(data);
+		if (bytes++ == 100) {
+			bytes = 0;
+			_delay_ms(5);
+		}
+		break;
 	case 1:
 		// Wait until transmit data register is empty
 		while (!USART_GetFlagStatus(USART1, USART_FLAG_TXE));
@@ -327,6 +361,11 @@ uint8_t uart_rx(uint8_t port)
 	uint8_t data;
 
 	switch (port) {
+	case 0:
+		while (1) {
+			if (VCP_getchar(&data))
+				return data;
+		}
 	case 1:
 		uart_p = uart1;
 		if (!uart_p->polled) {

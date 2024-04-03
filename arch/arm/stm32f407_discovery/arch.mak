@@ -10,6 +10,8 @@ INC_DIRS  = -I $(ARCH_DIR) \
 SERIAL_DEV = /dev/ttyACM1
 # uart baud rate
 SERIAL_BR = 115200
+# uart port
+SERIAL_PORT = 1
 # timer interrupt frequency (100 -> 100 ints/s -> 10ms tick time)
 F_TICK = 100
 
@@ -21,7 +23,7 @@ LDFLAGS_STRIP = --gc-sections
 #MCU_DEFINES = -mcpu=cortex-m4 -mtune=cortex-m4 -mfloat-abi=hard -mthumb -fsingle-precision-constant -mfpu=fpv4-sp-d16 -Wdouble-promotion
 MCU_DEFINES = -mcpu=cortex-m4 -mtune=cortex-m4 -mfloat-abi=soft -mabi=atpcs -mthumb -fsingle-precision-constant
 C_DEFINES = -D STM32F407xx -D HSE_VALUE=8000000 #-D USB_SERIAL
-CFLAGS = -Wall -O2 -c $(MCU_DEFINES) -mapcs-frame -fverbose-asm -nostdlib -ffreestanding $(C_DEFINES) $(INC_DIRS) -D USART_BAUD=$(SERIAL_BR) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP)
+CFLAGS = -Wall -O2 -c $(MCU_DEFINES) -mapcs-frame -fverbose-asm -nostdlib -ffreestanding $(C_DEFINES) $(INC_DIRS) -D USART_BAUD=$(SERIAL_BR) -D USART_PORT=$(SERIAL_PORT) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP)
 
 LDFLAGS = $(LDFLAGS_STRIP)
 LDSCRIPT = $(ARCH_DIR)/stm32f4_flash.ld
@@ -56,18 +58,7 @@ hal:
 		$(ARCH_DIR)/../../common/stm32/cmsis/device/stm32f4xx_syscfg.c \
 		$(ARCH_DIR)/../../common/stm32/cmsis/device/stm32f4xx_exti.c \
 		$(ARCH_DIR)/../../common/stm32/cmsis/device/misc.c \
-		$(ARCH_DIR)/../../common/stm32/cmsis/device/system_stm32f4xx.c \
-		$(ARCH_DIR)/../../common/stm32/usb_cdc/usb_bsp.c \
-		$(ARCH_DIR)/../../common/stm32/usb_cdc/usb_core.c \
-		$(ARCH_DIR)/../../common/stm32/usb_cdc/usb_dcd.c \
-		$(ARCH_DIR)/../../common/stm32/usb_cdc/usb_dcd_int.c \
-		$(ARCH_DIR)/../../common/stm32/usb_cdc/usbd_cdc_core.c \
-		$(ARCH_DIR)/../../common/stm32/usb_cdc/usbd_cdc_vcp.c \
-		$(ARCH_DIR)/../../common/stm32/usb_cdc/usbd_core.c \
-		$(ARCH_DIR)/../../common/stm32/usb_cdc/usbd_desc.c \
-		$(ARCH_DIR)/../../common/stm32/usb_cdc/usbd_ioreq.c \
-		$(ARCH_DIR)/../../common/stm32/usb_cdc/usbd_req.c \
-		$(ARCH_DIR)/../../common/stm32/usb_cdc/usbd_usr.c
+		$(ARCH_DIR)/../../common/stm32/cmsis/device/system_stm32f4xx.c
 
 usb_serial:
 	stty -F ${SERIAL_DEV} ${SERIAL_BR} raw cs8 -echo
