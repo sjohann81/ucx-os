@@ -38,7 +38,6 @@ longjmp:
 
 
 /* no fpu */
-/*
 	.text
 	.balign 4
 	.globl PendSV_Handler
@@ -56,9 +55,9 @@ PendSV_Handler:
 	ldmia	r0!, {r4-r11}
 	msr	psp, r0
 	bx	lr
-*/
 
 /* context + FPU regs */
+/*
 	.text
 	.balign 4
 	.globl PendSV_Handler
@@ -84,3 +83,4 @@ PendSV_Handler:
 	msr	psp, r0
 	isb
 	bx	lr
+*/
