@@ -318,10 +318,12 @@ int32_t ucx_task_priority(uint16_t id, uint16_t priority)
 
 	switch (priority) {
 	case TASK_CRIT_PRIO:
+	case TASK_REALTIME_PRIO:
 	case TASK_HIGH_PRIO:
+	case TASK_ABOVE_PRIO:
 	case TASK_NORMAL_PRIO:
+	case TASK_BELOW_PRIO:
 	case TASK_LOW_PRIO:
-	case TASK_IDLE_PRIO:
 		break;
 	default:
 		return ERR_TASK_INVALID_PRIO;

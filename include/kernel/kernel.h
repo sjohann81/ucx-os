@@ -1,12 +1,16 @@
 /* task priorities */
-#define TASK_CRIT_PRIO		((0x03 << 8) | 0x03)		/* priority 0 .. 3 */
-#define TASK_HIGH_PRIO 		((0x0f << 8) | 0x0f)		/* priority 4 .. 15 */
-#define TASK_NORMAL_PRIO	((0x1f << 8) | 0x1f)		/* priority 16 .. 31 */
-#define TASK_LOW_PRIO		((0x3f << 8) | 0x3f)		/* priority 32 .. 63 */
-#define TASK_IDLE_PRIO		((0x7f << 8) | 0x7f)		/* priority 64 .. 127 */
+enum task_priorities {
+	TASK_CRIT_PRIO		= ((0x01 << 8) | 0x01),		/* priority 1 */
+	TASK_REALTIME_PRIO	= ((0x03 << 8) | 0x03),		/* priority 2 .. 3 */
+	TASK_HIGH_PRIO		= ((0x07 << 8) | 0x07),		/* priority 4 .. 7 */
+	TASK_ABOVE_PRIO		= ((0x0f << 8) | 0x0f),		/* priority 8 .. 15 */
+	TASK_NORMAL_PRIO	= ((0x1f << 8) | 0x1f),		/* priority 16 .. 31 */
+	TASK_BELOW_PRIO		= ((0x3f << 8) | 0x3f),		/* priority 32 .. 63 */
+	TASK_LOW_PRIO		= ((0x7f << 8) | 0x7f)		/* priority 64 .. 127 */
+};
 
 /* task states */
-enum {TASK_STOPPED, TASK_READY, TASK_RUNNING, TASK_BLOCKED, TASK_SUSPENDED};
+enum task_states {TASK_STOPPED, TASK_READY, TASK_RUNNING, TASK_BLOCKED, TASK_SUSPENDED};
 
 /* task control block node */
 struct tcb_s {
