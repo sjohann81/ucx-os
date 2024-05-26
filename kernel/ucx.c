@@ -279,8 +279,13 @@ int32_t ucx_task_suspend(uint16_t id)
 	}
 
 	task = node->data;
-	if (task->state == TASK_READY || task->state == TASK_RUNNING)
+	if (task->state == TASK_READY || task->state == TASK_RUNNING) {
 		task->state = TASK_SUSPENDED;
+	} else {
+		CRITICAL_LEAVE();
+		
+		return ERR_TASK_CANT_SUSPEND;
+	}
 	CRITICAL_LEAVE();
 	
 	if (kcb->task_current == node)
@@ -304,8 +309,13 @@ int32_t ucx_task_resume(uint16_t id)
 	}
 
 	task = node->data;
-	if (task->state == TASK_SUSPENDED)
+	if (task->state == TASK_SUSPENDED) {
 		task->state = TASK_READY;
+	} else {
+		CRITICAL_LEAVE();
+		
+		return ERR_TASK_CANT_RESUME;
+	}
 	CRITICAL_LEAVE();
 
 	return ERR_OK;
