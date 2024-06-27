@@ -85,12 +85,10 @@ static int32_t ucx_pipe_get(struct pipe_s *pipe)
 	if (pipe->head == pipe->tail)
 		return -1;
 
-	CRITICAL_ENTER();	
 	head = pipe->head;
 	pipe->head = (pipe->head + 1) & pipe->mask;
 	data = pipe->data[head];
 	pipe->size--;
-	CRITICAL_LEAVE();
 
 	return data;
 }
@@ -103,11 +101,9 @@ static int32_t ucx_pipe_put(struct pipe_s *pipe, char data)
 	if (tail == pipe->head)
 		return -1;
 		
-	CRITICAL_ENTER();
 	pipe->data[pipe->tail] = data;
 	pipe->tail = tail;
 	pipe->size++;
-	CRITICAL_LEAVE();
 
 	return 0;
 }
@@ -119,7 +115,9 @@ int32_t ucx_pipe_read(struct pipe_s *pipe, char *data, uint16_t size)
 	int32_t byte;
 	
 	while (i < size) {
+		CRITICAL_ENTER();
 		byte = ucx_pipe_get(pipe);
+		CRITICAL_LEAVE();
 
 		if (byte == -1)
 			continue;
@@ -139,8 +137,10 @@ int32_t ucx_pipe_write(struct pipe_s *pipe, char *data, uint16_t size)
 	int32_t res;
 	
 	while (i < size) {
+		CRITICAL_ENTER();
 		res = ucx_pipe_put(pipe, data[i]);
-
+		CRITICAL_LEAVE();
+	
 		if (res == -1)
 			continue;
 
