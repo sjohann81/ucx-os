@@ -56,9 +56,47 @@ PendSV_Handler:
 	msr	psp, r0
 	bx	lr
 
+
 /* context + FPU regs */
-/*
-	.text
+/* FIXME: doesn't work. */
+/*	.text
+	.balign 4
+	.globl PendSV_Handler
+	.thumb_func
+	.syntax unified
+PendSV_Handler:
+	mrs	r0, psp
+	
+	ldr	r1, =0xe000ef00
+	ldr	r2, [r1, #52]
+	bic.w	r2, r2, #1
+	str	r2, [r1, #52]
+
+	vstm	r0!, {s0-s31}
+	stmdb	r0!, {r4-r11}
+	ldr	r1, =task_psp
+	ldr	r1, [r1]
+	str	r0, [r1]
+	ldr	r1, =new_task_psp
+	ldr	r1, [r1]
+	ldr	r0, [r1]
+	ldmia	r0!, {r4-r11}
+	vldm	r0, {s0-s31}
+
+	ldr	r1, =0xe000ef00
+	ldr	r2, [r1, #52]
+	orr.w	r2, r2, #1
+	str	r2, [r1, #52]
+
+	msr	psp, r0
+	bx lr
+*/
+
+/* context + FPU regs */
+/* FIXME: this routine is testing if the FPU is being used by the current
+   task, and optionally loads/stores the state on the stack. It doesn't work.
+*/
+/*	.text
 	.balign 4
 	.globl PendSV_Handler
 	.thumb_func
@@ -69,14 +107,14 @@ PendSV_Handler:
 	tst	r14, #0x10
 	it	eq
 	vstmdbeq r0!, {s16-s31} 
-	stmdb	r0!, {r4-r11}
+	stmdb	r0!, {r4-r11, r14}
 	ldr	r1, =task_psp
 	ldr	r1, [r1]
 	str	r0, [r1]
 	ldr	r1, =new_task_psp
 	ldr	r1, [r1]
 	ldr	r0, [r1]
-	ldmia	r0!, {r4-r11}
+	ldmia	r0!, {r4-r11, r14}
 	tst	r14, #0x10
 	it	eq
 	vldmiaeq r0!, {s16-s31}

@@ -460,6 +460,10 @@ void _dispatch_init(jmp_buf env)
 	// Execute ISB after changing CONTROL (architectural recommendation)
 	__ISB();
 	
+	/* configure FP state save behaviour */
+//	FPU->FPCCR &= ~(FPU_FPCCR_ASPEN_Msk | FPU_FPCCR_LSPEN_Msk);
+//	FPU->FPCCR &= ~FPU_FPCCR_LSPEN_Msk;
+	
 	task->task();
 }
 
