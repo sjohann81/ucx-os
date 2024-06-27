@@ -47,6 +47,9 @@ int32_t app_main(void)
 	ucx_task_add(task1, DEFAULT_STACK_SIZE);
 
 	pipe1 = ucx_pipe_create(64);		/* pipe buffer, 64 bytes */
+	
+	if (!pipe1)
+		printf("Fail!\n");
 
 	// start UCX/OS, preemptive mode
 	return 1;
