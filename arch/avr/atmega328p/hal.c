@@ -1,4 +1,4 @@
-/* file:          hal.h
+/* file:          hal.c
  * description:   hardware abstraction layer (HAL) definitions for ATMEGA328p
  * date:          04/2021
  * author:        Sergio Johann Filho <sergio.johann@acad.pucrs.br>
@@ -78,13 +78,13 @@ void _hardware_init(void)
 void _timer_enable(void)
 {
 	/* enable timer2 mask */
-	TIMSK2 |= (1 << OCIE2A);
+//	TIMSK2 |= (1 << OCIE2A);
 }
 
 void _timer_disable(void)
 {
 	/* enable timer2 mask */
-	TIMSK2 &= ~(1 << OCIE2A);
+//	TIMSK2 &= ~(1 << OCIE2A);
 }
 
 void _interrupt_tick(void)
@@ -93,14 +93,23 @@ void _interrupt_tick(void)
 
 void _dispatch_init(jmp_buf env)
 {
+	/* clear pending output compare 2 interrupt */
+	TIFR2 = (1 << OCF2A);
+	/* enable timer2 interrupt mask */
+	TIMSK2 |= (1 << OCIE2A);
+	
 	longjmp(env, 1);
 }
 
 void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)
 {
 	uint8_t *ctx_p;
+	int i;
 	
 	ctx_p = (uint8_t *)ctx;
+
+	for (i = 0; i < sizeof(jmp_buf); i++)
+		ctx_p[i] = 0;
 
 	ctx_p[CONTEXT_SP] = (sp + ss) & 0xff;
 	ctx_p[CONTEXT_SP + 1] = (sp + ss) >> 8;
@@ -108,4 +117,3 @@ void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)
 	ctx_p[CONTEXT_RA] = ra & 0xff;
 	ctx_p[CONTEXT_RA + 1] = ra >> 8;
 }
-

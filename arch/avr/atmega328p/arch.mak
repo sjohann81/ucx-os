@@ -21,16 +21,20 @@ OBJ = avr-objcopy
 SIZE = avr-size
 AR = avr-ar
 
-SERIAL_PROG = /dev/ttyACM0
+# serial port
+SERIAL_DEV = /dev/ttyACM0
+# uart baud rate
+SERIAL_BR = 57600
+
 AVRDUDE_CONFIG=/usr/local/avr/gcc/etc/avrdude.conf
 AVRDUDE_PART=m328p
 
 #PROGRAMMER = bsd
 #PROGRAMMER = usbtiny
-#PROGRAMMER = dasa -P $(SERIAL_PROG)
+#PROGRAMMER = dasa -P $(SERIAL_DEV)
 #PROGRAMMER = usbasp
-PROGRAMMER = arduino -P $(SERIAL_PROG)
-#PROGRAMMER = wiring -P $(SERIAL_PROG) -D
+PROGRAMMER = arduino -P $(SERIAL_DEV)
+#PROGRAMMER = wiring -P $(SERIAL_DEV) -D
 
 hal:
 	$(CC) $(CFLAGS) \
@@ -38,7 +42,7 @@ hal:
 		$(ARCH_DIR)/hal.c 
 
 flash:
-	avrdude -C $(AVRDUDE_CONFIG) -p $(AVRDUDE_PART) -U flash:w:code.hex -y -c $(PROGRAMMER)
+	avrdude -C $(AVRDUDE_CONFIG) -p $(AVRDUDE_PART) -U flash:w:$(BUILD_TARGET_DIR)/image.hex -c $(PROGRAMMER)
 
 # external high frequency crystal
 fuses:
@@ -53,3 +57,7 @@ serial_sim:
 
 test:
 	avrdude -C $(AVRDUDE_CONFIG) -p $(AVRDUDE_PART) -c $(PROGRAMMER)
+	
+usb_load:
+	stty -F ${SERIAL_DEV} ${SERIAL_BR} raw cs8 -echo
+	cat ${SERIAL_DEV}
