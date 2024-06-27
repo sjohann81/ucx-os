@@ -1,6 +1,6 @@
 #include <ucx.h>
 
-struct ecode_s edatadesc[] = {
+static struct ecode_s edatadesc[] = {
 	{ERR_OK,			"no error"},
 	{ERR_FAIL,			"failure"},
 	{ERR_NO_TASKS,			"no tasks to run"},
@@ -16,6 +16,7 @@ struct ecode_s edatadesc[] = {
 	{ERR_PIPE_DEALLOC,		"pipe dealloc failed"},
 	{ERR_SEM_ALLOC,			"sema alloc failed"},
 	{ERR_SEM_DEALLOC,		"sema dealloc failed"},
+	{ERR_SEM_OPERATION,		"sema operation failed"},
 	{ERR_EQ_NOTEMPTY,		"message queue not empty"},
 	{ERR_UNKNOWN,			"unknown reason"}
 };
