@@ -23,7 +23,7 @@ LDSCRIPT = $(ARCH_DIR)/hf-risc.ld
 
 CC = clang
 AS = riscv64-unknown-elf-as
-LD = riscv64-unknown-elf-ld
+LD = ld.lld
 DUMP = riscv64-unknown-elf-objdump -Mno-aliases
 READ = riscv64-unknown-elf-readelf
 OBJ = riscv64-unknown-elf-objcopy

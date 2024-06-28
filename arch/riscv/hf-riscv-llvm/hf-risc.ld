@@ -9,7 +9,7 @@ MEMORY
 ENTRY(_entry)
 
 /* Defines beginning and ending of stack. */
-_stack_size  = 256K;
+_stack_size  = 4K;
 _stack = _stack_start;
 _stack_start = ORIGIN(RAM) + LENGTH(RAM);
 _stack_end   = _stack_start - _stack_size;
@@ -68,21 +68,4 @@ SECTIONS
 	} > RAM
 	
 	_end = .;
-
-	.heap . (NOLOAD) :
-	{
-		. = ALIGN(4);
-		_heap_start = .;
-		. = . + _heap_size;
-		. = ALIGN(4);
-	} > RAM
-
-	.stack . (NOLOAD) :
-	{
-		. = ALIGN(4);
-		_stack_end = .;
-		. = . + _stack_size;
-		_stack_start = .;
-		. = ALIGN(4);
-	} > RAM
 }
