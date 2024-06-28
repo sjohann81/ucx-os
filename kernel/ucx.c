@@ -26,7 +26,6 @@ static void stack_check(void)
 	uint32_t *stack_p = (uint32_t *)task->stack;
 
 	if (*stack_p != check) {
-		hexdump((void *)task->stack, task->stack_sz);
 		printf("\n*** task %d, stack: 0x%p (size %d)\n", task->id,
 			task->stack, task->stack_sz);
 		krnl_panic(ERR_STACK_CHECK);
@@ -98,6 +97,7 @@ void _yield(void) __attribute__ ((weak, alias ("yield")));
 
 uint16_t krnl_schedule(void)
 {
+	int itcnt = 0;
 	struct tcb_s *task = kcb->task_current->data;
 	
 	if (task->state == TASK_RUNNING)
@@ -108,8 +108,11 @@ uint16_t krnl_schedule(void)
 			kcb->task_current = kcb->task_current->next;
 			if (kcb->task_current == kcb->tasks->tail)
 				kcb->task_current = kcb->tasks->head->next;
-				
 			task = kcb->task_current->data;
+
+			if (itcnt++ > KRNL_SCHED_IMAX)
+				krnl_panic(ERR_NO_TASKS);
+
 		} while (task->state != TASK_READY);
 	} while (--task->priority & 0xff);
 	

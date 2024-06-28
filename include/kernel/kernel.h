@@ -6,7 +6,8 @@ enum task_priorities {
 	TASK_ABOVE_PRIO		= ((0x0f << 8) | 0x0f),		/* priority 8 .. 15 */
 	TASK_NORMAL_PRIO	= ((0x1f << 8) | 0x1f),		/* priority 16 .. 31 */
 	TASK_BELOW_PRIO		= ((0x3f << 8) | 0x3f),		/* priority 32 .. 63 */
-	TASK_LOW_PRIO		= ((0x7f << 8) | 0x7f)		/* priority 64 .. 127 */
+	TASK_LOW_PRIO		= ((0x7f << 8) | 0x7f),		/* priority 64 .. 127 */
+	TASK_IDLE_PRIO		= ((0xff << 8) | 0xff)		/* priority 128 .. 255 */
 };
 
 /* task states */
@@ -36,6 +37,8 @@ struct kcb_s {
 };
 
 extern struct kcb_s *kcb;
+
+#define KRNL_SCHED_IMAX		10000
 
 /* kernel API */
 #define CRITICAL_ENTER()({kcb->preemptive == 'y' ? _di() : 0; })
