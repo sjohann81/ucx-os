@@ -93,10 +93,12 @@ void _interrupt_tick(void)
 
 void _dispatch_init(jmp_buf env)
 {
-	/* clear pending output compare 2 interrupt */
-	TIFR2 = (1 << OCF2A);
-	/* enable timer2 interrupt mask */
-	TIMSK2 |= (1 << OCIE2A);
+	if ((kcb->preemptive == 'y')) {
+		/* clear pending output compare 2 interrupt */
+		TIFR2 = (1 << OCF2A);
+		/* enable timer2 interrupt mask */
+		TIMSK2 |= (1 << OCIE2A);
+	}
 	
 	longjmp(env, 1);
 }
