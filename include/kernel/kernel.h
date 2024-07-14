@@ -43,6 +43,8 @@ extern struct kcb_s *kcb;
 /* kernel API */
 #define CRITICAL_ENTER()({kcb->preemptive == 'y' ? _di() : 0; })
 #define CRITICAL_LEAVE()({kcb->preemptive == 'y' ? _ei() : 0; })
+#define NOSCHED_ENTER()({kcb->preemptive == 'y' ? _timer_enable() : 0; })
+#define NOSCHED_LEAVE()({kcb->preemptive == 'y' ? _timer_disable() : 0; })
 
 void krnl_panic(uint32_t ecode);
 uint16_t krnl_schedule(void);
