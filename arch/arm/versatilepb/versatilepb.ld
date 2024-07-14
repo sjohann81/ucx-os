@@ -20,16 +20,11 @@ _heap_size  = _stack_end - _ebss;
 /* Describes the placement of each output section, including the input sections which are inserted into them */
 SECTIONS
 {
-	. = 0;
-
-	.text :
-	{
-		*(.text.init)
-	}
-
 	.text :
 	{
 		_text = .;
+		*(.text.prologue);
+		*(.text.init)
 		*(.text)
 		*(.text.*)
 		_etext = .;

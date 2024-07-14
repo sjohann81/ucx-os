@@ -1,7 +1,5 @@
-	.text
-	.align 2
-
 	.global _entry
+	.section .text.prologue
 _entry:
 	mov	r0, #0x08
 	ldr	r1, =interrupt_table
@@ -93,3 +91,5 @@ __dispatch_init:
 	bic	r0, r0, #0x80
 	msr	cpsr_c, r0
 	movs	pc,lr
+
+	.text
