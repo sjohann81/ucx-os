@@ -1,7 +1,5 @@
-	.text
-	.align 2
-
 	.global _entry
+	.section .text.prologue
 _entry:
 	# stop all harts (except 0)
 	csrr	t0, mhartid
@@ -162,3 +160,5 @@ __dispatch_init:
 	addi  a5, zero, 128
 	csrw  mie, a5
 	ret
+
+	.text
