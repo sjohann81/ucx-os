@@ -21,7 +21,7 @@ SECTIONS
 {
 	.text : {
 		_text = .;
-		KEEP(*(.vector_core*))
+		*(.text.prologue);
 		*(.text.init)
 		*(.text)
 		*(.text.*)
@@ -43,7 +43,7 @@ SECTIONS
 		_data = .;
 		*(.data)
 		*(.data*)
-		_gp = . + 0x7ff0;
+		_gp = . + 0x800;
 		*(.sdata)
 		*(.sdata.*)
 		. = ALIGN(4);

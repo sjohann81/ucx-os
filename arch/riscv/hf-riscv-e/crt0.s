@@ -1,7 +1,5 @@
-	.text
-	.align 2
-
 	.global _entry
+	.section .text.prologue
 _entry:
 	la	a3, _sbss
 	la	a2, _ebss
@@ -135,3 +133,5 @@ __dispatch_init:
 _syscall:
 	ecall
 	ret
+
+	.text

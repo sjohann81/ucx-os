@@ -1,7 +1,5 @@
-	.text
-	.align 2
-
 	.global _entry
+	.section .text.prologue
 _entry:
 	la	a3, _sbss
 	la	a2, _ebss
@@ -180,3 +178,5 @@ _syscall:
 	addi	a7, a0, 0
 	ecall
 	ret
+	
+	.text

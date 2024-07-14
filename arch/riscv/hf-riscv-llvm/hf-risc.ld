@@ -1,6 +1,6 @@
 MEMORY
 {
-	ram (rwx)     : ORIGIN = 0x40000000, LENGTH = 32K
+	ram (rwx)     : ORIGIN = 0x40000000, LENGTH = 1024K
 }
 
 /* Entry Point */
@@ -21,7 +21,7 @@ SECTIONS
 {
 	.text : {
 		_text = .;
-		KEEP(*(.vector_core*))
+		*(.text.prologue);
 		*(.text.init)
 		*(.text)
 		*(.text.*)

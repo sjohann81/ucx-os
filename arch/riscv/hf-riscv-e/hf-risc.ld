@@ -21,7 +21,7 @@ SECTIONS
 {
 	.text : {
 		_text = .;
-		KEEP(*(.vector_core*))
+		*(.text.prologue);
 		*(.text.init)
 		*(.text)
 		*(.text.*)

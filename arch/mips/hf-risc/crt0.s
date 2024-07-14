@@ -1,7 +1,5 @@
-	.text
-	.align 2
-
 	.global _entry
+	.section .text.prologue
 	.ent	_entry
 _entry:
 	.set noreorder
@@ -230,3 +228,5 @@ syscall:
 	jr	$ra
 	nop
 .end syscall
+
+	.text
