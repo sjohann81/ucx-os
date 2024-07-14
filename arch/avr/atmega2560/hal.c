@@ -78,13 +78,13 @@ void _hardware_init(void)
 void _timer_enable(void)
 {
 	/* enable timer2 mask */
-//	TIMSK2 |= (1 << OCIE2A);
+	TIMSK2 |= (1 << OCIE2A);
 }
 
 void _timer_disable(void)
 {
-	/* enable timer2 mask */
-//	TIMSK2 &= ~(1 << OCIE2A);
+	/* disable timer2 mask */
+	TIMSK2 &= ~(1 << OCIE2A);
 }
 
 void _interrupt_tick(void)

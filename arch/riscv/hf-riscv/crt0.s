@@ -153,8 +153,8 @@ longjmp:
 	ori  a0, a1, 0
 	ret
 
-	.global   _dispatch_init
-_dispatch_init:
+	.global   __dispatch_init
+__dispatch_init:
 	lw    s0, 0(a0)
 	lw    s1, 4(a0)
 	lw    s2, 8(a0)

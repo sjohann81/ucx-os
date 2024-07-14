@@ -197,9 +197,9 @@ longjmp:
 	.set reorder
 .end longjmp
 
-	.global   _dispatch_init
-	.ent     _dispatch_init
-_dispatch_init:
+	.global   __dispatch_init
+	.ent     __dispatch_init
+__dispatch_init:
 	.set noreorder
 
 	lw    $s0, 0($a0)
@@ -221,7 +221,7 @@ _dispatch_init:
 	nop
 
 	.set reorder
-.end _dispatch_init
+.end __dispatch_init
 
 
 	.global syscall

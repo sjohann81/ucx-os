@@ -81,7 +81,7 @@ void _timer_enable(void)
 
 void _timer_disable(void)
 {
-	/* enable timer2 mask */
+	/* disable timer2 mask */
 	TIMSK &= ~(1 << OCIE2);
 }
 
@@ -91,14 +91,25 @@ void _interrupt_tick(void)
 
 void _dispatch_init(jmp_buf env)
 {
+	if ((kcb->preemptive == 'y')) {
+		/* clear pending output compare 2 interrupt */
+		TIFR = (1 << OCF2);
+		/* enable timer2 interrupt mask */
+		TIMSK |= (1 << OCIE2);
+	}
+	
 	longjmp(env, 1);
 }
 
 void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)
 {
 	uint8_t *ctx_p;
+	int i;
 	
 	ctx_p = (uint8_t *)ctx;
+
+	for (i = 0; i < sizeof(jmp_buf); i++)
+		ctx_p[i] = 0;
 
 	ctx_p[CONTEXT_SP] = (sp + ss) & 0xff;
 	ctx_p[CONTEXT_SP + 1] = (sp + ss) >> 8;
@@ -106,4 +117,3 @@ void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)
 	ctx_p[CONTEXT_RA] = ra & 0xff;
 	ctx_p[CONTEXT_RA + 1] = ra >> 8;
 }
-

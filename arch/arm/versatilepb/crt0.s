@@ -86,8 +86,8 @@ longjmp:
 lje:	
 	movs	pc,lr
 
-	.global _dispatch_init
-_dispatch_init:
+	.global __dispatch_init
+__dispatch_init:
 	ldmia	r0, {r4, r5, r6, r7, r8, r9, r10, fp, sp, lr}
 	mrs	r0, cpsr
 	bic	r0, r0, #0x80

@@ -447,22 +447,6 @@ void _hardware_init(void)
 	GPIO_SetBits(GPIOC, GPIO_Pin_13);
 }
 
-void _dispatch_init(jmp_buf env)
-{
-	uint32_t *ctx_p;
-	struct tcb_s *task = kcb->task_current->data;
-	
-	ctx_p = (uint32_t *)env;
-	// Set PSP to top of task 0 stack
-	__set_PSP((ctx_p[CONTEXT_PSP] + 16*4));
-	// Switch to use Process Stack, unprivileged state
-	__set_CONTROL(0x3);
-	// Execute ISB after changing CONTROL (architectural recommendation)
-	__ISB();
-	
-	task->task();
-}
-
 void _di(void)
 {
 	asm volatile (	"cpsid i\n\t");
@@ -482,6 +466,25 @@ void _timer_enable(void)
 void _timer_disable(void)
 {
 	SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+}
+
+void _dispatch_init(jmp_buf env)
+{
+	uint32_t *ctx_p;
+	struct tcb_s *task = kcb->task_current->data;
+	
+	if ((kcb->preemptive == 'y'))
+		_timer_enable();
+	
+	ctx_p = (uint32_t *)env;
+	// Set PSP to top of task 0 stack
+	__set_PSP((ctx_p[CONTEXT_PSP] + 16*4));
+	// Switch to use Process Stack, unprivileged state
+	__set_CONTROL(0x3);
+	// Execute ISB after changing CONTROL (architectural recommendation)
+	__ISB();
+	
+	task->task();
 }
 
 void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)

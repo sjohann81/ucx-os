@@ -34,13 +34,7 @@ int32_t main(void)
 	if (!kcb->tasks->length)
 		krnl_panic(ERR_NO_TASKS);
 
-	if (pr) {
-		kcb->preemptive = 'y';
-		_timer_enable();
-	} else {
-		kcb->preemptive = 'n';
-	}
-
+	kcb->preemptive = pr ? 'y' : 'n';
 	kcb->task_current = kcb->tasks->head->next;
 	task = kcb->task_current->data;
 	_dispatch_init(task->context);

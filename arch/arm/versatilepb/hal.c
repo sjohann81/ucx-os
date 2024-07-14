@@ -6,6 +6,7 @@
 
 #include <hal.h>
 #include <lib/libc.h>
+#include <kernel/kernel.h>
 
 
 /* hardware platform dependent stuff */
@@ -173,6 +174,16 @@ void _interrupt_tick(void)
 {
 	if (TIMER0_MIS)
 		TIMER0_INTCLR = 1;
+}
+
+extern void __dispatch_init(void);
+
+void _dispatch_init(jmp_buf env)
+{
+	if ((kcb->preemptive == 'y'))
+		_timer_enable();
+	
+	__dispatch_init();
 }
 
 void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)
