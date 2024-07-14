@@ -9,6 +9,21 @@
 
 #include <ucx.h>
 
+#ifdef POWER_ALLOC
+static size_t nextpowerof2(size_t x)
+{
+	x--;
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	x++;
+	
+	return x;
+}
+#endif
+
 #ifdef ALT_ALLOCATOR
 /*
  * memory allocator using first-fit
@@ -53,8 +68,11 @@ void *ucx_malloc(uint32_t size)
 {
 	struct mem_block_s *p, *r, n;
 	size_t psize;
-	
+#ifdef POWER_ALLOC
+	size = nextpowerof2(size);
+#else
 	size = align4(size);
+#endif
 	CRITICAL_ENTER();
 	p = ff;
 	while (p->size < size + sizeof(struct mem_block_s) || p->size & 1) {
@@ -125,7 +143,11 @@ void *ucx_malloc(uint32_t size)
 {
 	struct mem_block_s *p, *q, *r, n;
 	
+#ifdef POWER_ALLOC
+	size = nextpowerof2(size);
+#else
 	size = align4(size);
+#endif
 	
 	CRITICAL_ENTER();
 	p = last_free;
