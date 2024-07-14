@@ -2,11 +2,11 @@ enum device_mode {O_RDONLY, O_WRONLY, O_RDWR};
 
 /* device data structure */
 struct device_s {
-      const char *name;
-      const void *config;
-      const void *data;
-      const struct device_api_s *api;
-      const void *custom_api;
+	const char *name;
+	const void *config;
+	const void *data;
+	const struct device_api_s *api;
+	const void *custom_api;
 };
 
 /* generic device API */

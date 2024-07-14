@@ -103,6 +103,11 @@ delay: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/delay.o app/delay.c
 	@$(MAKE) --no-print-directory link
 
+driver: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/driver.o app/driver/driver.c
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/app.o app/driver/app.c
+	@$(MAKE) --no-print-directory link
+
 echo: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/echo.o app/echo.c
 	@$(MAKE) --no-print-directory link
