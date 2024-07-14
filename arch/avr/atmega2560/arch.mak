@@ -61,3 +61,7 @@ test:
 usb_load:
 	stty -F ${SERIAL_DEV} ${SERIAL_BR} raw cs8 -echo
 	cat ${SERIAL_DEV}
+	
+run_avr:
+	echo "hit Ctrl+a x to quit"
+	qemu-system-avr -machine mega2560 -bios $(BUILD_TARGET_DIR)/image.bin -nographic
