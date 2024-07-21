@@ -15,7 +15,7 @@ LDFLAGS_STRIP = --gc-sections
 
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
 ASFLAGS = -march=rv32i -mabi=ilp32 #-fPIC
-CFLAGS = -Wall --target=riscv64 -march=rv32i -mabi=ilp32 -O2 -c -ffreestanding -nostdlib -ffixed-x26 -ffixed-x27 -fomit-frame-pointer $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) #-mrvc -fPIC -DDEBUG_PORT
+CFLAGS = -Wall --target=riscv32 -march=rv32i -mabi=ilp32 -O2 -c -ffreestanding -nostdlib -ffixed-x26 -ffixed-x27 -fomit-frame-pointer $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) #-mrvc -fPIC -DDEBUG_PORT
 ARFLAGS = r
 
 LDFLAGS = -melf32lriscv $(LDFLAGS_STRIP)
@@ -23,7 +23,7 @@ LDSCRIPT = $(ARCH_DIR)/hf-risc.ld
 
 CC = clang
 AS = riscv64-unknown-elf-as
-LD = ld.lld
+LD = riscv64-unknown-elf-ld #ld.lld
 DUMP = riscv64-unknown-elf-objdump -Mno-aliases
 READ = riscv64-unknown-elf-readelf
 OBJ = riscv64-unknown-elf-objcopy
