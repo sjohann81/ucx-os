@@ -178,6 +178,10 @@ timer_kill: rebuild
 scall_suspend: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/scall_suspend.o app/scall_suspend.c
 	@$(MAKE) --no-print-directory link
+	
+vt100_term: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/vt100_term.o app/vt100_term.c
+	@$(MAKE) --no-print-directory link
 
 # clean and rebuild rules
 rebuild:
