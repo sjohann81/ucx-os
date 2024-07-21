@@ -18,13 +18,16 @@ SRC_DIR = .
 BUILD_DIR = $(SRC_DIR)/build
 BUILD_APP_DIR = $(BUILD_DIR)/app
 BUILD_HAL_DIR = $(BUILD_DIR)/hal
+BUILD_DRIVERS_DIR = $(BUILD_DIR)/drivers
 BUILD_KERNEL_DIR = $(BUILD_DIR)/kernel
 BUILD_TARGET_DIR = $(BUILD_DIR)/target
 
 -include $(BUILD_TARGET_DIR)/target.mak
 -include $(SRC_DIR)/arch/$(ARCH)/arch.mak
-INC_DIRS += -I $(SRC_DIR)/include -I $(SRC_DIR)/include/lib -I $(SRC_DIR)/arch/common
-CFLAGS += -D__VER__=\"$(VERSION)\" #-DALT_ALLOCATOR
+-include $(SRC_DIR)/drivers/drivers.mak
+INC_DIRS += -I $(SRC_DIR)/include -I $(SRC_DIR)/include/lib \
+	-I $(SRC_DIR)/drivers/include -I $(SRC_DIR)/arch/common
+CFLAGS += -D__VER__=\"$(VERSION)\"
 
 incl:
 ifeq ('$(ARCH)', 'none')
@@ -44,7 +47,7 @@ debug: serial
 	cat ${SERIAL_DEVICE}
 
 ## kernel
-ucx: incl hal libs kernel
+ucx: incl hal libs ddrivers kernel
 	mv *.o $(SRC_DIR)/build/kernel
 	$(AR) $(ARFLAGS) $(BUILD_TARGET_DIR)/libucxos.a \
 		$(BUILD_KERNEL_DIR)/*.o
