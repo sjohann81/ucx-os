@@ -20,8 +20,8 @@ int32_t main(void)
 	ucx_heap_init((size_t *)&_heap_start, (size_t)&_heap_size);
 	printf("heap_init(), %d bytes free\n", (size_t)&_heap_size);
 #else
-	ucx_heap_init((size_t *)&__bss_end, ((size_t)&__stack - (size_t)&__bss_end - 64));
-	printf("heap_init(), %d bytes free\n", ((size_t)&__stack - (size_t)&__bss_end - 64));
+	ucx_heap_init((size_t *)&__bss_end, ((size_t)&__stack - (size_t)&__bss_end - 128));
+	printf("heap_init(), %d bytes free\n", ((size_t)&__stack - (size_t)&__bss_end - 128));
 #endif
 	kcb->tasks = list_create();
 	
