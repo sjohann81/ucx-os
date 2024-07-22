@@ -5,6 +5,7 @@
  */
 
 #include <hal.h>
+#include <console.h>
 #include <usart.h>
 #include <lib/libc.h>
 #include <lib/dump.h>
@@ -17,13 +18,14 @@
 /*
 libc basic I/O support
 */
-
-void _putchar(char value)
+static int __putchar(int value)		// polled putchar()
 {
 	uart_tx(USART_PORT, value);
+	
+	return value;
 }
 
-int32_t _kbhit(void)
+static int __kbhit(void)
 {
 	if (uart_rxsize(USART_PORT) > 0)
 		return 1;
@@ -31,11 +33,10 @@ int32_t _kbhit(void)
 		return 0;
 }
 
-int32_t _getchar(void)
+static int __getchar(void)			// polled getch()
 {
 	return uart_rx(USART_PORT);
 }
-
 
 /* delay routines */
 void _delay_ms(uint32_t msec)
@@ -436,6 +437,10 @@ void _hardware_init(void)
 
 	/* configure USART */
 	uart_init(USART_PORT, USART_BAUD, 0);
+	
+	_stdout_install(__putchar);
+	_stdin_install(__getchar);
+	_stdpoll_install(__kbhit);
 
 #ifdef USB_SERIAL
 	char buf[80];

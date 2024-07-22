@@ -144,10 +144,6 @@ int32_t setjmp(jmp_buf env);
 void longjmp(jmp_buf env, int32_t val);
 void _dispatch_init(jmp_buf env);
 
-void _putchar(char value);
-int32_t _kbhit(void);
-int32_t _getchar(void);
-
 void _delay_ms(uint32_t msec);
 void _delay_us(uint32_t usec);
 uint64_t _read_us(void);

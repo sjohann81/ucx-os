@@ -5,6 +5,7 @@
  */
 
 #include <hal.h>
+#include <console.h>
 #include <lib/libc.h>
 #include <kernel/kernel.h>
 
@@ -44,15 +45,15 @@ void _irq_handler(void)
 	} while(irq);
 }
 
-
-void _putchar(char value)		// polled putchar()
+static int __putchar(int value)		// polled putchar()
 {
 	while (UART0FR & UARTFR_TXFF);
-	
 	UART0DR = value;
+	
+	return value;
 }
 
-int32_t _kbhit(void)
+static int __kbhit(void)
 {
 	if (UART0FR & UARTFR_RXFF)
 		return 1;
@@ -60,7 +61,7 @@ int32_t _kbhit(void)
 		return 0;
 }
 
-int32_t _getchar(void)
+static int __getchar(void)			// polled getch()
 {
 	while (~(UART0FR & UARTFR_RXFF));
 	
@@ -148,6 +149,10 @@ void _hardware_init(void)
 {
 	uart_init(USART_BAUD);
 	
+	_stdout_install(__putchar);
+	_stdin_install(__getchar);
+	_stdpoll_install(__kbhit);
+
 #if F_TIMER == 0
 	TIMER0_LOAD = 10000;
 #else
