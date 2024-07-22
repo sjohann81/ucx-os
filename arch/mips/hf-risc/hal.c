@@ -5,6 +5,7 @@
  */
 
 #include <hal.h>
+#include <lib/console.h>
 #include <lib/libc.h>
 #include <kernel/kernel.h>
 
@@ -13,29 +14,37 @@ libc basic I/O support
 */
 
 #ifndef DEBUG_PORT
-void _putchar(char value){		// polled putchar()
+static int __putchar(int value)		// polled putchar()
+{
 	while (UARTCAUSE & MASK_UART0_WRITEBUSY);
 	UART0 = value;
+	
+	return value;
 }
 
-int32_t _kbhit(void){
+static int __kbhit(void)
+{
 	return UARTCAUSE & MASK_UART0_DATAAVAIL;
 }
 
-int32_t _getchar(void){			// polled getch()
+static int __getchar(void)			// polled getch()
+{
 	while (!_kbhit());
 	return UART0;
 }
 #else
-void _putchar(char value){		// polled putchar()
+static int __putchar(int value)		// polled putchar()
+{
 	DEBUG_ADDR = value;
 }
 
-int32_t _kbhit(void){
+static int __kbhit(void)
+{
 	return 0;
 }
 
-int32_t _getchar(void){			// polled getch()
+static int __getchar(void)			// polled getch()
+{
 	return DEBUG_ADDR;
 }
 #endif
@@ -129,6 +138,9 @@ void _hardware_init(void)
 
 	PAALTCFG0 |= MASK_UART0;
 #endif
+	_stdout_install(__putchar);
+	_stdin_install(__getchar);
+	_stdpoll_install(__kbhit);
 
 #if F_TIMER > 0
 	TIMER1PRE = TIMERPRE_DIV16;
