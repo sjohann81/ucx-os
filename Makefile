@@ -69,7 +69,7 @@ pipe.o: $(SRC_DIR)/kernel/pipe.c
 event.o: $(SRC_DIR)/kernel/event.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/event.c
 
-libs: libc.o dump.o malloc.o list.o queue.o
+libs: console.o libc.o dump.o malloc.o list.o queue.o
 
 queue.o: $(SRC_DIR)/lib/queue.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/lib/queue.c
@@ -81,6 +81,8 @@ dump.o: $(SRC_DIR)/lib/dump.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/lib/dump.c
 libc.o: $(SRC_DIR)/lib/libc.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/lib/libc.c
+console.o: $(SRC_DIR)/lib/console.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/lib/console.c
 		
 ## kernel + application link
 link:

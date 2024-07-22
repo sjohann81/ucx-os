@@ -1,4 +1,5 @@
 #include <hal.h>
+#include <lib/console.h>
 #include <lib/libc.h>
 #include <lib/dump.h>
 #include <lib/list.h>
