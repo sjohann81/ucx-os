@@ -5,22 +5,25 @@
  */
 
 #include <hal.h>
+#include <console.h>
 #include <lib/libc.h>
 #include <kernel/kernel.h>
 
 /* hardware platform dependent stuff */
-void _putchar(char value)		// polled putchar()
+static int __putchar(int value)		// polled putchar()
 {
 	while (!((NS16550A_UART0_CTRL_ADDR(NS16550A_LSR) & NS16550A_LSR_RI)));
 	NS16550A_UART0_CTRL_ADDR(NS16550A_THR) = value;
+	
+	return value;
 }
 
-int32_t _kbhit(void)
+static int __kbhit(void)
 {
 	return 0;
 }
 
-int32_t _getchar(void)
+static int __getchar(void)
 {
 	return 0;
 }
@@ -162,6 +165,10 @@ void _hardware_init(void)
 {
 	uart_init(USART_BAUD);
 	mtimecmp_w(mtime_r() + (F_CPU / F_TIMER));
+
+	_stdout_install(__putchar);
+	_stdin_install(__getchar);
+	_stdpoll_install(__kbhit);
 }
 
 void _timer_enable(void)
