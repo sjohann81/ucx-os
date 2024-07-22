@@ -5,6 +5,7 @@
  */
 
 #include <hal.h>
+#include <console.h>
 #include <lib/libc.h>
 #include <kernel/kernel.h>
 #include <uart.h>
@@ -12,12 +13,14 @@
 #define TIMER_CLK2		F_CPU / 1024
 #define IRQ_FREQ2		100					// irq frequency, in Hz
 
-void _putchar(char value)
+static int __putchar(int value)		// polled putchar()
 {
 	uart_tx(value);
+	
+	return value;
 }
 
-int32_t _kbhit(void)
+static int __kbhit(void)
 {
 	if (uart_rxsize())
 		return 1;
@@ -25,7 +28,8 @@ int32_t _kbhit(void)
 		return 0;
 }
 
-int32_t _getchar(void){
+static int __getchar(void)			// polled getch()
+{
 	return uart_rx();
 }
 
@@ -66,6 +70,10 @@ void _hardware_init(void)
 	cli();
 	
 	uart_init(USART_BAUD, 1);
+	
+	_stdout_install(__putchar);
+	_stdin_install(__getchar);
+	_stdpoll_install(__kbhit);
 
 	TCNT2 = 0;
 	TCCR2 = 0;

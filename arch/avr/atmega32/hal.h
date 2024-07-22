@@ -30,10 +30,6 @@ extern uint32_t __stack;
 
 char _interrupt_set(char s);
 
-void _putchar(char value);
-int32_t _kbhit(void);
-int32_t _getchar(void);
-
 uint64_t _read_us(void);
 
 void _hardware_init(void);
