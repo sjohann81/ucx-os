@@ -152,6 +152,14 @@ prodcons: rebuild
 progress: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/progress.o app/progress.c
 	@$(MAKE) --no-print-directory link
+
+spi_master: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/spi_master.o app/spi_master.c
+	@$(MAKE) --no-print-directory link
+	
+spi_slave: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/spi_slave.o app/spi_slave.c
+	@$(MAKE) --no-print-directory link
 	
 suspend: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/suspend.o app/suspend.c
