@@ -58,7 +58,7 @@ int gpio_miso(int val)
  * cs_delay should account to thread latency (time where the thread
  * isn't running, which is dependent on tick time and the number of
  * threads). sig_delay should account to software latency on the slave.
- * If the slave is a hardware implementation, cs_active can be 1 to 10us
+ * If the slave is a hardware implementation, cs_active can be 1 to 1000us
  * and sig_delay can be < 1us.
  * Software SPI disables the scheduler during a data transfer.
  */
@@ -101,7 +101,11 @@ void task0(void)
 		memset(buf, 0, sizeof(buf));
 		spi_open(&spi_device1, 0);
 		spi_write(&spi_device1, msg, strlen(msg) + 1);
+		spi_close(&spi_device1);
+		
 		ucx_task_delay(10);
+		
+		spi_open(&spi_device1, 0);
 		bytes = spi_read(&spi_device1, buf, sizeof(buf));
 		spi_close(&spi_device1);
 		

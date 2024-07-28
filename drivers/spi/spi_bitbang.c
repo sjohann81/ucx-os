@@ -77,9 +77,11 @@ static int spi_driver_deinit(const struct device_s *dev)
 
 static int spi_driver_open(const struct device_s *dev, int mode)
 {
+	struct spi_config_s *config;
 	struct spi_data_s *data;
 	int retval = 0;
 	
+	config = (struct spi_config_s *)dev->config;
 	data = (struct spi_data_s *)dev->data;
 	
 	if (!data->mutex)
@@ -91,14 +93,21 @@ static int spi_driver_open(const struct device_s *dev, int mode)
 	else
 		retval = -1;
 	ucx_sem_signal(data->mutex);
+
+	if (!retval && config->device_mode == SPI_MASTER) {
+		config->gpio_cs(config->cs_active);
+		_delay_us(config->cs_delay);
+	}
 	
 	return retval;
 }
 
 static int spi_driver_close(const struct device_s *dev)
 {
+	struct spi_config_s *config;
 	struct spi_data_s *data;
 	
+	config = (struct spi_config_s *)dev->config;
 	data = (struct spi_data_s *)dev->data;
 	
 	if (!data->mutex)
@@ -107,6 +116,11 @@ static int spi_driver_close(const struct device_s *dev)
 	ucx_sem_wait(data->mutex);
 	data->busy = 0;
 	ucx_sem_signal(data->mutex);
+
+	if (config->device_mode == SPI_MASTER) {
+		config->gpio_cs(config->cs_active ^ SPI_CS_HIGH);
+		_delay_us(config->cs_delay);
+	}
 	
 	return 0;
 }
@@ -228,16 +242,10 @@ static size_t spi_driver_read(const struct device_s *dev, void *buf, size_t coun
 		return -1;
 		
 	if (config->device_mode == SPI_MASTER) {
-		config->gpio_cs(config->cs_active);
-		_delay_us(config->cs_delay);
-		
 		NOSCHED_ENTER();
 		for (i = 0; i < count; i++)
 			p[i] = spi_master_transfer(dev, 0x00, config->bit_order);
 		NOSCHED_LEAVE();
-		
-		config->gpio_cs(config->cs_active ^ SPI_CS_HIGH);
-		_delay_us(config->cs_delay);
 	} else {
 		if (config->gpio_cs(0) != config->cs_active)
 			return 0;
@@ -273,9 +281,6 @@ static size_t spi_driver_write(const struct device_s *dev, void *buf, size_t cou
 		return -1;
 		
 	if (config->device_mode == SPI_MASTER) {
-		config->gpio_cs(config->cs_active);
-		_delay_us(config->cs_delay);
-		
 		NOSCHED_ENTER();
 		for (i = 0; i < count; i++) {
 			newdata = spi_master_transfer(dev, p[i], config->bit_order);
@@ -283,9 +288,6 @@ static size_t spi_driver_write(const struct device_s *dev, void *buf, size_t cou
 				p[i] = newdata;
 		}
 		NOSCHED_LEAVE();
-		
-		config->gpio_cs(config->cs_active ^ SPI_CS_HIGH);
-		_delay_us(config->cs_delay);
 	} else {
 		if (config->gpio_cs(0) != config->cs_active)
 			return 0;
