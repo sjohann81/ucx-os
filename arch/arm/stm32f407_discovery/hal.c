@@ -463,14 +463,28 @@ void _ei(void)
 			"isb\n\t");
 }
 
-void _timer_enable(void)
+static void timer_enable(void)
 {
 	SysTick->CTRL |= SysTick_CTRL_ENABLE_Msk;
 }
 
-void _timer_disable(void)
+static void timer_disable(void)
 {
 	SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+}
+
+void _timer_enable(void)
+{
+	void (*sysfunc)(void *) = (void *)(void *)timer_enable;
+	
+	syscall(sysfunc, 0);
+}
+
+void _timer_disable(void)
+{
+	void (*sysfunc)(void *) = (void *)(void *)timer_disable;
+	
+	syscall(sysfunc, 0);
 }
 
 void _dispatch_init(jmp_buf env)
@@ -479,7 +493,7 @@ void _dispatch_init(jmp_buf env)
 	struct tcb_s *task = kcb->task_current->data;
 	
 	if ((kcb->preemptive == 'y'))
-		_timer_enable();
+		timer_enable();
 	
 	ctx_p = (uint32_t *)env;
 	// Set PSP to top of task 0 stack
