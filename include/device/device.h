@@ -12,6 +12,7 @@ struct device_s {
 /* generic device API */
 struct device_api_s {
 	int (*dev_init)(const struct device_s *dev);
+	int (*dev_deinit)(const struct device_s *dev);
 	int (*dev_open)(const struct device_s *dev, int mode);
 	int (*dev_close)(const struct device_s *dev);
 	size_t (*dev_read)(const struct device_s *dev, void *buf, size_t count);
