@@ -1,5 +1,5 @@
 #include <ucx.h>
-#include "vt100.h"
+#include <vt100.h>
 
 /* device driver instantiation */
 struct device_s vt100_device = {
