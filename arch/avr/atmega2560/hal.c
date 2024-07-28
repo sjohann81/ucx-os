@@ -49,6 +49,20 @@ char _interrupt_set(char s)
 }
 
 /* delay routines */
+#undef _delay_us
+
+void delay_us(uint16_t us)
+{
+	while (us >= 16) {
+		_delay_us(16);
+		us -= 16;
+	}
+
+	if(us & 0x8) _delay_us(8);
+	if(us & 0x4) _delay_us(4);
+	if(us & 0x2) _delay_us(2);
+	if(us & 0x1) _delay_us(1);
+}
 
 static volatile uint32_t timer = 0;
 

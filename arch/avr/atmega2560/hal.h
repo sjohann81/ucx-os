@@ -30,6 +30,7 @@ extern uint32_t __stack;
 
 char _interrupt_set(char s);
 
+void delay_us(uint16_t);
 uint64_t _read_us(void);
 
 void _hardware_init(void);
@@ -39,6 +40,7 @@ void _interrupt_tick(void);
 void _dispatch_init(jmp_buf env);
 void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra);
 
+#define _delay_us(us)			delay_us(us)
 #define strcpy(dst, src)		ucx_strcpy(dst, src)
 #define strncpy(s1, s2, n)		ucx_strncpy(s1, s2, n)
 #define strcat(dst, src)		ucx_strcat(dst, src)
