@@ -128,6 +128,10 @@ hello: rebuild
 hello_p: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/hello_preempt.o app/hello_preempt.c
 	@$(MAKE) --no-print-directory link
+
+i2c_master: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/i2c_master.o app/i2c_master.c
+	@$(MAKE) --no-print-directory link
 	
 mutex: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/mutex.o app/mutex.c
