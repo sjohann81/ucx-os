@@ -3,9 +3,13 @@
 void task2(void)
 {
 	int32_t cnt = 300000;
+	uint32_t secs, msecs, time;
 
 	while (1) {
-		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
+		time = ucx_uptime();
+		secs = time / 1000;
+		msecs = time - secs * 1000;
+		printf("[task %d %ld - sys uptime: %ld.%03lds]\n", ucx_task_id(), cnt++, secs, msecs);
 		ucx_task_wfi();
 	}
 }
