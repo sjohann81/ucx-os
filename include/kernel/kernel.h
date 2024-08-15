@@ -65,5 +65,6 @@ uint16_t ucx_task_id();
 void ucx_task_wfi();
 uint16_t ucx_task_count();
 uint32_t ucx_ticks();
+uint64_t ucx_uptime();
 
 int32_t app_main();

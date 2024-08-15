@@ -383,3 +383,8 @@ uint32_t ucx_ticks()
 {
 	return kcb->ticks;
 }
+
+uint64_t ucx_uptime()
+{
+	return _read_us() / 1000;
+}
