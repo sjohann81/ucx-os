@@ -36,9 +36,9 @@ int32_t app_main(void)
 	int32_t i;
 	
 	for (i = 0; i < N_TASKS; i++)
-		ucx_task_add(task, DEFAULT_STACK_SIZE);
+		ucx_task_spawn(task, DEFAULT_STACK_SIZE);
 	// add logger task
-	ucx_task_add(logger, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(logger, DEFAULT_STACK_SIZE);
 
 	// start UCX/OS, preemptive mode
 	return 1;

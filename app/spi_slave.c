@@ -101,7 +101,7 @@ void task0(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(task0, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
 
 	spi_init(&spi_device1);
 

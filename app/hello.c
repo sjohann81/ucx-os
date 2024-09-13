@@ -32,9 +32,9 @@ void task0(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(task0, DEFAULT_STACK_SIZE);
-	ucx_task_add(task1, DEFAULT_STACK_SIZE);
-	ucx_task_add(task2, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task1, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task2, DEFAULT_STACK_SIZE);
 	
 	ucx_task_priority(1, TASK_HIGH_PRIO);
 

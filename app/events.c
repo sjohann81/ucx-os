@@ -110,12 +110,12 @@ void task5(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(idle, DEFAULT_STACK_SIZE);
-	ucx_task_add(task1, DEFAULT_STACK_SIZE);
-	ucx_task_add(task2, DEFAULT_STACK_SIZE);
-	ucx_task_add(task3, DEFAULT_STACK_SIZE);
-	ucx_task_add(task4, DEFAULT_STACK_SIZE);
-	ucx_task_add(task5, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(idle, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task1, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task2, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task3, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task4, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task5, DEFAULT_STACK_SIZE);
 	
 	eq1 = ucx_eq_create(16);
 	eq2 = ucx_eq_create(4);

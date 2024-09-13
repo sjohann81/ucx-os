@@ -38,9 +38,9 @@ void consumer(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(producer, DEFAULT_STACK_SIZE);
-	ucx_task_add(consumer, DEFAULT_STACK_SIZE);
-	ucx_task_add(consumer, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(producer, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(consumer, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(consumer, DEFAULT_STACK_SIZE);
 
 	empty = ucx_sem_create(3, N);
 	full = ucx_sem_create(3, 0);

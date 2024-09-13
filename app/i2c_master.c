@@ -155,8 +155,8 @@ void task0(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(idle, DEFAULT_STACK_SIZE);
-	ucx_task_add(task0, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(idle, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
 
 	i2c_init(&i2c_device1);
 

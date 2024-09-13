@@ -79,7 +79,7 @@ void task(void)
 
 int32_t app_main()
 {
-	ucx_task_add(task, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task, DEFAULT_STACK_SIZE);
 
 	return 1;
 }

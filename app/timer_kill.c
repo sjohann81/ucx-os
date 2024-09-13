@@ -17,7 +17,7 @@ void timer2(void)
 		ucx_task_delay(300);
 		if (++i == 10) {
 			printf("killing task 3...\n");
-			ucx_task_remove(2);
+			ucx_task_cancel(2);
 		}
 	}
 }
@@ -38,10 +38,10 @@ void idle(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(timer1, DEFAULT_STACK_SIZE);
-	ucx_task_add(timer2, DEFAULT_STACK_SIZE);
-	ucx_task_add(timer3, DEFAULT_STACK_SIZE);
-	ucx_task_add(idle, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(timer1, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(timer2, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(timer3, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(idle, DEFAULT_STACK_SIZE);
 
 	// start UCX/OS, preemptive mode
 	return 1;

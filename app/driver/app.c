@@ -59,8 +59,8 @@ int32_t app_main(void)
 	struct device_s *dev1 = &device1;
 	struct device_s *dev2 = &device2;
 	
-	ucx_task_add(task0, DEFAULT_STACK_SIZE);
-	ucx_task_add(task1, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task1, DEFAULT_STACK_SIZE);
 	ucx_task_priority(0, TASK_LOW_PRIO);
 	dev1->api->dev_init(dev1);
 	dev2->api->dev_init(dev2);

@@ -43,9 +43,9 @@ void task0(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(task0, DEFAULT_STACK_SIZE);
-	ucx_task_add(task1, DEFAULT_STACK_SIZE);
-	ucx_task_add(task2, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task1, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task2, DEFAULT_STACK_SIZE);
 
 	pipe1 = ucx_pipe_create(64);		/* pipe buffer, 64 bytes (allocated from the heap) */
 	pipe2 = ucx_pipe_create(32);		/* pipe buffer, 32 bytes (allocated from the heap) */

@@ -24,8 +24,8 @@ void task_b(void)
 
 int32_t app_main(void)
 {
-	ucx_task_add(task_a, DEFAULT_STACK_SIZE);
-	ucx_task_add(task_b, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task_a, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task_b, DEFAULT_STACK_SIZE);
 
 	mutex = ucx_sem_create(2, 1);
 	
