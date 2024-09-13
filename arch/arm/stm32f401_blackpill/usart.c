@@ -118,6 +118,8 @@ int16_t uart_init(uint8_t port, uint32_t baud, uint8_t polled){
 		GPIO_InitStruct.GPIO_PuPd  = GPIO_PuPd_NOPULL;
 		GPIO_Init(GPIOA, &GPIO_InitStruct);
 		
+		GPIO_ResetBits(GPIOA, GPIO_Pin_15);
+		_delay_ms(100);
 		GPIO_SetBits(GPIOA, GPIO_Pin_15);
 		_delay_ms(500);
 
