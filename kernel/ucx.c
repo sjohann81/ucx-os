@@ -177,7 +177,7 @@ void yield(void)
 
 /* task management API */
 
-int32_t ucx_task_add(void *task, uint16_t stack_size)
+int32_t ucx_task_spawn(void *task, uint16_t stack_size)
 {
 	struct tcb_s *new_tcb;
 	struct node_s *new_task;
@@ -223,7 +223,7 @@ int32_t ucx_task_add(void *task, uint16_t stack_size)
 	return ERR_OK;
 }
 
-int32_t ucx_task_remove(uint16_t id)
+int32_t ucx_task_cancel(uint16_t id)
 {
 	struct node_s *node;
 	struct tcb_s *task;

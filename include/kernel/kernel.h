@@ -54,8 +54,8 @@ void _dispatch(void);
 void _yield(void);
 
 /* task management API */
-int32_t ucx_task_add(void *task, uint16_t stack_size);
-int32_t ucx_task_remove(uint16_t id);
+int32_t ucx_task_spawn(void *task, uint16_t stack_size);
+int32_t ucx_task_cancel(uint16_t id);
 void ucx_task_yield();
 void ucx_task_delay(uint16_t ticks);
 int32_t ucx_task_suspend(uint16_t id);

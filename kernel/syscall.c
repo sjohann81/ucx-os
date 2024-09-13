@@ -239,7 +239,7 @@ int _link(char *old, char *new)
 
 int _tadd(void *task, int stack_size)
 {
-	return ucx_task_add(task, stack_size);
+	return ucx_task_spawn(task, stack_size);
 }
 
 int sys_task_add(void *task, int stack_size)
@@ -250,7 +250,7 @@ int sys_task_add(void *task, int stack_size)
 
 int _tremove(int id)
 {
-	return ucx_task_remove(id);
+	return ucx_task_cancel(id);
 }
 
 int sys_task_remove(int id)

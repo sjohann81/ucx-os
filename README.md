@@ -87,7 +87,7 @@ System calls are divided in three classes. The *task* class of system calls are 
 
 | Task			| Semaphore		| Pipe			| Event			|
 | :-------------------- | :-------------------- | :-------------------- | :-------------------- |
-| ucx_task_add()	| ucx_sem_create()	| ucx_pipe_create()	| ucx_eq_create()	|
+| ucx_task_spawn()	| ucx_sem_create()	| ucx_pipe_create()	| ucx_eq_create()	|
 | ucx_task_yield()	| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_eq_destroy()	|
 | ucx_task_delay()	| ucx_sem_wait()	| ucx_pipe_flush()	| ucx_event_post()	|
 | ucx_task_suspend()	| ucx_sem_signal()	| ucx_pipe_size()	| ucx_event_poll()	|
@@ -100,11 +100,11 @@ System calls are divided in three classes. The *task* class of system calls are 
 
 #### Task
 
-##### ucx_task_add()
+##### ucx_task_spawn()
 
 - *Parameters: void \*task, uint16_t stack_size. Returns: int32_t (0, success or -1, fail).* Adds an application task to the system with a TASK_STOPPED state. *\*task* is a pointer to a task function and *stack_size* is a stack reservation amount in the heap for recursion and dynamic allocation during task execution and for local storage allocation (which is automatically allocated in the stack). This function is called during system initialization inside *app_main*. 
 
-##### ucx_task_remove()
+##### ucx_task_cancel()
 
 - Not implemented (yet).
 
