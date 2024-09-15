@@ -66,7 +66,7 @@ Tasks are basic resources managed by the kernel. In this model, tasks are lightw
 
 There are two scheduling modes in the kernel. An application can invoke the scheduler cooperatively by making a call to the *ucx_task_yield()* function. After initialization, this can happen at any moment inside the task loop. In preemptive mode, the kernel invokes the scheduler asynchronously using a periodic interrupt. Selection of the scheduling mode is performed according to the return value of the application *app_main()* function. When the application returns from this function with a value of 0, the kernel is configured in cooperative mode. If a value of 1 is returned, the kernel is configured in preemptive mode.
 
-A priority round-robin algorithm performs the scheduling of tasks. By default, all tasks are configured with the same priority (TASK_NORMAL_PRIO), thus tasks share processor time proportionally. Priorities of each task can be changed after their inclusion in the system (in the *app_main()* function) by the *ucx_task_priority()* function, or configured dynamically (inside the body / during execution of a task) using the same function, according to the application needs. Each task can be configured in one of the following priorities: TASK_CRIT_PRIO (critical), TASK_HIGH_PRIO (high), TASK_NORMAL_PRIO (normal), TASK_LOW_PRIO (low) and TASK_IDLE_PRIO (lowest).
+A priority round-robin algorithm performs the scheduling of tasks. By default, all tasks are configured with the same priority (TASK_NORMAL_PRIO), thus tasks share processor time proportionally. Priorities of each task can be changed after their inclusion in the system (in the *app_main()* function) by the *ucx_task_priority()* function, or configured dynamically (inside the body / during execution of a task) using the same function, according to the application needs. Each task can be configured in one of the following priorities: TASK_CRIT_PRIO (critical), TASK_REALTIME_PRIO (real time), TASK_HIGH_PRIO (high), TASK_ABOVE_PRIO (above normal), TASK_NORMAL_PRIO (normal), TASK_BELOW_PRIO (below normal), TASK_LOW_PRIO (low) and TASK_IDLE_PRIO (lowest).
 
 ### Stack allocation
 
@@ -78,24 +78,28 @@ Each architecture HAL defines a default value for the stack space in a macro (DE
 
 In real world applications, tasks of the same application have some kind of interaction (synchronization / communication). To support this behavior, two basic abstractions are implemented in the kernel - *pipelines* and *semaphores*. Pipes are character oriented communication channels and semaphores are traditional counting semaphores with atomic semantics.
 
+### Device driver interface
+
+Device drivers are the way to enable portability, customization and hardware support for different targets along with kernel extensions for new functionality. Device drivers can be implemented with a generic interface with operations such as *open()*, *close()*, *read()* and *write()* or with a custom interface. A typical device driver is saparated in four parts: a) driver interface (API), structures, macros and function wrappers; b) device driver implementation; c) device driver function mapping. An application can create one or more instances of the same driver and it is responsible for the driver configuration and setup.
 
 ## APIs
 
 ### Kernel API
 
-System calls are divided in three classes. The *task* class of system calls are used for task control and information. The *semaphore* class of system calls are used for task synchronization and the *pipe* class of system calls are used as a basic communication mechanism between tasks. At this moment, system calls are implemented as simple library calls, but this will change in the near future for architectures that suport hardware exceptions and different modes of operation.
+System calls are divided in three classes. The *task* class of system calls are used for task control and information. The *system* class are used for system information and control. The *semaphore* class of system calls are used for task synchronization and the *pipe* class of system calls are used as a basic communication mechanism between tasks. At this moment, system calls are implemented as simple library calls, but this will change in the near future for architectures that suport hardware exceptions and different modes of operation. There is a system call wrapper in place that can be used for as a system call interface, that implements a software interrupt for syscalls and asynchronous callbacks.
 
-| Task			| Semaphore		| Pipe			| Event			|
-| :-------------------- | :-------------------- | :-------------------- | :-------------------- |
-| ucx_task_spawn()	| ucx_sem_create()	| ucx_pipe_create()	| ucx_eq_create()	|
-| ucx_task_yield()	| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_eq_destroy()	|
-| ucx_task_delay()	| ucx_sem_wait()	| ucx_pipe_flush()	| ucx_event_post()	|
-| ucx_task_suspend()	| ucx_sem_signal()	| ucx_pipe_size()	| ucx_event_poll()	|
-| ucx_task_resume()	|			| ucx_pipe_read()	| ucx_event_get()	|
-| ucx_task_priority()	|			| ucx_pipe_write()	| ucx_event_dispatch()	|
-| ucx_task_id()		|			| 			| 			|
-| ucx_task_wfi()	|			| 			| 			|
-| ucx_task_count()	|			|			| 			|
+| Task			| System		| Semaphore		| Pipe			| Event			|
+| :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- |
+| ucx_task_spawn()	| ucx_ticks()		| ucx_sem_create()	| ucx_pipe_create()	| ucx_eq_create()	|
+| ucx_task_cancel()	| ucx_uptime()		| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_eq_destroy()	|
+| ucx_task_yield()	| 			| ucx_sem_wait()	| ucx_pipe_flush()	| ucx_event_post()	|
+| ucx_task_delay()	| 			| ucx_sem_signal()	| ucx_pipe_size()	| ucx_event_poll()	|
+| ucx_task_suspend()	|			| ucx_pipe_read()	| ucx_event_get()	|			|
+| ucx_task_resume()	|			| ucx_pipe_write()	| ucx_event_dispatch()	|			|
+| ucx_task_priority()	|			| 			| 			|			|
+| ucx_task_id()		|			| 			| 			|			|
+| ucx_task_wfi()	|			|			| 			|			|
+| ucx_task_count()	|			|			| 			|			|
 
 
 #### Task
@@ -139,6 +143,9 @@ System calls are divided in three classes. The *task* class of system calls are 
 ##### ucx_task_count()
 
 - Returns the number of tasks in the system.
+
+
+#### System
 
 
 #### Semaphore
