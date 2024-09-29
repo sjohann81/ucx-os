@@ -52,7 +52,7 @@ ucx: incl hal libs ddrivers kernel
 	$(AR) $(ARFLAGS) $(BUILD_TARGET_DIR)/libucxos.a \
 		$(BUILD_KERNEL_DIR)/*.o
 
-kernel: event.o pipe.o semaphore.o ecodes.o syscall.o ucx.o main.o
+kernel: event.o message.o pipe.o semaphore.o ecodes.o syscall.o ucx.o main.o
 
 main.o: $(SRC_DIR)/init/main.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/init/main.c
@@ -66,6 +66,8 @@ semaphore.o: $(SRC_DIR)/kernel/semaphore.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/semaphore.c
 pipe.o: $(SRC_DIR)/kernel/pipe.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/pipe.c
+message.o: $(SRC_DIR)/kernel/message.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/message.c
 event.o: $(SRC_DIR)/kernel/event.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/event.c
 
@@ -131,6 +133,10 @@ hello_p: rebuild
 
 i2c_master: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/i2c_master.o app/i2c_master.c
+	@$(MAKE) --no-print-directory link
+	
+messages: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/messages.o app/messages.c
 	@$(MAKE) --no-print-directory link
 	
 mutex: rebuild
