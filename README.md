@@ -74,13 +74,13 @@ Memory used for stack inside a task function is allocated from the heap. The *he
 
 Each architecture HAL defines a default value for the stack space in a macro (DEFAULT_STACK_SIZE). Memory constrained architectures, such as the ATMEGA328p have a very limited default stack space of 256 bytes, but other architectures have more (2kB for example). Different tasks may have different stack space sizes, and it is up to the user to specify such value according to the application needs.
 
-### Task synchronization (pipes, semaphores)
+### Task synchronization (semaphores, pipes, message queues, event queues)
 
 In real world applications, tasks of the same application have some kind of interaction (synchronization / communication). To support this behavior, two basic abstractions are implemented in the kernel - *pipelines* and *semaphores*. Pipes are character oriented communication channels and semaphores are traditional counting semaphores with atomic semantics.
 
 ### Device driver interface
 
-Device drivers are the way to enable portability, customization and hardware support for different targets along with kernel extensions for new functionality. Device drivers can be implemented with a generic interface with operations such as *open()*, *close()*, *read()* and *write()* or with a custom interface. A typical device driver is saparated in four parts: a) driver interface (API), structures, macros and function wrappers; b) device driver implementation; c) device driver function mapping. An application can create one or more instances of the same driver and it is responsible for the driver configuration and setup.
+Device drivers are the way to enable portability, customization and hardware support for different targets along with kernel extensions for new functionality. Device drivers can be implemented with a generic interface with operations such as *open()*, *close()*, *read()* and *write()* or with a custom interface. A typical device driver is saparated in three parts: a) driver interface (API), macros and function wrappers; b) device driver implementation; c) device driver function mapping. An application can create one or more instances of the same driver and it is responsible for the driver configuration and setup.
 
 ## APIs
 
@@ -88,37 +88,39 @@ Device drivers are the way to enable portability, customization and hardware sup
 
 System calls are divided in three classes. The *task* class of system calls are used for task control and information. The *system* class are used for system information and control. The *semaphore* class of system calls are used for task synchronization and the *pipe* class of system calls are used as a basic communication mechanism between tasks. At this moment, system calls are implemented as simple library calls, but this will change in the near future for architectures that suport hardware exceptions and different modes of operation. There is a system call wrapper in place that can be used for as a system call interface, that implements a software interrupt for syscalls and asynchronous callbacks.
 
-| Task			| System		| Semaphore		| Pipe			| Event			|
-| :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- |
-| ucx_task_spawn()	| ucx_ticks()		| ucx_sem_create()	| ucx_pipe_create()	| ucx_eq_create()	|
-| ucx_task_cancel()	| ucx_uptime()		| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_eq_destroy()	|
-| ucx_task_yield()	| 			| ucx_sem_wait()	| ucx_pipe_flush()	| ucx_event_post()	|
-| ucx_task_delay()	| 			| ucx_sem_signal()	| ucx_pipe_size()	| ucx_event_poll()	|
-| ucx_task_suspend()	|			| ucx_pipe_read()	| ucx_event_get()	|			|
-| ucx_task_resume()	|			| ucx_pipe_write()	| ucx_event_dispatch()	|			|
-| ucx_task_priority()	|			| 			| 			|			|
-| ucx_task_id()		|			| 			| 			|			|
-| ucx_task_wfi()	|			|			| 			|			|
-| ucx_task_count()	|			|			| 			|			|
+| Task			| System		| Semaphore		| Pipe			| Message Queue		| Event Queue		|
+| :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- |
+| ucx_task_spawn()	| ucx_ticks()		| ucx_sem_create()	| ucx_pipe_create()	| ucx_mq_create()	| ucx_eq_create()	|
+| ucx_task_cancel()	| ucx_uptime()		| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_mq_destroy()	| ucx_eq_destroy()	|
+| ucx_task_yield()	| 			| ucx_sem_wait()	| ucx_pipe_flush()	| ucx_mq_enqueue()	| ucx_event_post()	|
+| ucx_task_delay()	| 			| ucx_sem_signal()	| ucx_pipe_size()	| ucx_mq_dequeue()	| ucx_event_poll()	|
+| ucx_task_suspend()	|			|			| ucx_pipe_read()	| ucx_mq_items()	| ucx_event_get()	|
+| ucx_task_resume()	|			|			| ucx_pipe_write()	| 			| ucx_event_dispatch()	|
+| ucx_task_priority()	|			| 			| 			|			|			|
+| ucx_task_id()		|			| 			| 			|			|			|
+| ucx_task_wfi()	|			|			| 			|			|			|
+| ucx_task_count()	|			|			| 			|			|			|
 
 
 #### Task
 
+Tasks are the basic scheduling resource. An application in UCX/OS is composed of one or more tasks, which are scheduled according to their priorities. Tasks communicate using shared memory and synchronized or by exchanging data through pipes or event queues.
+
 ##### ucx_task_spawn()
 
-- *Parameters: void \*task, uint16_t stack_size. Returns: int32_t (0, success or -1, fail).* Adds an application task to the system with a TASK_STOPPED state. *\*task* is a pointer to a task function and *stack_size* is a stack reservation amount in the heap for recursion and dynamic allocation during task execution and for local storage allocation (which is automatically allocated in the stack). This function is called during system initialization inside *app_main*. 
+- Spawns a new task with its own priority and stack size. New tasks are spawned with a normal priority and are in TASK_READY state, waiting for scheduling.
 
 ##### ucx_task_cancel()
 
-- Not implemented (yet).
+- Cancels a previously spawned task and removes kernel allocated data structures.
 
 ##### ucx_task_yield()
 
-- *Parameters: none. Returns: nothing.* Yields que processor voluntarily (non-preemptive task reschedule), changing its state to TASK_READY. A task invoking this function gives up execution and calls the scheduler. As a consequence, it is rescheduled to run again in the future.
+- Yields que processor voluntarily (non-preemptive task reschedule), changing its state TASK_RUNNING to TASK_READY. A task invoking this function gives up execution and calls the scheduler. As a consequence, it is rescheduled to run again in the future.
 
 ##### ucx_task_delay()
 
-- *Parameters: uint16_t ticks. Returns: nothing.* Puts the current task in a blocked state changing its state to TASK_BLOCKED for a number of ticks (scheduling events). After the delay, the task state is changed to TASK_READY. If the system is initialized as preemptive, the delay is updated on dispatcher interrupts. Otherwise, *ucx_task_yield()* updates the delay.
+- Puts the current task in a blocked state changing its state to TASK_BLOCKED for a number of ticks (scheduling events). After the delay, the task state is changed to TASK_READY. If the system is initialized as preemptive, the delay is updated on dispatcher interrupts. Otherwise, *ucx_task_yield()* updates the delay.
 
 ##### ucx_task_suspend()
 
@@ -130,7 +132,7 @@ System calls are divided in three classes. The *task* class of system calls are 
 
 ##### ucx_task_priority()
 
-- Changes a task priority from the default priority. Valid priorities are TASK_IDLE_PRIO, TASK_LOW_PRIO, TASK_NORMAL_PRIO (default), TASK_HIGH_PRIO and TASK_CRIT_PRIO. These priorities are relative for the task set, according to a priority round-robin scheduler.
+- Changes a task priority from the default priority. Valid priorities are TASK_IDLE_PRIO, TASK_LOW_PRIO, TASK_BELOW_PRIO, TASK_NORMAL_PRIO (default), TASK_ABOVE_PRIO, TASK_HIGH_PRIO TASK_REALTIME_PRIO and TASK_CRIT_PRIO. These priorities are relative for the task set, according to a priority round-robin scheduler.
 
 ##### ucx_task_id()
 
@@ -138,7 +140,7 @@ System calls are divided in three classes. The *task* class of system calls are 
 
 ##### ucx_task_wfi()
 
-- Blocks the current task until its scheduling quantum expires.
+- Blocks the current task in a busy wait, until its scheduling quantum expires.
 
 ##### ucx_task_count()
 
@@ -147,24 +149,52 @@ System calls are divided in three classes. The *task* class of system calls are 
 
 #### System
 
+##### ucx_ticks()
+
+- Returns the number of executed task dispatches in the system.
+
+##### ucx_uptime()
+
+- Returns the system uptime since boot with microsecond resolution.
+
 
 #### Semaphore
 
 Semaphore is a basic task synchronization primitive, with Dijkstra's semantics. The implementation of semaphores in the kernel associates a counter and queue for each semaphore instance.
 
+##### ucx_sem_create()
+
+- Creates and initializes a semaphore.
+
+##### ucx_sem_destroy()
+
+- Destroys a semaphore and frees semaphore data structures.
+
+##### ucx_sem_wait()
+
+- Waits on a semaphore. A task can either decrement the semaphore value and pass atomically (semaphore value is > 1 before the call), or block on the semaphore (semaphore value is <= 0 before the call).
+
+##### ucx_sem_signal()
+
+- Signals a semaphore. A task can either increment the semaphore value (semaphore value >= 0 before the call), or increment and unblock a waiting task (semaphore value is < 0 before the call).
+
 #### Pipe
 
 Pipes are basic character oriented communication channels between tasks. Pipes can be used to synchronize and pass data between tasks, and they are implemented using blocking semantics. Each pipe can have a configurable size, essentially acting as a data buffer.
 
-#### Events
+#### Message Queues
 
-Events are callback functions which are put in a queue for future execution. Events are functions that run only once, and must always return. Events are a feature being developed and are not implemented yet.
+Message queues are simple message oriented communication channels between tasks. Message queues can be used to synchronize and pass simple (such as integers, strings) or structured  messages between tasks, and are implemented using non-blocking semantics.
+
+#### Event Queues
+
+Events are values or callback functions which are put in a queue for future execution. Events callbacks run only once, and must always return. The event API implements the publish/subscribe model, so an event can be delivered to multiple tasks. Events are a feature being developed and are not completely implemented yet.
 
 ### Library API
 
 Lists and queues are basic data structures which are provided to applications as an API. Lists are implemented as singly or doubly linked lists with sentinel nodes at both ends, so less operations are needed when adding or removing items. Queues are circular data structures and have a defined size on their creation aligned to the next power of two. This results in an efficient implementation of circular queues, as no modular arithmetic needs to be performed for insertion and removal of items.
 
-| List (singly)		| List (doubly)		|Queue			|
+| List (singly)		| List (doubly)		| Queue			|
 | :-------------------- | :-------------------- | :-------------------- |
 | list_create()		| dlist_create()	| queue_create()	|
 | list_destroy()	| dlist_destroy()	| queue_destroy()	|
