@@ -138,6 +138,10 @@ i2c_master: rebuild
 messages: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/messages.o app/messages.c
 	@$(MAKE) --no-print-directory link
+
+messages_simple: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/messages_simple.o app/messages_simple.c
+	@$(MAKE) --no-print-directory link
 	
 mutex: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/mutex.o app/mutex.c

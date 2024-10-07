@@ -182,11 +182,11 @@ Semaphore is a basic task synchronization primitive, with Dijkstra's semantics. 
 
 Pipes are basic character oriented communication channels between tasks. Pipes can be used to synchronize and pass data between tasks, and they are implemented using blocking semantics. Each pipe can have a configurable size, essentially acting as a data buffer.
 
-#### Message Queues
+#### Message Queue
 
 Message queues are simple message oriented communication channels between tasks. Message queues can be used to synchronize and pass simple (such as integers, strings) or structured  messages between tasks, and are implemented using non-blocking semantics.
 
-#### Event Queues
+#### Event Queue
 
 Events are values or callback functions which are put in a queue for future execution. Events callbacks run only once, and must always return. The event API implements the publish/subscribe model, so an event can be delivered to multiple tasks. Events are a feature being developed and are not completely implemented yet.
 
