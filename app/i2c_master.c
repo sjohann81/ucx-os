@@ -11,55 +11,27 @@
 int gpio_config(void)
 {
 	printf("I2C: gpio_config()\n");
-	GPIO_InitTypeDef GPIO_InitStructure;
-	
-	/* GPIOA Peripheral clock enable. */
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-	
-	/* configure pin as an open drain mode output, with internal pullup */
-	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_1 | GPIO_Pin_2;
-	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	
-	/* let the pins float by setting '1' to the output
-	 * (PMOS disabled in open drain GPIO mode).
-	 * this way, external peripherals can pull the line low */
-	GPIO_SetBits(GPIOA, GPIO_Pin_1 | GPIO_Pin_2);
 
 	return 0;
 }
 
+/* read or write SCL and SDA pins
+ * if val == -1, read pin and return val
+ * if val == 0, write value low
+ * if val == 1, write value high
+ */
 int gpio_scl(int val)
 {
-//	printf("I2C: gpio_scl() %d\n", val);
-	int retval = 0;
+	printf("I2C: gpio_scl() %d\n", val);
 
-	switch (val) {
-	case -1: retval = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_1); break;
-	case 0: GPIO_ResetBits(GPIOA, GPIO_Pin_1); break;
-	case 1: GPIO_SetBits(GPIOA, GPIO_Pin_1); break;
-	default: break;
-	}
-
-	return retval;
+	return 1;
 }
 
 int gpio_sda(int val)
 {
-//	printf("I2C: gpio_sda() %d\n", val);
-	int retval = 0;
+	printf("I2C: gpio_sda() %d\n", val);
 
-	switch (val) {
-	case -1: retval = GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_2); break;
-	case 0: GPIO_ResetBits(GPIOA, GPIO_Pin_2); break;
-	case 1: GPIO_SetBits(GPIOA, GPIO_Pin_2); break;
-	default: break;
-	}
-	
-	return retval;
+	return 1;
 }
 
 const struct i2c_config_s i2c_config = {
