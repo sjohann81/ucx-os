@@ -47,8 +47,10 @@ void task2(void)
 	while (1) {
 		if (ucx_mq_items(mq1) > 0) {
 			pmsg = ucx_mq_dequeue(mq1);
-			str = pmsg->data;
-			printf("%s\n", str);
+			if (pmsg) {
+				str = pmsg->data;
+				printf("%s\n", str);
+			}
 		}
 	}
 }
@@ -64,21 +66,23 @@ void task3(void)
 	while (1) {
 		if (ucx_mq_items(mq2) > 0) {
 			pmsg = ucx_mq_dequeue(mq2);
-			str = pmsg->data;
-			
-			switch (pmsg->type) {
-			case TYPE_INT:
-				val = atoi(str);
-				itoa(val, str2, 10);
-				break;
-			case TYPE_FLOAT:
-				fval = atof(str);
-				ftoa(fval, str2, 6);
-				break;
-			default: break;
+			if (pmsg) {
+				str = pmsg->data;
+				
+				switch (pmsg->type) {
+				case TYPE_INT:
+					val = atoi(str);
+					itoa(val, str2, 10);
+					break;
+				case TYPE_FLOAT:
+					fval = atof(str);
+					ftoa(fval, str2, 6);
+					break;
+				default: break;
+				}
+				
+				printf("recv str: %s converted value: %s\n", str, str2);
 			}
-			
-			printf("recv str: %s converted value: %s\n", str, str2);
 		}
 	}
 }
