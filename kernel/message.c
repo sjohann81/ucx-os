@@ -80,9 +80,7 @@ int32_t ucx_mq_items(struct mq_s *mq)
 {
 	int32_t mcount;
 	
-	ucx_sem_wait(mq->mutex);
 	mcount = queue_count(mq->queue);
-	ucx_sem_signal(mq->mutex);
 	
 	return mcount;
 }
