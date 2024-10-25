@@ -1,4 +1,4 @@
-VERSION = 0.94
+VERSION = 0.95
 
 TARGET_LIST = \
 	'arm/stm32f401_blackpill' 'arm/stm32f411_blackpill' \
@@ -137,6 +137,10 @@ i2c_master: rebuild
 	
 messages: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/messages.o app/messages.c
+	@$(MAKE) --no-print-directory link
+
+messages_alloc: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/messages_alloc.o app/messages_alloc.c
 	@$(MAKE) --no-print-directory link
 
 messages_simple: rebuild
