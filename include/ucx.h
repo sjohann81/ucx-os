@@ -9,6 +9,7 @@
 #include <kernel/semaphore.h>
 #include <kernel/message.h>
 #include <kernel/event.h>
+#include <kernel/timer.h>
 #include <kernel/kernel.h>
 #include <kernel/errno.h>
 #include <kernel/stat.h>

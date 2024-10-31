@@ -10,6 +10,7 @@ struct kcb_s kernel_state = {
 	.tasks = 0,
 	.task_current = 0,
 	.events = 0,
+	.timer_lst = 0,
 	.id_next = 0,
 	.ticks = 0
 };
