@@ -17,7 +17,7 @@ static struct ecode_s edatadesc[] = {
 	{ERR_SEM_ALLOC,			"sema alloc failed"},
 	{ERR_SEM_DEALLOC,		"sema dealloc failed"},
 	{ERR_SEM_OPERATION,		"sema operation failed"},
-	{ERR_EQ_NOTEMPTY,		"message queue not empty"},
+	{ERR_MQ_NOTEMPTY,		"message queue not empty"},
 	{ERR_UNKNOWN,			"unknown reason"}
 };
 

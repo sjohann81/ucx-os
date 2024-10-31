@@ -22,7 +22,7 @@ struct mq_s *ucx_mq_create(uint16_t events)
 		return 0;
 	}
 	
-	mqptr->mutex = ucx_sem_create(EQ_SEM_MAX_TASKS, 1);
+	mqptr->mutex = ucx_sem_create(MQ_SEM_MAX_TASKS, 1);
 	
 	if (!mqptr->mutex) {
 		queue_destroy(mqptr->queue);
@@ -41,7 +41,7 @@ int32_t ucx_mq_destroy(struct mq_s *mq)
 	if (queue_count(mq->queue)) {
 		ucx_sem_signal(mq->mutex);
 		
-		return ERR_EQ_NOTEMPTY;
+		return ERR_MQ_NOTEMPTY;
 	}
 	
 	queue_destroy(mq->queue);
