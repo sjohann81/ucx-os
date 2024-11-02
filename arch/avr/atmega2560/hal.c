@@ -8,21 +8,21 @@
 #include <console.h>
 #include <lib/libc.h>
 #include <kernel/kernel.h>
-#include <uart.h>
+#include <usart.h>
 
 #define TIMER_CLK2		F_CPU / 1024
 #define IRQ_FREQ2		100					// irq frequency, in Hz
 
 static int __putchar(int value)		// polled putchar()
 {
-	uart_tx(value);
+	usart_tx(value);
 	
 	return value;
 }
 
 static int __kbhit(void)
 {
-	if (uart_rxsize())
+	if (usart_rxsize())
 		return 1;
 	else
 		return 0;
@@ -30,7 +30,7 @@ static int __kbhit(void)
 
 static int __getchar(void)			// polled getch()
 {
-	return uart_rx();
+	return usart_rx();
 }
 
 char _interrupt_set(char s)
@@ -83,7 +83,7 @@ void _hardware_init(void)
 	/* disable interrupts */
 	cli();
 	
-	uart_init(USART_BAUD, 1);
+	usart_init(USART_BAUD, 1);
 	
 	_stdout_install(__putchar);
 	_stdin_install(__getchar);
