@@ -12,7 +12,6 @@
 #include <lib/list.h>
 #include <kernel/kernel.h>
 #include <kernel/ecodes.h>
-#include <jiffies.h>
 
 
 /*
@@ -63,17 +62,6 @@ static void tim11_start()
 {
 	/* Start TIM11 */
 	TIM_Cmd(TIM11, ENABLE);
-}
-
-static void tim11_stop()
-{
-	/* Stop TIM11 */
-	TIM_Cmd(TIM11, DISABLE);
-}
-
-static uint32_t tim11_val()
-{
-	return TIM11->CNT;
 }
 
 /* delay routines */

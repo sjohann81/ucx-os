@@ -44,7 +44,6 @@ hal:
 	$(CC) $(CFLAGS) \
 		$(ARCH_DIR)/hal.c \
 		$(ARCH_DIR)/usart.c \
-		$(ARCH_DIR)/jiffies.c \
 		$(ARCH_DIR)/../../common/muldiv.c \
 		$(ARCH_DIR)/../../common/ieee754.c \
 		$(ARCH_DIR)/../../common/math.c \
