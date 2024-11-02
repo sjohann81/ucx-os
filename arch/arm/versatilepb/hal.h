@@ -64,7 +64,7 @@ extern uint32_t _end;			/* Start address of the heap memory, defined in linker s
 #define TIMER_PERIODIC			0x40
 #define TIMER_INTEN			0x20
 #define TIMER_32BIT			0x02
-#define TIMER_ONESHOT			0x01
+//#define TIMER_ONESHOT			0x01
 
 #define TIMCLK				1000000
 
