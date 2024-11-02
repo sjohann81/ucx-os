@@ -12,7 +12,6 @@
 #include <lib/list.h>
 #include <kernel/kernel.h>
 #include <kernel/ecodes.h>
-#include <jiffies.h>
 
 
 /*
@@ -38,24 +37,56 @@ static int __getchar(void)			// polled getch()
 	return uart_rx(USART_PORT);
 }
 
+/* timer setup for delays */
+static void tim11_config()
+{
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
+	
+	/* Enable clock for TIM11 */
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM11, ENABLE);
+	
+	/* preset default values of the timer struct */
+	TIM_TimeBaseStructInit(&TIM_TimeBaseInitStruct);
+	
+	/* TIM11 value of prescaler, period and mode */
+	TIM_TimeBaseInitStruct.TIM_Prescaler = SystemCoreClock / 1000000;
+	TIM_TimeBaseInitStruct.TIM_Period = 65535;
+	TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
+	
+	/* TIM11 initialize */
+	TIM_TimeBaseInit(TIM11, &TIM_TimeBaseInitStruct);
+}
+
+static void tim11_start()
+{
+	/* Start TIM11 */
+	TIM_Cmd(TIM11, ENABLE);
+}
+
 /* delay routines */
 void _delay_ms(uint32_t msec)
 {
-	jf_delay_us(1000 * msec);
+	_delay_us(1000 * msec);
 }
+
+static volatile uint64_t timeref;
 
 void _delay_us(uint32_t usec)
 {
-	jf_delay_us(usec);
+	TIM11->CNT = 0;
+	while (usec > 0xffff) {
+		while (TIM11->CNT != 0);
+		usec -= 0xffff;
+	}
+	TIM11->CNT = 0;
+	while (TIM11->CNT <= usec);
 }
-
-static uint64_t timeref = 0;
 
 uint64_t _read_us(void)
 {
-	return timeref;
+	return (timeref * (1000000 / F_TIMER));
 }
-
 
 /* hardware dependent stuff and interrupt management */
 
@@ -307,13 +338,10 @@ volatile uint32_t *task_psp, *new_task_psp;
 
 void SysTick_Handler(void)
 {
-	static uint32_t tval2 = 0, tref = 0;
 	struct tcb_s *task = kcb->task_current->data;
 
 	// update microsecond counter
-	if (jf_value() < tref) tval2++;
-	tref = jf_value();
-	timeref = ((uint64_t)tval2 << 16) + (uint64_t)jf_value();
+	timeref++;
 
 	// save current PSP, call the scheduler and get new PSP
 	task_psp = &task->context[CONTEXT_PSP];
@@ -325,14 +353,13 @@ void SysTick_Handler(void)
 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
 }
 
-
 /* system call interface */
 
 void syscall(void (*func)(void *), void *args) __attribute__((optimize("1")));
 
 void syscall(void (*func)(void *), void *args){
-     // by convention func is in r0 and args is in r1
-     asm volatile("svc 11");
+	// by convention func is in r0 and args is in r1
+	asm volatile("svc 11");
 }
 
 typedef void (*svcall_t)(void *);
@@ -394,9 +421,30 @@ void _dispatch(void)
 	krnl_schedule();
 }
 
+/* used on yield */
+void SysTick_Handler2(void)
+{
+	struct tcb_s *task = kcb->task_current->data;
+
+	// save current PSP, call the scheduler and get new PSP
+	task_psp = &task->context[CONTEXT_PSP];
+
+	if (!kcb->tasks->length)
+		krnl_panic(ERR_NO_TASKS);
+		
+	_stack_check();
+	krnl_schedule();
+
+	task = kcb->task_current->data;
+	new_task_psp = &task->context[CONTEXT_PSP];
+	
+	/* trigger PendSV interrupt to perform a task schedule and context switch */
+	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+}
+
 void _yield(void)
 {
-	void (*sysfunc)(void *) = (void *)(void *)SysTick_Handler;
+	void (*sysfunc)(void *) = (void *)(void *)SysTick_Handler2;
 
 	syscall(sysfunc, 0);
 }
@@ -433,7 +481,8 @@ void _hardware_init(void)
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 	
 	/* setup TIM11 for jiffies */
-	jf_setup();
+	tim11_config();
+	tim11_start();
 
 	/* configure USART */
 	uart_init(USART_PORT, USART_BAUD, 0);
