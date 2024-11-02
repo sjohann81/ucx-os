@@ -1,9 +1,5 @@
 #include <ucx.h>
 
-// timer task	-> manages the timer dlist and callbacks. calls timer_handler()
-// timer create (callback, time_in_ticks, one-shot, auto-reload) - return timer_id
-// timer start (timer_id)
-// timer cancel (timer_id)
 
 /*
  * - iterate the list and for each element:
@@ -24,8 +20,10 @@ static struct node_s *timer_update(struct node_s *node, void *arg)
 	if (timer->mode == TIMER_DISABLED)
 		return 0;
 	
-	while (timer->countdown && tick_diff--)
+	while (timer->countdown && tick_diff) {
 		timer->countdown--;
+		tick_diff--;
+	}
 	
 	if (!timer->countdown) {
 		timer->timer_cb(arg);
@@ -37,6 +35,11 @@ static struct node_s *timer_update(struct node_s *node, void *arg)
 	
 	return 0;
 }
+
+
+/* 
+ * timer task	-> manages the timer dlist and callbacks. calls timer_handler()
+ */
 
 void timer_handler()
 {
@@ -68,6 +71,7 @@ int32_t ucx_timer_create(void *(*timer_cb)(void *arg), uint32_t time)
 {
 	struct node_s *node;
 	struct timer_s *timer;
+	static uint16_t timer_id = 0x6000;
 	
 	if (!kcb->timer_lst)
 		kcb->timer_lst = list_create();
@@ -85,7 +89,7 @@ int32_t ucx_timer_create(void *(*timer_cb)(void *arg), uint32_t time)
 		return ERR_FAIL;
 	}
 		
-	timer->timer_id = random() % 0xffff;
+	timer->timer_id = timer_id++;
 	timer->timer_cb = timer_cb;
 	timer->time = time;
 	timer->countdown = time;
