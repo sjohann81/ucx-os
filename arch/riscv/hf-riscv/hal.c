@@ -174,6 +174,7 @@ void _timer_disable(void)
 
 void _interrupt_tick(void)
 {
+	_read_us();
 	_ei();
 }
 
