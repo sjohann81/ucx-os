@@ -4,12 +4,13 @@ INC_DIRS  = -I $(ARCH_DIR)
 
 F_CLK=16000000
 SERIAL_BAUDRATE=57600
+F_TICK = 100
 
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
 ASFLAGS = 
-CFLAGS = -c -g -mmcu=atmega328p -Wall -Os -fno-inline-small-functions -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-main -fomit-frame-pointer -D F_CPU=$(F_CLK) -D USART_BAUD=$(SERIAL_BAUDRATE) $(INC_DIRS) -D UNKNOWN_HEAP
+CFLAGS = -c -g -mmcu=atmega328p -Wall -Os -fno-inline-small-functions -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-main -fomit-frame-pointer -D F_CPU=$(F_CLK) -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} $(INC_DIRS) -D UNKNOWN_HEAP
 ARFLAGS = r
-LDFLAGS = -g -mmcu=atmega328p -Wall -Os -fno-inline-small-functions -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-main -fomit-frame-pointer -D F_CPU=$(F_CLK) -D USART_BAUD=$(SERIAL_BAUDRATE) $(INC_DIRS) -D UNKNOWN_HEAP
+LDFLAGS = -g -mmcu=atmega328p -Wall -Os -fno-inline-small-functions -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-main -fomit-frame-pointer -D F_CPU=$(F_CLK) -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} $(INC_DIRS) -D UNKNOWN_HEAP
 LDSCRIPT = 
 
 CC = avr-gcc
@@ -38,7 +39,7 @@ PROGRAMMER = arduino -P $(SERIAL_DEV)
 
 hal:
 	$(CC) $(CFLAGS) \
-		$(ARCH_DIR)/uart.c \
+		$(ARCH_DIR)/usart.c \
 		$(ARCH_DIR)/hal.c 
 
 flash:
