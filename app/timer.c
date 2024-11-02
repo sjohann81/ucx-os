@@ -1,9 +1,22 @@
 #include <ucx.h>
 
+void print_time()
+{
+	uint32_t secs, msecs, time;
+	
+	time = ucx_uptime();
+	secs = time / 1000;
+	msecs = time - secs * 1000;
+	
+	printf("%ld.%03lds", secs, msecs);
+}
+
 void timer1(void)
 {
 	while (1) {
-		printf("TIMER 1\n");
+		printf("TIMER 1 (");
+		print_time();
+		printf(")\n");
 		ucx_task_delay(100);
 	}
 }
@@ -11,7 +24,9 @@ void timer1(void)
 void timer2(void)
 {
 	while (1) {
-		printf("TIMER 2\n");
+		printf("TIMER 2 (");
+		print_time();
+		printf(")\n");
 		ucx_task_delay(300);
 	}
 }
@@ -19,7 +34,9 @@ void timer2(void)
 void timer3(void)
 {
 	while (1) {
-		printf("TIMER 3\n");
+		printf("TIMER 3 (");
+		print_time();
+		printf(")\n");
 		ucx_task_delay(50);
 	}
 }
