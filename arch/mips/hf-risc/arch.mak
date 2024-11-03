@@ -8,6 +8,8 @@ F_CLK = 25000000
 SERIAL_BAUDRATE=57600
 # timer interrupt frequency (100 -> 100 ints/s -> 10ms tick time. 0 -> timer0 fixed frequency)
 F_TICK = 0
+# fixed tick frequency
+F_TICK_FIXED = (${F_CLK} / 262144)
 
 CFLAGS_FEW_REGS = -ffixed-t0 -ffixed-t1 -ffixed-t2 -ffixed-t3 -ffixed-t4 -ffixed-t5 -ffixed-t6 -ffixed-t7 -ffixed-s0 -ffixed-s1 -ffixed-s2 -ffixed-s3 -ffixed-s4 -ffixed-s5 -ffixed-s6 -ffixed-s7
 CFLAGS_NO_HW_MULDIV = -mnohwmult -mnohwdiv -ffixed-lo -ffixed-hi
@@ -25,7 +27,7 @@ ASFLAGS = -mips1 -msoft-float
 # new compiler (not patched)
 #CFLAGS = -Wall -O2 -c -mips1 -mno-check-zero-division -msoft-float -ffreestanding -nostdlib -G 0 $(INC_DIRS) -DCPU_SPEED=${F_CLK} -DBIG_ENDIAN $(CFLAGS_STRIP) #-DDEBUG_PORT
 # new compiler (patched)
-CFLAGS = -Wall -O2 -c -mips1 -fno-delayed-branch -ffixed-hi -ffixed-lo -mno-check-zero-division -msoft-float -ffreestanding -nostdlib -G 0 $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DBIG_ENDIAN $(CFLAGS_STRIP) #-DDEBUG_PORT
+CFLAGS = -Wall -O2 -c -mips1 -fno-delayed-branch -ffixed-hi -ffixed-lo -mno-check-zero-division -msoft-float -ffreestanding -nostdlib -G 0 $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DF_TIMER_FIXED="${F_TICK_FIXED}" -DBIG_ENDIAN $(CFLAGS_STRIP) #-DDEBUG_PORT
 ARFLAGS = r
 LDFLAGS = -mips1 $(LDFLAGS_STRIP)
 LDSCRIPT = $(ARCH_DIR)/hf-risc.ld

@@ -8,6 +8,8 @@ F_CLK = 25000000
 SERIAL_BAUDRATE=57600
 # timer interrupt frequency (100 -> 100 ints/s -> 10ms tick time. 0 -> timer0 fixed frequency)
 F_TICK = 0
+# fixed tick frequency
+F_TICK_FIXED = (${F_CLK} / 262144)
 
 #remove unreferenced functions
 CFLAGS_STRIP = -fdata-sections -ffunction-sections
@@ -15,7 +17,7 @@ LDFLAGS_STRIP = --gc-sections
 
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
 ASFLAGS = -march=rv32i -mabi=ilp32 #-fPIC
-CFLAGS = -Wall -march=rv32i -mabi=ilp32 -O2 -c -mstrict-align -ffreestanding -nostdlib -ffixed-s10 -ffixed-s11 -fomit-frame-pointer $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) #-mrvc -fPIC -DDEBUG_PORT
+CFLAGS = -Wall -march=rv32i -mabi=ilp32 -O2 -c -mstrict-align -ffreestanding -nostdlib -ffixed-s10 -ffixed-s11 -fomit-frame-pointer $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DF_TIMER_FIXED="${F_TICK_FIXED}" -DLITTLE_ENDIAN $(CFLAGS_STRIP) #-mrvc -fPIC -DDEBUG_PORT
 ARFLAGS = r
 
 LDFLAGS = -melf32lriscv $(LDFLAGS_STRIP)
