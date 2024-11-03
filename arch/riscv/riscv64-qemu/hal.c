@@ -111,7 +111,7 @@ void _irq_handler(uint32_t cause, uint32_t *stack)
 		krnl_dispatcher();
 	} else {
 		printf("[%x]\n", val);
-		for (;;);
+//		for (;;);
 	}
 
 }
