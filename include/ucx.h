@@ -11,6 +11,7 @@
 #include <kernel/event.h>
 #include <kernel/timer.h>
 #include <kernel/kernel.h>
+#include <kernel/corotine.h>
 #include <kernel/errno.h>
 #include <kernel/stat.h>
 #include <kernel/ecodes.h>
