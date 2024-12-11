@@ -2,11 +2,11 @@
 #include <uart.h>
 
 /* UART API function wrappers */
-/*int uart_init(const struct device_s *dev)
+int uart_init(const struct device_s *dev)
 {
 	return dev->api->dev_init(dev);
 }
-*/
+
 int uart_deinit(const struct device_s *dev)
 {
 	return dev->api->dev_deinit(dev);

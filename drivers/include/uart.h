@@ -1,5 +1,5 @@
 /* UART driver API */
-//int uart_init(const struct device_s *dev);
+int uart_init(const struct device_s *dev);
 int uart_deinit(const struct device_s *dev);
 int uart_open(const struct device_s *dev, int mode);
 int uart_close(const struct device_s *dev);
