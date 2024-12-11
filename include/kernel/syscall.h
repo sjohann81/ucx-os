@@ -4,9 +4,9 @@ enum UCX_SYSCALLS {
 	SYS_SBRK, SYS_USLEEP, SYS_STAT, SYS_OPEN,
 	SYS_CLOSE, SYS_READ, SYS_WRITE, SYS_LSEEK,
 	SYS_CHDIR, SYS_MKNOD, SYS_LINK, SYS_UNLINK,
-	SYS_TADD = 32, SYS_TREMOVE, SYS_TYIELD, SYS_TDELAY,
+	SYS_TADD = 32, SYS_TCANCEL, SYS_TYIELD, SYS_TDELAY,
 	SYS_TSUSPEND, SYS_TRESUME, SYS_TPRIORITY, SYS_TID,
-	SYS_TWFI, SYS_TCOUNT, SYS_TICKS
+	SYS_TWFI, SYS_TCOUNT, SYS_TICKS, SYS_UPTIME
 };
 
 int _syscall(int num, void *arg1, void *arg2, void *arg3);
@@ -33,7 +33,7 @@ int sys_unlink(char *name);
 int sys_link(char *old, char *new);
 
 int sys_tadd(void *task, int stack_size);
-int sys_tremove(int id);
+int sys_tcancel(int id);
 int sys_tyield(void);
 int sys_tdelay(int ticks);
 int sys_tsuspend(int id);
@@ -43,3 +43,4 @@ int sys_tid(void);
 int sys_twfi(void);
 int sys_tcount(void);
 int sys_ticks(void);
+int sys_uptime(void);

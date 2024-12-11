@@ -25,7 +25,7 @@ static int _unlink(char *name);
 static int _link(char *old, char *new);
 
 static int _tadd(void *task, int stack_size);
-static int _tremove(int id);
+static int _tcancel(int id);
 static int _tyield(void);
 static int _tdelay(int ticks);
 static int _tsuspend(int id);
@@ -35,6 +35,7 @@ static int _tid(void);
 static int _twfi(void);
 static int _tcount(void);
 static int _ticks(void);
+static int _uptime(void);
 
 
 /* syscall table */
@@ -63,7 +64,7 @@ static int (*const syscall_tbl[])() = {
 	[SYS_UNLINK] = _unlink,
 	/* UCX-OS syscalls */
 	[SYS_TADD] = _tadd,
-	[SYS_TREMOVE] = _tremove,
+	[SYS_TCANCEL] = _tcancel,
 	[SYS_TYIELD] = _tyield,
 	[SYS_TDELAY] = _tdelay,
 	[SYS_TSUSPEND] = _tsuspend,
@@ -72,7 +73,8 @@ static int (*const syscall_tbl[])() = {
 	[SYS_TID] = _tid,
 	[SYS_TWFI] = _twfi,
 	[SYS_TCOUNT] = _tcount,
-	[SYS_TICKS] = _ticks
+	[SYS_TICKS] = _ticks,
+	[SYS_UPTIME] = _uptime
 };
 
 
@@ -248,14 +250,14 @@ int sys_task_add(void *task, int stack_size)
 }
 
 
-int _tremove(int id)
+int _tcancel(int id)
 {
 	return ucx_task_cancel(id);
 }
 
-int sys_task_remove(int id)
+int sys_task_cancel(int id)
 {
-	return _syscall(SYS_TREMOVE, (void *)id, 0, 0);
+	return _syscall(SYS_TCANCEL, (void *)id, 0, 0);
 }
 
 
@@ -367,4 +369,15 @@ int _ticks(void)
 int sys_ticks(void)
 {
 	return _syscall(SYS_TICKS, 0, 0, 0);
+}
+
+
+int _uptime(void)
+{
+	return ucx_uptime();
+}
+
+int sys_uptime(void)
+{
+	return _syscall(SYS_UPTIME, 0, 0, 0);
 }
