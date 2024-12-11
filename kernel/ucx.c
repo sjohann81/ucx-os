@@ -9,6 +9,7 @@
 struct kcb_s kernel_state = {
 	.tasks = 0,
 	.task_current = 0,
+	.rt_sched = krnl_noop_rtsched,
 	.events = 0,
 	.timer_lst = 0,
 	.id_next = 0,
@@ -123,6 +124,11 @@ uint16_t krnl_schedule(void)
 	return task->id;
 }
 
+int32_t krnl_noop_rtsched(void)
+{
+	return -1;
+}
+
 /*  
  * Kernel task dispatch and yield routines. This is highly platform dependent,
  * so it is implemented by generic calls to _dispatch() and _yield(), defined
@@ -151,7 +157,8 @@ void dispatch(void)
 	if (!setjmp(task->context)) {
 		stack_check();
 		list_foreach(kcb->tasks, delay_update, (void *)0);
-		krnl_schedule();
+		if (kcb->rt_sched() < 0)
+			krnl_schedule();
 		_interrupt_tick();
 		task = kcb->task_current->data;
 		longjmp(task->context, 1);

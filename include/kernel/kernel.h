@@ -19,6 +19,7 @@ struct tcb_s {
 	jmp_buf context;		/* jmp_buf is architecture specific */
 	size_t *stack;
 	size_t stack_sz;
+	void *rt_prio;
 	uint16_t id;
 	uint16_t delay;
 	uint16_t priority;
@@ -30,6 +31,7 @@ struct kcb_s {
 	struct list_s *tasks;
 	struct node_s *task_current;
 	jmp_buf context;
+	int32_t (*rt_sched)(void);
 	struct queue_s *events;
 	struct list_s *timer_lst;
 	volatile uint32_t ticks;
@@ -49,6 +51,7 @@ extern struct kcb_s *kcb;
 
 void krnl_panic(uint32_t ecode);
 uint16_t krnl_schedule(void);
+int32_t krnl_noop_rtsched(void);
 void krnl_dispatcher(void);
 /* actual dispatch/yield implementation may be platform dependent */
 void _dispatch(void);
