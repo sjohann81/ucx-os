@@ -134,6 +134,10 @@ hello: rebuild
 hello_p: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/hello_preempt.o app/hello_preempt.c
 	@$(MAKE) --no-print-directory link
+	
+hello_cr: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/hello_corotine.o app/hello_corotine.c
+	@$(MAKE) --no-print-directory link
 
 i2c_master: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/i2c_master.o app/i2c_master.c
