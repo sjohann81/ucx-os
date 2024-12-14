@@ -6,7 +6,7 @@
 
 #include <ucx.h>
 
-struct mq_s *ucx_mq_create(uint16_t events)
+struct mq_s *ucx_mq_create(uint16_t size)
 {
 	struct mq_s *mqptr;
 	
@@ -15,19 +15,10 @@ struct mq_s *ucx_mq_create(uint16_t events)
 	if (!mqptr)
 		return 0;
 		
-	mqptr->queue = queue_create(events);
+	mqptr->queue = queue_create(size);
 	
 	if (!mqptr->queue) {
 		free(mqptr);
-		return 0;
-	}
-	
-	mqptr->mutex = ucx_sem_create(MQ_SEM_MAX_TASKS, 1);
-	
-	if (!mqptr->mutex) {
-		queue_destroy(mqptr->queue);
-		free(mqptr);
-		
 		return 0;
 	}
 	
@@ -36,20 +27,13 @@ struct mq_s *ucx_mq_create(uint16_t events)
 
 int32_t ucx_mq_destroy(struct mq_s *mq)
 {
-	ucx_sem_wait(mq->mutex);
-	
-	if (queue_count(mq->queue)) {
-		ucx_sem_signal(mq->mutex);
-		
+	if (queue_count(mq->queue))
 		return ERR_MQ_NOTEMPTY;
-	}
 	
+	CRITICAL_ENTER();
 	queue_destroy(mq->queue);
-	
-	if (ucx_sem_destroy(mq->mutex))
-		return ERR_SEM_DEALLOC;
-		
 	free(mq);
+	CRITICAL_LEAVE();
 	
 	return 0;
 }
@@ -58,9 +42,9 @@ int32_t ucx_mq_enqueue(struct mq_s *mq, struct message_s *m)
 {
 	int32_t status;
 	
-	ucx_sem_wait(mq->mutex);
+	CRITICAL_ENTER();
 	status = queue_enqueue(mq->queue, m);
-	ucx_sem_signal(mq->mutex);
+	CRITICAL_LEAVE();
 	
 	return status;
 }
@@ -69,9 +53,20 @@ struct message_s *ucx_mq_dequeue(struct mq_s *mq)
 {
 	struct message_s *m;
 	
-	ucx_sem_wait(mq->mutex);
+	CRITICAL_ENTER();
 	m = queue_dequeue(mq->queue);
-	ucx_sem_signal(mq->mutex);
+	CRITICAL_LEAVE();
+	
+	return m;
+}
+
+struct message_s *ucx_mq_peek(struct mq_s *mq)
+{
+	struct message_s *m;
+	
+	CRITICAL_ENTER();
+	m = queue_peek(mq->queue);
+	CRITICAL_LEAVE();
 	
 	return m;
 }
