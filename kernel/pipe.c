@@ -108,7 +108,7 @@ static int32_t ucx_pipe_put(struct pipe_s *pipe, char data)
 	return 0;
 }
 
-/* this routine is blocking and must be called inside a task. */
+/* this routine is blocking and must be called inside a task in a preemptive context. */
 int32_t ucx_pipe_read(struct pipe_s *pipe, char *data, uint16_t size)
 {
 	uint16_t i = 0;
@@ -130,7 +130,7 @@ int32_t ucx_pipe_read(struct pipe_s *pipe, char *data, uint16_t size)
 	
 }
 
-/* this routine is blocking and must be called inside a task. */
+/* this routine is blocking and must be called inside a task in a preemptive context. */
 int32_t ucx_pipe_write(struct pipe_s *pipe, char *data, uint16_t size)
 {
 	uint16_t i = 0;
@@ -143,6 +143,48 @@ int32_t ucx_pipe_write(struct pipe_s *pipe, char *data, uint16_t size)
 	
 		if (res == -1)
 			continue;
+
+		i++;
+	}
+
+	return i;
+}
+
+/* this routine is non blocking */
+int32_t ucx_pipe_nbread(struct pipe_s *pipe, char *data, uint16_t size)
+{
+	uint16_t i = 0;
+	int32_t byte;
+	
+	while (i < size) {
+		CRITICAL_ENTER();
+		byte = ucx_pipe_get(pipe);
+		CRITICAL_LEAVE();
+
+		if (byte == -1)
+			return i;
+
+		data[i] = byte;
+		i++;
+	}
+	
+	return i;
+	
+}
+
+/* this routine is non blocking */
+int32_t ucx_pipe_nbwrite(struct pipe_s *pipe, char *data, uint16_t size)
+{
+	uint16_t i = 0;
+	int32_t res;
+	
+	while (i < size) {
+		CRITICAL_ENTER();
+		res = ucx_pipe_put(pipe, data[i]);
+		CRITICAL_LEAVE();
+	
+		if (res == -1)
+			return i;
 
 		i++;
 	}

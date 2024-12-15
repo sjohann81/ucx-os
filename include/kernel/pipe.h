@@ -10,3 +10,5 @@ void ucx_pipe_flush(struct pipe_s *pipe);
 int32_t ucx_pipe_size(struct pipe_s *pipe);
 int32_t ucx_pipe_read(struct pipe_s *pipe, char *data, uint16_t size);
 int32_t ucx_pipe_write(struct pipe_s *pipe, char *data, uint16_t size);
+int32_t ucx_pipe_nbread(struct pipe_s *pipe, char *data, uint16_t size);
+int32_t ucx_pipe_nbwrite(struct pipe_s *pipe, char *data, uint16_t size);
