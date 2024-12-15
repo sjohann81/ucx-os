@@ -32,10 +32,8 @@ int32_t ucx_cr_gdestroy(struct cgroup_s *cgroup)
 	if (cgroup->fibers > 0)
 		return -1;
 	
-	CRITICAL_ENTER();
 	free(cgroup->crlist);
 	free(cgroup);
-	CRITICAL_LEAVE();
 	
 	return 0;
 }
@@ -55,25 +53,44 @@ int32_t ucx_cr_add(struct cgroup_s *cgroup, void *(corotine)(void *), uint8_t pr
 	cr->priority = priority;
 	cr->pcounter = priority;
 	
-	CRITICAL_ENTER();
 	node = list_pushback(cgroup->crlist, cr);
 	
 	if (!node) {
 		free(cr);
-		CRITICAL_LEAVE();
 		return -1;
 	}
 	
 	cgroup->fibers++;
-	CRITICAL_LEAVE();
-	
+
 	return 0;
 }
 
 /* remove a corotine from a group */
+static struct node_s *cr_trycancel(struct node_s *node, void *arg)
+{
+	struct ccb_s *cr = node->data;
+	struct ccb_s *crcmp = (struct ccb_s *)arg;
+	
+	if (cr->corotine == crcmp->corotine)
+		return node->data;
+	
+	return 0;
+}
+
 int32_t ucx_cr_cancel(struct cgroup_s *cgroup, void *(corotine)(void *))
 {
-	return 0;
+	struct node_s *node;
+	struct ccb_s *cr;
+	
+	node = list_foreach(cgroup->crlist, cr_trycancel, corotine);
+	
+	if (node) {
+		cr = node->data;
+		free(cr);
+		list_remove(cgroup->crlist, node);
+	}
+	
+	return node ? 1 : 0;
 }
 
 /* schedule a group of corotines */
