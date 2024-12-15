@@ -110,6 +110,18 @@ endif
 	hexdump -v -e '4/1 "%02x" "\n"' $(BUILD_TARGET_DIR)/image.bin > $(BUILD_TARGET_DIR)/code.txt
 
 ## applications
+corotine_args: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/corotine_args.o app/corotine_args.c
+	@$(MAKE) --no-print-directory link
+	
+corotine_mq: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/corotine_mq.o app/corotine_mq.c
+	@$(MAKE) --no-print-directory link
+
+corotine_pipe: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/corotine_pipe.o app/corotine_pipe.c
+	@$(MAKE) --no-print-directory link
+
 corotine_task: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/corotine_task.o app/corotine_task.c
 	@$(MAKE) --no-print-directory link
