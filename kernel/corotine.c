@@ -83,7 +83,7 @@ static struct node_s *cr_trysched(struct node_s *node, void *arg)
 	
 	if (!--cr->pcounter) {
 		cr->pcounter = cr->priority;
-		cr->corotine(0);
+		cr->corotine(arg);
 		
 		return node;
 	}
@@ -91,11 +91,11 @@ static struct node_s *cr_trysched(struct node_s *node, void *arg)
 	return 0;
 }
 
-int32_t ucx_cr_schedule(struct cgroup_s *cgroup)
+int32_t ucx_cr_schedule(struct cgroup_s *cgroup, void *arg)
 {
 	struct node_s *node;
 	
-	node = list_foreach(cgroup->crlist, cr_trysched, (void *)0);
+	node = list_foreach(cgroup->crlist, cr_trysched, arg);
 	
 	return node ? 1 : 0;
 }
