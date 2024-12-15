@@ -110,6 +110,10 @@ endif
 	hexdump -v -e '4/1 "%02x" "\n"' $(BUILD_TARGET_DIR)/image.bin > $(BUILD_TARGET_DIR)/code.txt
 
 ## applications
+corotine_task: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/corotine_task.o app/corotine_task.c
+	@$(MAKE) --no-print-directory link
+
 delay: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/delay.o app/delay.c
 	@$(MAKE) --no-print-directory link
@@ -135,10 +139,6 @@ hello_p: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/hello_preempt.o app/hello_preempt.c
 	@$(MAKE) --no-print-directory link
 	
-hello_cr: rebuild
-	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/hello_corotine.o app/hello_corotine.c
-	@$(MAKE) --no-print-directory link
-
 i2c_master: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/i2c_master.o app/i2c_master.c
 	@$(MAKE) --no-print-directory link

@@ -43,7 +43,7 @@ void task0(void)
 
 	while (1) {
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
-		ucx_cr_schedule(cgroup);
+		ucx_cr_schedule(cgroup, (void *)0);
 		ucx_task_wfi();
 	}
 }
