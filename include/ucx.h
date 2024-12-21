@@ -16,6 +16,5 @@
 #include <kernel/stat.h>
 #include <kernel/ecodes.h>
 #include <kernel/syscall.h>
-#include <device/device.h>
 #include <stdarg.h>
 
