@@ -88,18 +88,18 @@ Device drivers are the way to enable portability, customization and hardware sup
 
 System calls are divided in three classes. The *task* class of system calls are used for task control and information. The *system* class are used for system information and control. The *semaphore* class of system calls are used for task synchronization and the *pipe* class of system calls are used as a basic communication mechanism between tasks. At this moment, system calls are implemented as simple library calls, but this will change in the near future for architectures that suport hardware exceptions and different modes of operation. There is a system call wrapper in place that can be used for as a system call interface, that implements a software interrupt for syscalls and asynchronous callbacks.
 
-| Task			| System		| Semaphore		| Pipe			| Message Queue		| Event Queue		| Timer			|
-| :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- |
-| ucx_task_spawn()	| ucx_ticks()		| ucx_sem_create()	| ucx_pipe_create()	| ucx_mq_create()	| ucx_eq_create()	| ucx_timer_create()	|
-| ucx_task_cancel()	| ucx_uptime()		| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_mq_destroy()	| ucx_eq_destroy()	| ucx_timer_destroy()	|
-| ucx_task_yield()	| 			| ucx_sem_wait()	| ucx_pipe_flush()	| ucx_mq_enqueue()	| ucx_event_post()	| ucx_timer_start()	|
-| ucx_task_delay()	| 			| ucx_sem_signal()	| ucx_pipe_size()	| ucx_mq_dequeue()	| ucx_event_poll()	| ucx_timer_cancel()	|
-| ucx_task_suspend()	|			|			| ucx_pipe_read()	| ucx_mq_items()	| ucx_event_get()	|			|
-| ucx_task_resume()	|			|			| ucx_pipe_write()	| 			| ucx_event_dispatch()	|			|
-| ucx_task_priority()	|			| 			| 			|			|			|			|
-| ucx_task_id()		|			| 			| 			|			|			|			|
-| ucx_task_wfi()	|			|			| 			|			|			|			|
-| ucx_task_count()	|			|			| 			|			|			|			|
+| Task			| System		| Semaphore		| Pipe			| Message Queue		| Timer			|
+| :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- |
+| ucx_task_spawn()	| ucx_ticks()		| ucx_sem_create()	| ucx_pipe_create()	| ucx_mq_create()	| ucx_timer_create()	|
+| ucx_task_cancel()	| ucx_uptime()		| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_mq_destroy()	| ucx_timer_destroy()	|
+| ucx_task_yield()	| 			| ucx_sem_wait()	| ucx_pipe_flush()	| ucx_mq_enqueue()	| ucx_timer_start()	|
+| ucx_task_delay()	| 			| ucx_sem_signal()	| ucx_pipe_size()	| ucx_mq_dequeue()	| ucx_timer_cancel()	|
+| ucx_task_suspend()	|			|			| ucx_pipe_read()	| ucx_mq_peek()		| 			|
+| ucx_task_resume()	|			|			| ucx_pipe_write()	| ucx_mq_items()	| 			|
+| ucx_task_priority()	|			| 			| ucx_pipe_nbread()	|			|			|
+| ucx_task_id()		|			| 			| ucx_pipe_nbwrite()	|			|			|
+| ucx_task_wfi()	|			|			| 			|			|			|
+| ucx_task_count()	|			|			| 			|			|			|
 
 
 #### Task
@@ -185,10 +185,6 @@ Pipes are basic character oriented communication channels between tasks. Pipes c
 #### Message Queue
 
 Message queues are simple message oriented communication channels between tasks. Message queues can be used to synchronize and pass simple (such as integers, strings) or structured  messages between tasks, and are implemented using non-blocking semantics.
-
-#### Event Queue
-
-Events are values or callback functions which are put in a queue for future execution. Events callbacks run only once, and must always return. The event API implements the publish/subscribe model, so an event can be delivered to multiple tasks. Events are a feature being developed and are not completely implemented yet.
 
 #### Timer
 

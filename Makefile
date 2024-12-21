@@ -52,7 +52,7 @@ ucx: incl hal libs ddrivers kernel
 	$(AR) $(ARFLAGS) $(BUILD_TARGET_DIR)/libucxos.a \
 		$(BUILD_KERNEL_DIR)/*.o
 
-kernel: timer.o event.o message.o pipe.o semaphore.o ecodes.o syscall.o corotine.o ucx.o main.o
+kernel: timer.o message.o pipe.o semaphore.o ecodes.o syscall.o corotine.o ucx.o main.o
 
 main.o: $(SRC_DIR)/init/main.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/init/main.c
@@ -70,8 +70,6 @@ pipe.o: $(SRC_DIR)/kernel/pipe.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/pipe.c
 message.o: $(SRC_DIR)/kernel/message.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/message.c
-event.o: $(SRC_DIR)/kernel/event.c
-	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/event.c
 timer.o: $(SRC_DIR)/kernel/timer.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/timer.c
 
@@ -137,10 +135,6 @@ driver: rebuild
 
 echo: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/echo.o app/echo.c
-	@$(MAKE) --no-print-directory link
-
-events: rebuild
-	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/events.o app/events.c
 	@$(MAKE) --no-print-directory link
 
 hello: rebuild
