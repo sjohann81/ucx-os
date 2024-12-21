@@ -1,4 +1,5 @@
 #include <ucx.h>
+#include <device.h>
 #include <spi_bitbang.h>
 
 /* GPIO template callbacks - port them! */
@@ -76,24 +77,25 @@ const struct device_s spi_device1 = {
 
 void task0(void)
 {
+	const struct device_s *spi1 = &spi_device1;
 	char buf[100];
 	int bytes;
 	
 	while (1) {
 		memset(buf, 0, sizeof(buf));
-		spi_open(&spi_device1, 0);
+		spi1->api->dev_open(spi1, 0);
 		
 		do {
-			bytes = spi_read(&spi_device1, buf, sizeof(buf));
+			bytes = spi1->api->dev_read(spi1, buf, sizeof(buf));
 		} while (bytes == 0);
 		printf("recv: %d %s\n", bytes, buf);
 		
 		strcat(buf, "hola");
 		do {
-			bytes = spi_write(&spi_device1, buf, strlen(buf) + 1);
+			bytes = spi1->api->dev_write(spi1, buf, strlen(buf) + 1);
 		} while (bytes == 0);
 
-		spi_close(&spi_device1);
+		spi1->api->dev_close(spi1);
 		
 		printf("%s\n", buf);
 	}
@@ -101,9 +103,11 @@ void task0(void)
 
 int32_t app_main(void)
 {
+	const struct device_s *spi1 = &spi_device1;
+	
 	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
 
-	spi_init(&spi_device1);
+	spi1->api->dev_init(spi1);
 
 	// start UCX/OS, preemptive mode
 	return 1;

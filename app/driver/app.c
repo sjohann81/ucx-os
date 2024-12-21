@@ -1,4 +1,5 @@
 #include <ucx.h>
+#include <device.h>
 #include "driver.h"
 
 struct my_data_s my_data1, my_data2;

@@ -1,3 +1,5 @@
+#include <hal.h>
+
 enum device_mode {O_RDONLY, O_WRONLY, O_RDWR};
 
 /* device data structure */

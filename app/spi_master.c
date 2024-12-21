@@ -1,4 +1,5 @@
 #include <ucx.h>
+#include <device.h>
 #include <spi_bitbang.h>
 
 /* GPIO template callbacks - port them! */
@@ -93,21 +94,22 @@ void idle(void)
 
 void task0(void)
 {
+	const struct device_s *spi1 = &spi_device1;
 	char *msg = "hello world!";
 	char buf[100];
 	int bytes;
 	
 	while (1) {
 		memset(buf, 0, sizeof(buf));
-		spi_open(&spi_device1, 0);
-		spi_write(&spi_device1, msg, strlen(msg) + 1);
-		spi_close(&spi_device1);
+		spi1->api->dev_open(spi1, 0);
+		spi1->api->dev_write(spi1, msg, strlen(msg) + 1);
+		spi1->api->dev_close(spi1);
 		
 		ucx_task_delay(10);
 		
-		spi_open(&spi_device1, 0);
-		bytes = spi_read(&spi_device1, buf, sizeof(buf));
-		spi_close(&spi_device1);
+		spi1->api->dev_open(spi1, 0);
+		bytes = spi1->api->dev_read(spi1, buf, sizeof(buf));
+		spi1->api->dev_close(spi1);
 		
 		if (bytes)
 			printf("%s\n", buf);
@@ -118,10 +120,12 @@ void task0(void)
 
 int32_t app_main(void)
 {
+	const struct device_s *spi1 = &spi_device1;
+	
 	ucx_task_spawn(idle, DEFAULT_STACK_SIZE);
 	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
 
-	spi_init(&spi_device1);
+	spi1->api->dev_init(spi1);
 
 	// start UCX/OS, preemptive mode
 	return 1;
