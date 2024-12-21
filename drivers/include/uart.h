@@ -8,8 +8,8 @@ size_t uart_write(const struct device_s *dev, void *buf, size_t count);
 
 /* UART configuration definitions */
 enum uart_config_values {
-	UARTPORT0, UARTPORT1, UARTPORT2, UARTPORT3,
-	UARTPORT4, UARTPORT5, UARTPORT6, UARTPORT7,
+	UART_PORT0, UART_PORT1, UART_PORT2, UART_PORT3,
+	UART_PORT4, UART_PORT5, UART_PORT6, UART_PORT7,
 	BAUD1200 = (0 << 4), BAUD2400 = (1 << 4), BAUD4800 = (2 << 4),
 	BAUD9600 = (3 << 4), BAUD19200 = (4 << 4), BAUD_38400 = (5 << 4),
 	BAUD57600 = (6 << 4), BAUD115200 = (7 << 4),
