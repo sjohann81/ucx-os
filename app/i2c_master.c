@@ -1,4 +1,5 @@
 #include <ucx.h>
+#include <device.h>
 #include <i2c_bitbang.h>
 
 /* GPIO template callbacks - port them! */
@@ -34,6 +35,7 @@ int gpio_sda(int val)
 	return 1;
 }
 
+/* I2C configuration */
 const struct i2c_config_s i2c_config = {
 	.sig_delay = 4,
 	.gpio_config = gpio_config,
@@ -50,8 +52,10 @@ const struct device_s i2c_device1 = {
 	.api = &i2c_api
 };
 
+const struct device_s *i2c1 = &i2c_device1;
 
-uint8_t i2c_eeprom_read(uint8_t device, uint16_t addr)
+/* application */
+void i2c_eeprom_bufread(uint8_t device, uint16_t addr, uint8_t *buf, uint8_t size)
 {
 	uint8_t byte = 0;
 	char data[3];
@@ -62,27 +66,48 @@ uint8_t i2c_eeprom_read(uint8_t device, uint16_t addr)
 	data[1] = (addr & 0x7f00) >> 8;
 	data[2] = addr & 0x00ff;
 
-	i2c_open(&i2c_device1, 0);
+	i2c1->api->dev_open(i2c1, 0);
 	
 	// select peripheral and write memory address
-	i2c_write(&i2c_device1, data, 3);
+	i2c1->api->dev_write(i2c1, data, 3);
 
 	byte = 0xA0 | ((device & 0x07) << 1) | 0x01;
 	data[0] = byte;
 	
 	// restart (write size zero)
-	i2c_write(&i2c_device1, data, 0);
+	i2c1->api->dev_write(i2c1, data, 0);
 	
 	// select peripheral for reading
-	i2c_write(&i2c_device1, data, 1);
+	i2c1->api->dev_write(i2c1, data, 1);
 	
 	// read data
-	i2c_read(&i2c_device1, data, 1);
-	byte = data[0];
+	i2c1->api->dev_read(i2c1, buf, size);
 	
-	i2c_close(&i2c_device1);
+	i2c1->api->dev_close(i2c1);
+}
 
-	return byte;
+void i2c_eeprom_pagewrite(uint8_t device, uint16_t addr, uint8_t *buf, uint8_t size)
+{
+	uint8_t byte = 0;
+	char data[35];
+
+	byte = 0xA0 | ((device & 0x07) << 1);
+
+	data[0] = byte;
+	data[1] = (addr & 0x7f00) >> 8;
+	data[2] = addr & 0x00ff;
+	if (size > 32) size = 32;
+	memcpy(data + 3, buf, size);
+
+	i2c1->api->dev_open(i2c1, 0);
+	
+	// select peripheral address (should be aligned to page boundary)
+	// and write data
+	i2c1->api->dev_write(i2c1, data, size + 3);
+
+	i2c1->api->dev_close(i2c1);
+	
+	_delay_ms(5);
 }
 
 void idle(void)
@@ -92,35 +117,15 @@ void idle(void)
 
 void task0(void)
 {
-	char *msg = "hello world!";
-	char buf[100];
-	int bytes;
+	uint8_t buf[100];
+	
+	memset(buf, 0x33, sizeof(buf));
+	i2c_eeprom_pagewrite(0x00, 0x1000, buf, 32);
 	
 	while (1) {
 		memset(buf, 0, sizeof(buf));
-		
-		// device address (write operation, LSB clear)
-		buf[0] = 0x50;
-		// payload
-		memcpy(&buf[1], msg, strlen(msg) + 1);
+		i2c_eeprom_bufread(0x00, 0x1000, buf, 40);
 
-		// a) write raw I2C data
-		i2c_open(&i2c_device1, 0);
-		i2c_write(&i2c_device1, buf, strlen(msg) + 1);
-		i2c_close(&i2c_device1);
-		
-		// b) read raw I2C data
-		i2c_open(&i2c_device1, 0);
-		// write device address (read operation, LSB set)
-		buf[0] = 0x51;
-		i2c_write(&i2c_device1, buf, 1);
-		// read data
-		bytes = i2c_read(&i2c_device1, buf, 10);
-		i2c_close(&i2c_device1);
-
-		// c) read EEPROM
-		i2c_eeprom_read(0x00, 0x1234);
-		
 		ucx_task_delay(500);
 	}
 }
@@ -130,7 +135,7 @@ int32_t app_main(void)
 	ucx_task_spawn(idle, DEFAULT_STACK_SIZE);
 	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
 
-	i2c_init(&i2c_device1);
+	i2c1->api->dev_init(i2c1);
 
 	// start UCX/OS, preemptive mode
 	return 1;
