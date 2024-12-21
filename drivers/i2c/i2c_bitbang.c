@@ -1,4 +1,5 @@
 #include <ucx.h>
+#include <device.h>
 #include <i2c_bitbang.h>
 
 /* I2C master (bit bang) API function wrappers */
@@ -262,13 +263,13 @@ static int i2c_driver_close(const struct device_s *dev)
 	if (!data->mutex)
 		return -1;
 
+	i2c_stop(dev);
+	_delay_us(config->sig_delay);
+
 	ucx_sem_wait(data->mutex);
 	data->busy = 0;
 	ucx_sem_signal(data->mutex);
 	
-	i2c_stop(dev);
-	_delay_us(config->sig_delay);
-
 	return 0;
 }
 
@@ -290,7 +291,8 @@ static size_t i2c_driver_read(const struct device_s *dev, void *buf, size_t coun
 	
 	for (i = 0; i < count; i++) {
 		if (val < 0) break;
-		val = i2c_read_byte(dev, 1);
+		// ack on all reads except the last one.
+		val = i < count - 1 ? i2c_read_byte(dev, 0) : i2c_read_byte(dev, 1);
 		p[i] = val;
 	}
 	NOSCHED_LEAVE();

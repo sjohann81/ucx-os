@@ -1,4 +1,5 @@
 #include <ucx.h>
+#include <device.h>
 #include <spi_bitbang.h>
 
 /* SPI (bit bang) API function wrappers */

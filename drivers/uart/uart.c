@@ -1,4 +1,5 @@
 #include <ucx.h>
+#include <device.h>
 #include <uart.h>
 
 /* UART API function wrappers */

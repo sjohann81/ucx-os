@@ -1,4 +1,5 @@
 #include <ucx.h>
+#include <device.h>
 #include <vt100.h>
 
 struct vt100_api_s {
