@@ -19,14 +19,14 @@ libc basic I/O support
 */
 static int __putchar(int value)		// polled putchar()
 {
-	uart_tx(USART_PORT, value);
+	usart_tx(USART_PORT, value);
 	
 	return value;
 }
 
 static int __kbhit(void)
 {
-	if (uart_rxsize(USART_PORT) > 0)
+	if (usart_rxsize(USART_PORT) > 0)
 		return 1;
 	else
 		return 0;
@@ -34,7 +34,7 @@ static int __kbhit(void)
 
 static int __getchar(void)			// polled getch()
 {
-	return uart_rx(USART_PORT);
+	return usart_rx(USART_PORT);
 }
 
 /* timer setup for delays */
@@ -485,7 +485,7 @@ void _hardware_init(void)
 	tim11_start();
 
 	/* configure USART */
-	uart_init(USART_PORT, USART_BAUD, 0);
+	usart_init(USART_PORT, USART_BAUD, 0);
 	
 	_stdout_install(__putchar);
 	_stdin_install(__getchar);
