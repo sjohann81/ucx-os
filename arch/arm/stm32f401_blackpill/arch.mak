@@ -1,6 +1,7 @@
 # this is stuff specific to this architecture
 ARCH_DIR = $(SRC_DIR)/arch/$(ARCH)
 INC_DIRS  = -I $(ARCH_DIR) \
+	-I $(ARCH_DIR)/drivers \
 	-I $(ARCH_DIR)/../../common \
 	-I $(ARCH_DIR)/../../common/stm32/cmsis/core \
 	-I $(ARCH_DIR)/../../common/stm32/cmsis/device \
@@ -44,6 +45,7 @@ hal:
 	$(CC) $(CFLAGS) \
 		$(ARCH_DIR)/hal.c \
 		$(ARCH_DIR)/usart.c \
+		$(ARCH_DIR)/drivers/stm32_i2c.c \
 		$(ARCH_DIR)/../../common/muldiv.c \
 		$(ARCH_DIR)/../../common/ieee754.c \
 		$(ARCH_DIR)/../../common/math.c \
