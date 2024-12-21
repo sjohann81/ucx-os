@@ -155,6 +155,10 @@ i2c_master: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/i2c_master.o app/i2c_master.c
 	@$(MAKE) --no-print-directory link
 	
+i2c_simple: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/i2c_simple.o app/i2c_simple.c
+	@$(MAKE) --no-print-directory link
+	
 messages: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/messages.o app/messages.c
 	@$(MAKE) --no-print-directory link
