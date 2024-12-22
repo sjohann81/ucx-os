@@ -8,21 +8,25 @@
 #include <console.h>
 #include <lib/libc.h>
 #include <kernel/kernel.h>
+#include <device.h>
+#include <uart.h>
 #include <usart.h>
 
 #define TIMER_CLK2		F_CPU / 1024
 #define IRQ_FREQ2		100					// irq frequency, in Hz
 
+const struct device_s *usart0 = &usart0_dev;
+
 static int __putchar(int value)		// polled putchar()
 {
-	usart_tx(value);
+	usart0->api->dev_write(usart0, &value, 1);
 	
 	return value;
 }
 
 static int __kbhit(void)
 {
-	if (usart_rxsize())
+	if (usart0->api->dev_read(usart0, 0, 0))
 		return 1;
 	else
 		return 0;
@@ -30,7 +34,11 @@ static int __kbhit(void)
 
 static int __getchar(void)			// polled getch()
 {
-	return usart_rx();
+	char buf[2];
+	
+	usart0->api->dev_read(usart0, buf, 1);
+	
+	return buf[0];
 }
 
 char _interrupt_set(char s)
@@ -83,7 +91,8 @@ void _hardware_init(void)
 	/* disable interrupts */
 	cli();
 	
-	usart_init(USART_BAUD, 1);
+	usart0->api->dev_init(usart0);
+	usart0->api->dev_open(usart0, 0);
 	
 	_stdout_install(__putchar);
 	_stdin_install(__getchar);
