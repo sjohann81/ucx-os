@@ -86,15 +86,17 @@ static int uart_driver_init(const struct device_s *dev)
 	
 	config = (struct uart_config_s *)dev->config;
 	data = (struct uart_data_s *)dev->data;
-
-	data->mutex = ucx_sem_create(10, 1);
 	data->busy = 0;
 	
-	if (!data->mutex)
-		return -1;
+	if (config->config_values.interrupt == INTENABLE) {
+		if (config->rx_buffer_size <= 32) {
+			static char uartbuf[32];
+			
+			data->rx_buffer = uartbuf;
+		} else {
+			data->rx_buffer = malloc(nextpowerof2(config->rx_buffer_size));
+		}
 
-	if (config->config_values.interrupt == INT_ENABLE) {
-		data->rx_buffer = malloc(nextpowerof2(config->rx_buffer_size));
 		data->rx_buffer_mask = nextpowerof2(config->rx_buffer_size) - 1;
 		data->put_fifo_cb = put_fifo;
 		data->get_fifo_cb = get_fifo;
@@ -117,13 +119,10 @@ static int uart_driver_deinit(const struct device_s *dev)
 	config = (struct uart_config_s *)dev->config;
 	data = (struct uart_data_s *)dev->data;
 	
-	if (!data->mutex)
-		return -1;
-	
-	ucx_sem_destroy(data->mutex);
+	if (config->config_values.interrupt == INTENABLE)
+		if (config->rx_buffer_size > 32)
+			free(data->rx_buffer);
 
-	if (config->config_values.interrupt == INT_ENABLE)
-		free(data->rx_buffer);
 	data->rx_buffer_mask = 0;
 	data->rx_head = data->rx_tail = data->rx_size = 0;
 	data->put_fifo_cb = 0;
@@ -139,15 +138,12 @@ static int uart_driver_open(const struct device_s *dev, int mode)
 	
 	data = (struct uart_data_s *)dev->data;
 	
-	if (!data->mutex)
-		return -1;
-
-	ucx_sem_wait(data->mutex);
+	CRITICAL_ENTER();
 	if (!data->busy)
 		data->busy = 1;
 	else
 		retval = -1;
-	ucx_sem_signal(data->mutex);
+	CRITICAL_LEAVE();
 	
 	return retval;
 }
@@ -158,12 +154,9 @@ static int uart_driver_close(const struct device_s *dev)
 	
 	data = (struct uart_data_s *)dev->data;
 	
-	if (!data->mutex)
-		return -1;
-
-	ucx_sem_wait(data->mutex);
+	CRITICAL_ENTER();
 	data->busy = 0;
-	ucx_sem_signal(data->mutex);
+	CRITICAL_LEAVE();
 
 	return 0;
 }
@@ -179,20 +172,17 @@ static size_t uart_driver_read(const struct device_s *dev, void *buf, size_t cou
 	data = (struct uart_data_s *)dev->data;
 	p = (char *)buf;
 	
-	if (!data->mutex)
-		return -1;
-	
-	if (config->config_values.interrupt == INT_ENABLE) {
+	if (config->config_values.interrupt == INTENABLE) {
 		if (count == 0)
 			return data->rx_size;
 			
 		for (i = 0; i < count; i++) {
-			if (data->rx_size == 0) break;
+			while (data->rx_size == 0);
 			p[i] = get_fifo(data);
 		}
 	} else {
 		if (count == 0)
-			return config->uart_rxsize();
+			return config->uart_poll();
 			
 		for (i = 0; i < count; i++) {
 			val = config->uart_rx();
@@ -207,17 +197,12 @@ static size_t uart_driver_read(const struct device_s *dev, void *buf, size_t cou
 static size_t uart_driver_write(const struct device_s *dev, void *buf, size_t count)
 {
 	struct uart_config_s *config;
-	struct uart_data_s *data;
 	char *p;
 	int i, val = 0;
 	
 	config = (struct uart_config_s *)dev->config;
-	data = (struct uart_data_s *)dev->data;
 	p = (char *)buf;
 	
-	if (!data->mutex)
-		return -1;
-		
 	for (i = 0; i < count; i++) {
 		val = config->uart_tx(p[i]);
 		if (val < 0) break;
