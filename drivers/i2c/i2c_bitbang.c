@@ -52,7 +52,7 @@ static int i2c_start(const struct device_s *dev)
 	return 0;
 }
 
-static int i2c_restart(const struct device_s *dev)
+static int i2c_restart(const struct device_s *dev, char cs)
 {
 	struct i2c_config_s *config;
 	
@@ -63,7 +63,8 @@ static int i2c_restart(const struct device_s *dev)
 	config->gpio_scl(1);
 	
 	// clock stretching
-	while (config->gpio_scl(-1) == 0);
+	if (cs)
+		while (config->gpio_scl(-1) == 0);
 	_delay_us(config->sig_delay);
 	
 	// lost bus arbitration
@@ -78,7 +79,7 @@ static int i2c_restart(const struct device_s *dev)
 	return 0;
 }
 
-static int i2c_stop(const struct device_s *dev)
+static int i2c_stop(const struct device_s *dev, char cs)
 {
 	struct i2c_config_s *config;
 	
@@ -89,7 +90,8 @@ static int i2c_stop(const struct device_s *dev)
 	config->gpio_scl(1);
 	
 	// clock stretching
-	while (config->gpio_scl(-1) == 0);
+	if (cs)
+		while (config->gpio_scl(-1) == 0);
 	_delay_us(config->sig_delay);
 	
 	config->gpio_sda(1);
@@ -102,7 +104,7 @@ static int i2c_stop(const struct device_s *dev)
 	return 0;
 }	
 
-static int i2c_write_bit(const struct device_s *dev, char bit)
+static int i2c_write_bit(const struct device_s *dev, char bit, char cs)
 {
 	struct i2c_config_s *config;
 	
@@ -114,7 +116,8 @@ static int i2c_write_bit(const struct device_s *dev, char bit)
 	_delay_us(config->sig_delay);
 	
 	// clock stretching
-	while (config->gpio_scl(-1) == 0);
+	if (cs)
+		while (config->gpio_scl(-1) == 0);
 	
 	// arbitration lost
 	if (bit && config->gpio_sda(-1) == 0)
@@ -125,7 +128,7 @@ static int i2c_write_bit(const struct device_s *dev, char bit)
 	return 0;
 }
 
-static int i2c_read_bit(const struct device_s *dev)
+static int i2c_read_bit(const struct device_s *dev, char cs)
 {
 	char bit;
   	struct i2c_config_s *config;
@@ -137,7 +140,8 @@ static int i2c_read_bit(const struct device_s *dev)
 	config->gpio_scl(1);
 	
 	// clock stretching
-	while (config->gpio_scl(-1) == 0);
+	if (cs)
+		while (config->gpio_scl(-1) == 0);
 	_delay_us(config->sig_delay);
 	
 	bit = config->gpio_sda(-1);
@@ -153,14 +157,14 @@ static int i2c_write_byte(const struct device_s *dev, unsigned char byte)
 	int val;
 
 	for (bit = 0; bit < 8; ++bit) {
-		val = i2c_write_bit(dev, (byte & 0x80));
+		val = i2c_write_bit(dev, (byte & 0x80), 1);
 		if (val < 0)
 			return val;
 			
 		byte <<= 1;
 	}
 
-	val = i2c_read_bit(dev);
+	val = i2c_read_bit(dev, 1);
 
 	return val;
 }
@@ -172,19 +176,34 @@ static unsigned char i2c_read_byte(const struct device_s *dev, char nack)
 	int val;
 
 	for (bit = 0; bit < 8; ++bit) {
-		val = i2c_read_bit(dev);
+		val = i2c_read_bit(dev, 1);
 		if (val < 0)
 			return val;
 		
 		byte = (byte << 1) | val;
 	}
 
-	val = i2c_write_bit(dev, nack);
+	val = i2c_write_bit(dev, nack, 1);
 	
 	if (val < 0)
 		return val;
 
 	return byte;
+}
+
+static void i2c_reset_bus(const struct device_s *dev)
+{
+	int i;
+
+	i2c_start(dev);
+	
+	for (i = 0; i < 9; i++)
+		i2c_write_bit(dev, 1, 0);
+	
+	i2c_restart(dev, 0);
+	i2c_stop(dev, 0);
+	
+	_delay_us(100);
 }
 
 /* I2C master (bit bang) device driver implementation */
@@ -245,6 +264,9 @@ static int i2c_driver_open(const struct device_s *dev, int mode)
 		retval = -1;
 	ucx_sem_signal(data->mutex);
 	
+	if (mode)
+		i2c_reset_bus(dev);
+	
 	val = i2c_start(dev);
 	if (val < 0)
 		retval = -1;
@@ -263,7 +285,7 @@ static int i2c_driver_close(const struct device_s *dev)
 	if (!data->mutex)
 		return -1;
 
-	i2c_stop(dev);
+	i2c_stop(dev, 1);
 	_delay_us(config->sig_delay);
 
 	ucx_sem_wait(data->mutex);
@@ -287,7 +309,7 @@ static size_t i2c_driver_read(const struct device_s *dev, void *buf, size_t coun
 
 	NOSCHED_ENTER();
 	if (!count)
-		val = i2c_restart(dev);
+		val = i2c_restart(dev, 1);
 	
 	for (i = 0; i < count; i++) {
 		if (val < 0) break;
@@ -314,7 +336,7 @@ static size_t i2c_driver_write(const struct device_s *dev, void *buf, size_t cou
 		
 	NOSCHED_ENTER();
 	if (!count)
-		val = i2c_restart(dev);
+		val = i2c_restart(dev, 1);
 	
 	for (i = 0; i < count; i++) {
 		if (val < 0) break;
