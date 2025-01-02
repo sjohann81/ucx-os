@@ -1,5 +1,6 @@
-void usart_init(uint32_t baud, uint8_t polled);
-void usart_flush(void);
-uint16_t usart_rxsize(void);
-void usart_tx(uint8_t data);
-uint8_t usart_rx(void);
+extern const struct device_s usart0_dev;
+
+int usart0_config(struct uart_config_values_s *config);
+int usart0_poll(void);
+int usart0_tx(int val);
+int usart0_rx(void);
