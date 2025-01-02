@@ -78,4 +78,4 @@ void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra);
 
 void krnl_dispatcher(void);
 
-#define DEFAULT_STACK_SIZE	256
+#define DEFAULT_STACK_SIZE	192
