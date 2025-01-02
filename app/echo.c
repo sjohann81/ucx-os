@@ -4,7 +4,7 @@ struct pipe_s *pipe;
 
 void task1(void)
 {
-	char buf[128];
+	char buf[64];
 	
 	while (1) {
 		memset(buf, 0, sizeof(buf));
@@ -17,7 +17,7 @@ void task1(void)
 
 void task0(void)
 {
-	char buf[128];
+	char buf[64];
 	
 	while (1) {
 		printf("[task A] Type a message: \n");
