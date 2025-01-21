@@ -217,8 +217,12 @@ timer: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/timer.o app/timer.c
 	@$(MAKE) --no-print-directory link
 	
-timer2: rebuild
-	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/timer2.o app/timer2.c
+timer_systick: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/timer_systick.o app/timer_systick.c
+	@$(MAKE) --no-print-directory link
+
+timer_uptime: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/timer_uptime.o app/timer_uptime.c
 	@$(MAKE) --no-print-directory link
 
 timer_kill: rebuild
