@@ -17,7 +17,7 @@ void timer1(void)
 		printf("TIMER 1 (");
 		print_time();
 		printf(")\n");
-		ucx_task_delay(100);
+		ucx_task_delay(MS_TO_TICKS(1000));
 	}
 }
 
@@ -27,7 +27,7 @@ void timer2(void)
 		printf("TIMER 2 (");
 		print_time();
 		printf(")\n");
-		ucx_task_delay(300);
+		ucx_task_delay(MS_TO_TICKS(3000));
 	}
 }
 
@@ -37,7 +37,7 @@ void timer3(void)
 		printf("TIMER 3 (");
 		print_time();
 		printf(")\n");
-		ucx_task_delay(50);
+		ucx_task_delay(MS_TO_TICKS(500));
 	}
 }
 

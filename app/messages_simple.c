@@ -35,7 +35,7 @@ void task1(void)
 		pmsg->type = TYPE_FLOAT;
 		ucx_mq_enqueue(mq2, pmsg);
 		
-		ucx_task_delay(100);
+		ucx_task_delay(10);
 	}
 }
 
