@@ -29,36 +29,36 @@ SECTIONS
 	} > ram
 	
 	.rodata : {
-		. = ALIGN(4);
+		. = ALIGN(16);
 		_rodata = .;
 		*(.rdata)
 		*(.rodata)
 		*(.rodata*)
-		. = ALIGN(4);
+		. = ALIGN(16);
 		_erodata = .;
 	} > ram
 
 	.data : {
-		. = ALIGN(4);
+		. = ALIGN(16);
 		_data = .;
 		*(.data)
 		*(.data*)
 		_gp = . + 0x800;
 		*(.sdata)
 		*(.sdata.*)
-		. = ALIGN(4);
+		. = ALIGN(16);
 		_edata = .;
 	} > ram
 	
 	.bss : {
-		. = ALIGN(4);
+		. = ALIGN(16);
 		_sbss = .;
 		*(.sbss)
 		*(.sbss.*)
 		*(.bss)
 		*(.bss*)
 		*(COMMON)
-		. = ALIGN(4);
+		. = ALIGN(16);
 		_ebss = .;
 	} > ram
 	

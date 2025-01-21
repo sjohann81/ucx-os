@@ -7,7 +7,10 @@
 #include <hal.h>
 #include <console.h>
 #include <lib/libc.h>
+#include <lib/list.h>
 #include <kernel/kernel.h>
+#include <kernel/ecodes.h>
+#include <riscv.h>
 
 /* hardware platform dependent stuff */
 static int __putchar(int value)		// polled putchar()
@@ -101,9 +104,16 @@ void _cpu_idle(void)
 	asm volatile ("wfi");
 }
 
-void _irq_handler(uint32_t cause, uint32_t *stack)
+void _panic(void)
 {
-	uint32_t val;
+	volatile int * const exit_device = (int* const)0x100000;
+	*exit_device = 0x5555;
+	while (1);
+}
+
+void _irq_handler(uint64_t cause, uint64_t epc)
+{
+	uint64_t val;
 	
 	val = read_csr(mcause);
 	if (mtime_r() > mtimecmp_r()) {
@@ -111,7 +121,7 @@ void _irq_handler(uint32_t cause, uint32_t *stack)
 		krnl_dispatcher();
 	} else {
 		printf("[%x]\n", val);
-//		for (;;);
+		_panic();
 	}
 
 }
@@ -123,13 +133,9 @@ uint32_t _readcounter(void)
 
 uint64_t _read_us(void)
 {
-	static uint64_t timeref = 0;
-	static uint32_t tval2 = 0, tref = 0;
+	uint64_t timeref;
 
-	if (tref == 0) _readcounter();
-	if (_readcounter() < tref) tval2++;
-	tref = _readcounter();
-	timeref = ((uint64_t)tval2 << 32) + (uint64_t)_readcounter();
+	timeref = (uint64_t)MTIME_H << 32 | (uint64_t)MTIME_L;
 
 	return (timeref / (F_CPU / 1000000));
 }
@@ -154,17 +160,9 @@ void mtimecmp_w(uint64_t val)
 	MTIMECMP = val;
 }
 
-void _panic(void)
-{
-	volatile int * const exit_device = (int* const)0x100000;
-	*exit_device = 0x5555;
-	while (1);
-}
-
 void _hardware_init(void)
 {
 	uart_init(USART_BAUD);
-	mtimecmp_w(mtime_r() + (F_CPU / F_TIMER));
 
 	_stdout_install(__putchar);
 	_stdin_install(__getchar);
@@ -173,26 +171,51 @@ void _hardware_init(void)
 
 void _timer_enable(void)
 {
-	asm volatile ("csrs mstatus, 8");
+	uint64_t mie;
+	
+	mie = r_mie();
+	mie |= 0x80;
+	w_mie(mie);
 }
 
 void _timer_disable(void)
 {
-	asm volatile ("csrc mstatus, 8");
+	uint64_t mie;
+	
+	mie = r_mie();
+	mie &= ~0x80;
+	w_mie(mie);
 }
 
 void _interrupt_tick(void)
 {
-	_ei();
+	struct tcb_s *task = kcb->task_current->data;
+	
+	/* task is run for the first time */
+	if ((uint64_t)task->task == task->context[CONTEXT_RA])
+		_ei();
 }
 
 extern void __dispatch_init(void);
 
 void _dispatch_init(jmp_buf env)
 {
-	if ((kcb->preemptive == 'y'))
-		_timer_enable();
+	uint64_t mip;
 	
+	if (kcb->preemptive == 'y') {
+		/* clear pending timer interrupts */
+		mip = r_mip();
+		mip &= ~0x80;
+		w_mip(mip);
+		
+		/* set timer to the future */
+		mtimecmp_w(mtime_r() + (F_CPU / F_TIMER));
+		
+		/* enable timer interrupts */
+		_timer_enable();
+	}
+	
+	_ei();
 	__dispatch_init();
 }
 
