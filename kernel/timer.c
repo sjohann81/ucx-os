@@ -10,9 +10,10 @@
  * 		- if TIMER_AUTORELOAD, reset countdown
  * 		- if TIMER_ONESHOT, set TIMER_DISABLED
  * - yield
+ * two implementations: based on systick and based on system uptime
  */
 
-static struct node_s *timer_update(struct node_s *node, void *arg)
+static struct node_s *timer_update_systick(struct node_s *node, void *arg)
 {
 	struct timer_s *timer = node->data;
 	uint32_t tick_diff = (size_t)arg;
@@ -36,12 +37,32 @@ static struct node_s *timer_update(struct node_s *node, void *arg)
 	return 0;
 }
 
+static struct node_s *timer_update(struct node_s *node, void *arg)
+{
+	struct timer_s *timer = node->data;
+	uint64_t time = (size_t)arg;
+
+	if (timer->mode == TIMER_DISABLED)
+		return 0;
+	
+	if (time > timer->timecmp) {
+		timer->timer_cb(arg);
+		if (timer->mode == TIMER_AUTORELOAD)
+			timer->timecmp += timer->time;
+		else
+			timer->mode = TIMER_DISABLED;
+	}
+	
+	return 0;
+}
+
 
 /* 
  * timer task	-> manages the timer dlist and callbacks. calls timer_handler()
+ * two implementations: based on systick and based on system uptime
  */
 
-void timer_handler()
+void timer_handler_systick()
 {
 	static uint32_t last_tick;
 	uint32_t tick_diff;
@@ -55,11 +76,22 @@ void timer_handler()
 	if (kcb->ticks != last_tick) {
 		tick_diff = kcb->ticks - last_tick;
 		last_tick = kcb->ticks;
-		list_foreach(kcb->timer_lst, timer_update, (void *)(size_t)tick_diff);
+		list_foreach(kcb->timer_lst, timer_update_systick, (void *)(size_t)tick_diff);
 	}
 	
 	ucx_task_yield();
 }
+
+void timer_handler()
+{
+	uint64_t time;
+	
+	time = ucx_uptime();
+	list_foreach(kcb->timer_lst, timer_update, (void *)(size_t)time);
+	
+	ucx_task_yield();
+}
+
 
 /*
  * creates a new timer
@@ -93,6 +125,7 @@ int32_t ucx_timer_create(void *(*timer_cb)(void *arg), uint32_t time)
 	timer->timer_cb = timer_cb;
 	timer->time = time;
 	timer->countdown = time;
+	timer->timecmp = 0;
 	timer->mode = TIMER_DISABLED;
 	
 	return timer->timer_id;
@@ -138,7 +171,7 @@ int32_t ucx_timer_destroy(uint16_t timer_id)
 
 /*
  * starts a timer countdown
- * - sets countdown to time and set timer mode
+ * - sets timer compare and set timer mode
  * - return ERR_OK or error
  */
 int32_t ucx_timer_start(uint16_t timer_id, uint8_t mode)
@@ -155,6 +188,7 @@ int32_t ucx_timer_start(uint16_t timer_id, uint8_t mode)
 	
 	timer = node->data;
 	timer->countdown = timer->time;
+	timer->timecmp = ucx_uptime() + timer->time;
 	timer->mode = mode;
 	
 	return ERR_OK;

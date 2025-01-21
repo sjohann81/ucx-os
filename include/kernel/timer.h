@@ -5,10 +5,12 @@ struct timer_s {
 	void *(*timer_cb)(void *arg);
 	uint32_t time;
 	uint32_t countdown;
+	uint64_t timecmp;
 	uint8_t mode;
 };
 
 void timer_handler();
+void timer_handler_systick();
 int32_t ucx_timer_create(void *(*timer_cb)(void *arg), uint32_t time);
 int32_t ucx_timer_destroy(uint16_t timer_id);
 int32_t ucx_timer_start(uint16_t timer_id, uint8_t mode);

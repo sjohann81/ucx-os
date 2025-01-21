@@ -159,8 +159,8 @@ void dispatch(void)
 		list_foreach(kcb->tasks, delay_update, (void *)0);
 		if (kcb->rt_sched() < 0)
 			krnl_schedule();
-		_interrupt_tick();
 		task = kcb->task_current->data;
+		_interrupt_tick();
 		longjmp(task->context, 1);
 	}
 }
