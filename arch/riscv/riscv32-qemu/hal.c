@@ -7,6 +7,7 @@
 #include <hal.h>
 #include <console.h>
 #include <lib/libc.h>
+#include <lib/list.h>
 #include <kernel/kernel.h>
 
 /* hardware platform dependent stuff */
@@ -101,7 +102,14 @@ void _cpu_idle(void)
 	asm volatile ("wfi");
 }
 
-void _irq_handler(uint32_t cause, uint32_t *stack)
+void _panic(void)
+{
+	volatile int * const exit_device = (int* const)0x100000;
+	*exit_device = 0x5555;
+	while (1);
+}
+
+void _irq_handler(uint32_t cause, uint32_t epc)
 {
 	uint32_t val;
 	
@@ -111,7 +119,7 @@ void _irq_handler(uint32_t cause, uint32_t *stack)
 		krnl_dispatcher();
 	} else {
 		printf("[%x]\n", val);
-//		for (;;);
+		_panic();
 	}
 
 }
@@ -172,13 +180,6 @@ void mtimecmp_w(uint64_t val)
 	MTIMECMP_L = (uint32_t)(val & 0xffffffff);
 }
 
-void _panic(void)
-{
-	volatile int * const exit_device = (int* const)0x100000;
-	*exit_device = 0x5555;
-	while (1);
-}
-
 void _hardware_init(void)
 {
 	uart_init(USART_BAUD);
@@ -201,14 +202,18 @@ void _timer_disable(void)
 
 void _interrupt_tick(void)
 {
-	_ei();
+	struct tcb_s *task = kcb->task_current->data;
+	
+	/* task is run for the first time */
+	if ((uint32_t)task->task == task->context[CONTEXT_RA])
+		_ei();
 }
 
 extern void __dispatch_init(void);
 
 void _dispatch_init(jmp_buf env)
 {
-	if ((kcb->preemptive == 'y'))
+	if (kcb->preemptive == 'y')
 		_timer_enable();
 	
 	__dispatch_init();

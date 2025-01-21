@@ -1,12 +1,6 @@
 	.global _entry
 	.section .text.prologue
 _entry:
-	# stop all harts (except 0)
-	csrr	t0, mhartid
-	beq	zero, t0, _boothart0
-	wfi
-	
-_boothart0:
 	la	a3, _sbss
 	la	a2, _ebss
 	la	gp, _gp
@@ -21,16 +15,24 @@ BSS_CLEAR:
 	blt	a3, a2, BSS_CLEAR
 
 	# configure system status and clear interrupts
-	csrw	mstatus, zero
+	li	t0, 0x1800
+	csrw	mstatus, t0		# set MPP to machine mode
+	csrw	mie, zero		# clear interrupts
 	csrw	mip, zero
 
 	# disable S-Mode interrupt and exec handling
 	csrw	mideleg, zero
 	csrw	medeleg, zero
 
-	# enable MEI when unmasked (if MIE=1)
+	# enable MIE for external interrupts
 	li	t0, 0x800
 	csrw	mie, t0
+
+	# stop all harts (except 0)
+	csrr	t0, mhartid
+	beq	zero, t0, _boothart0
+	wfi
+_boothart0:
 
 	# setup trap vector
 	la	t0, _isr
@@ -115,6 +117,12 @@ setjmp:
 	sw    tp, 52(a0)
 	sw    sp, 56(a0)
 	sw    ra, 60(a0)
+	
+	csrr    tp, mcause
+	sw	tp, 64(a0)
+	csrr    tp, mepc
+	sw	tp, 68(a0)
+	
 	ori   a0, zero, 0
 	ret
 
@@ -136,6 +144,12 @@ longjmp:
 	lw    tp, 52(a0)
 	lw    sp, 56(a0)
 	lw    ra, 60(a0)
+	
+	lw	tp, 64(a0)
+	csrw	mepc, tp
+	lw	tp, 68(a0)
+	csrw	mcause, tp	
+
 	ori   a0, a1, 0
 	ret
 
