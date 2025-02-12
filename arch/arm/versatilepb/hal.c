@@ -68,6 +68,21 @@ static int __getchar(void)			// polled getch()
 	return UART0DR;
 }
 
+int32_t _interrupt_set(int32_t s)
+{
+	static char int_status = 1;
+	
+	if (s) {
+		int_status = 1;
+		_timer_enable();
+	} else {
+		int_status = 0;
+		_timer_disable();
+	}
+
+	return int_status;
+}
+
 static void uart_init(uint32_t baud)
 {
 }
@@ -185,7 +200,7 @@ extern void __dispatch_init(void);
 
 void _dispatch_init(jmp_buf env)
 {
-	if ((kcb->preemptive == 'y'))
+	if (kcb->preemptive == 'y')
 		_timer_enable();
 	
 	__dispatch_init();

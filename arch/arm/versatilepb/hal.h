@@ -32,6 +32,8 @@ extern uint32_t _end;			/* Start address of the heap memory, defined in linker s
 
 /* disable interrupts, return previous int status / enable interrupts */
 #define IRQ_FLAG			0x80
+#define _di()				_interrupt_set(0)
+#define _ei()				_interrupt_set(1)
 
 /* peripherals */
 
@@ -137,9 +139,7 @@ https://github.com/Luminger/Alice-1121-Modem/blob/master/kernel/linux/include/as
 
 typedef uint32_t jmp_buf[20];
 
-void _enable_interrupts(void);
-void _ei(void);
-void _di(void);
+int32_t _interrupt_set(int32_t s);
 int32_t setjmp(jmp_buf env);
 void longjmp(jmp_buf env, int32_t val);
 void _dispatch_init(jmp_buf env);

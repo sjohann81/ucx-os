@@ -54,7 +54,7 @@ _enable_interrupts:
 	msr	cpsr_c, r0
 	mov	pc, lr
 
-	.global _di	
+/*	.global _di	
 _di:
 	mrs	r0, cpsr
 	mov	r1, r0
@@ -68,6 +68,7 @@ _ei:
 	bic	r0, r1, r0
 	msr	cpsr, r0
 	mov	pc, lr
+*/
 
 	.global setjmp
 setjmp:
