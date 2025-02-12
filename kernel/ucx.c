@@ -59,6 +59,16 @@ static struct node_s *idcmp(struct node_s *node, void *arg)
 		return 0;
 }
 
+static struct node_s *refcmp(struct node_s *node, void *arg)
+{
+	struct tcb_s *task = node->data;
+	
+	if (task->task == arg)
+		return node;
+	else
+		return 0;
+}
+
 void krnl_panic(uint32_t ecode)
 {
 	int err;
@@ -372,6 +382,26 @@ uint16_t ucx_task_id()
 	struct tcb_s *task = kcb->task_current->data;
 	
 	return task->id;
+}
+
+int32_t ucx_task_idref(void *task)
+{
+	struct node_s *node;
+	struct tcb_s *task_tcb;
+
+	CRITICAL_ENTER();
+	node = list_foreach(kcb->tasks, refcmp, task);
+	
+	if (!node) {
+		CRITICAL_LEAVE();
+		
+		return ERR_TASK_NOT_FOUND;
+	}
+	
+	task_tcb = node->data;
+	CRITICAL_LEAVE();
+	
+	return task_tcb->id;	
 }
 
 void ucx_task_wfi()

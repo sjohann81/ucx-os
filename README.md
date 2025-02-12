@@ -98,6 +98,7 @@ System calls are divided in three classes. The *task* class of system calls are 
 | ucx_task_resume()	|			|			| ucx_pipe_write()	| ucx_mq_items()	| 			|
 | ucx_task_priority()	|			| 			| ucx_pipe_nbread()	|			|			|
 | ucx_task_id()		|			| 			| ucx_pipe_nbwrite()	|			|			|
+| ucx_task_refid()	|			| 			| 			|			|			|
 | ucx_task_wfi()	|			|			| 			|			|			|
 | ucx_task_count()	|			|			| 			|			|			|
 
@@ -137,6 +138,10 @@ Tasks are the basic scheduling resource. An application in UCX/OS is composed of
 ##### ucx_task_id()
 
 - Returns the current task id number.
+
+##### ucx_task_idref()
+
+- Returns the task id of the referenced task pointer.
 
 ##### ucx_task_wfi()
 
