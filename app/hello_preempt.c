@@ -41,6 +41,10 @@ int32_t app_main(void)
 	ucx_task_spawn(task2, DEFAULT_STACK_SIZE);
 	
 	ucx_task_priority(2, TASK_LOW_PRIO);
+	
+	printf("task0 has id %d\n", ucx_task_idref(task0));
+	printf("task1 has id %d\n", ucx_task_idref(task1));
+	printf("task2 has id %d\n", ucx_task_idref(task2));
 
 	// start UCX/OS, preemptive mode
 	return 1;
