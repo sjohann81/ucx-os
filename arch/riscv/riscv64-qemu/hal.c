@@ -162,6 +162,7 @@ void mtimecmp_w(uint64_t val)
 
 void _hardware_init(void)
 {
+	_di();
 	uart_init(USART_BAUD);
 
 	_stdout_install(__putchar);

@@ -24,10 +24,6 @@ BSS_CLEAR:
 	csrw	mideleg, zero
 	csrw	medeleg, zero
 
-	# enable MIE for external interrupts
-	li	t0, 0x800
-	csrw	mie, t0
-
 	# stop all harts (except 0)
 	csrr	t0, mhartid
 	beq	zero, t0, _boothart0
@@ -37,6 +33,10 @@ _boothart0:
 	# setup trap vector
 	la	t0, _isr
 	csrw	mtvec, t0
+
+	# enable MIE for external interrupts
+	li	t0, 0x800
+	csrw	mie, t0
 
 	# jump to main
 	jal	ra, main
@@ -171,8 +171,8 @@ __dispatch_init:
 	ld    tp, 104(a0)
 	ld    sp, 112(a0)
 	ld    ra, 120(a0)
-	addi  a5, zero, 128
-	csrw  mie, a5
+#	addi  a5, zero, 128
+#	csrw  mie, a5
 	ret
 
 	.text

@@ -192,12 +192,20 @@ void _hardware_init(void)
 
 void _timer_enable(void)
 {
-	asm volatile ("csrs mstatus, 8");
+	uint32_t csr;
+	
+	csr = read_csr(mie);
+	csr |= 0x80;
+	write_csr(mie, csr);
 }
 
 void _timer_disable(void)
 {
-	asm volatile ("csrc mstatus, 8");
+	uint32_t csr;
+	
+	csr = read_csr(mie);
+	csr &= ~0x80;
+	write_csr(mie, csr);
 }
 
 void _interrupt_tick(void)
@@ -216,6 +224,7 @@ void _dispatch_init(jmp_buf env)
 	if (kcb->preemptive == 'y')
 		_timer_enable();
 	
+	_ei();
 	__dispatch_init();
 }
 
