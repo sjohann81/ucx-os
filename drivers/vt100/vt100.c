@@ -2,15 +2,6 @@
 #include <device.h>
 #include <vt100.h>
 
-struct vt100_api_s {
-	int (*term)(const struct device_s *dev, uint8_t cmd);
-	int (*textattr)(const struct device_s *dev, uint8_t attr);
-	int (*cursor)(const struct device_s *dev, uint8_t cmd);
-	int (*cursormove)(const struct device_s *dev, uint8_t cmd, uint8_t cnt);
-	int (*cursorpos)(const struct device_s *dev, uint8_t lin, uint8_t col);
-	int (*scrollrows)(const struct device_s *dev, uint8_t rstart, uint8_t rend);
-	int (*edit)(const struct device_s *dev, uint8_t cmd);
-};
 
 /* vt100 terminal device API function wrappers */
 int vt100_term(const struct device_s *dev, uint8_t cmd)
