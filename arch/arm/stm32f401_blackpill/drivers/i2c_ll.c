@@ -4,7 +4,7 @@
 #include <hal.h>
 #include <device.h>
 #include <i2c.h>
-#include <stm32_i2c.h>
+#include <i2c_ll.h>
 
 #define I2C_TO_US	50000
 

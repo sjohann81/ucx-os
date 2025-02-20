@@ -45,7 +45,7 @@ hal:
 	$(CC) $(CFLAGS) \
 		$(ARCH_DIR)/hal.c \
 		$(ARCH_DIR)/usart.c \
-		$(ARCH_DIR)/drivers/stm32_i2c.c \
+		$(ARCH_DIR)/drivers/i2c_ll.c \
 		$(ARCH_DIR)/../../common/muldiv.c \
 		$(ARCH_DIR)/../../common/ieee754.c \
 		$(ARCH_DIR)/../../common/math.c \

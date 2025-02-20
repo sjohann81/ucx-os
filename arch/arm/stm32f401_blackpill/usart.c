@@ -98,7 +98,8 @@ void USART6_IRQHandler(void)
 
 /* USART application API */
 
-int16_t usart_init(uint8_t port, uint32_t baud, uint8_t polled){
+int16_t usart_init(uint8_t port, uint32_t baud, uint8_t polled)
+{
 	GPIO_InitTypeDef GPIO_InitStruct;
 	USART_InitTypeDef USART_InitStruct;
 	NVIC_InitTypeDef NVIC_InitStructure;

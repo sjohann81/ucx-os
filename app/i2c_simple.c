@@ -1,7 +1,7 @@
 #include <ucx.h>
 #include <device.h>
 #include <i2c.h>
-#include <stm32_i2c.h>
+#include <i2c_ll.h>
 
 /* I2C configuration */
 const struct i2c_hw_config_s i2c_config = {
