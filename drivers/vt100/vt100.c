@@ -186,6 +186,7 @@ static int driver_edit(const struct device_s *dev, uint8_t cmd)
 	return retval;
 }
 
+
 struct vt100_api_s vt100_api = {
 	.term = driver_term,
 	.textattr = driver_textattr,
@@ -194,4 +195,26 @@ struct vt100_api_s vt100_api = {
 	.cursorpos = driver_cursorpos,
 	.scrollrows = driver_scrollrows,
 	.edit = driver_edit
+};
+
+
+/* vt100 device driver implementation, generic interface via dev_ioctl() */
+static int driver_ioctl(const struct device_s *dev, unsigned int req, uint8_t a0, uint8_t a1)
+{
+	switch (req) {
+	case TERM: 		return driver_term(dev, a0);
+	case TEXTATTR:		return driver_textattr(dev, a0);
+	case CURSOR:		return driver_cursor(dev, a0);
+	case CURSORMOVE:	return driver_cursormove(dev, a0, a1);
+	case CURSORPOS:		return driver_cursorpos(dev, a0, a1);
+	case SCROLLROWS:	return driver_scrollrows(dev, a0, a1);
+	case EDIT:		return driver_edit(dev, a0);
+	default:
+		return -1;
+	}
+}
+
+
+struct device_api_s vt100_api_generic = {
+	.dev_ioctl = driver_ioctl
 };

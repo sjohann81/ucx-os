@@ -7,6 +7,8 @@ int vt100_cursorpos(const struct device_s *dev, uint8_t lin, uint8_t col);
 int vt100_scrollrows(const struct device_s *dev, uint8_t rstart, uint8_t rend);
 int vt100_edit(const struct device_s *dev, uint8_t cmd);
 
+enum vt100_ioctl_code {TERM, TEXTATTR, CURSOR, CURSORMOVE, CURSORPOS, SCROLLROWS, EDIT};
+
 /* vt100 terminal device interface */
 struct vt100_api_s {
 	int (*term)(const struct device_s *dev, uint8_t cmd);
@@ -19,6 +21,7 @@ struct vt100_api_s {
 };
 
 extern struct vt100_api_s vt100_api;
+extern struct device_api_s vt100_api_generic;
 
 enum terminal_cmd {
 	TERM_RESET,
