@@ -236,6 +236,10 @@ scall_suspend: rebuild
 vt100_term: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/vt100_term.o app/vt100_term.c
 	@$(MAKE) --no-print-directory link
+	
+vt100_term_ioctl: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/vt100_term_ioctl.o app/vt100_term_ioctl.c
+	@$(MAKE) --no-print-directory link
 
 # clean and rebuild rules
 rebuild:
