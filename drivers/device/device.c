@@ -31,7 +31,7 @@ size_t dev_write(const struct device_s *dev, void *buf, size_t count)
 	return dev->api->dev_write(dev, buf, count);
 }
 
-int dev_ioctl(const struct device_s *dev, int cmd, void *data)
+int dev_ioctl(const struct device_s *dev, unsigned int req, ...)
 {
-	return dev->api->dev_ioctl(dev, cmd, data);
+	return dev->api->dev_ioctl(dev, req);
 }
