@@ -210,17 +210,31 @@ Drivers that use the generic interface can be accessed via *struct device_api_s*
 
 ##### dev_init()
 
+- Allocate driver resources, initialize hardware and data structures.
+
 ##### dev_deinit()
+
+- Free data structures, deinitialize hardware and free driver resources.
 
 ##### dev_open()
 
+- Open the device and lock it for exclusive usage (if applicable).
+
 ##### dev_close()
+
+- Close the device and free it.
 
 ##### dev_read()
 
+- Perform a read operation, copying data from the device to a buffer.
+
 ##### dev_write()
 
+- Perform a write operation, copying buffer data to the device.
+
 ##### dev_ioctl()
+
+- Perform a general purpose or device specific IO operation on the device.
 
 
 #### Custom interfaces
