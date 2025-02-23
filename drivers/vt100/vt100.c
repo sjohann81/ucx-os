@@ -199,8 +199,13 @@ struct vt100_api_s vt100_api = {
 
 
 /* vt100 device driver implementation, generic interface via dev_ioctl() */
-static int driver_ioctl(const struct device_s *dev, unsigned int req, uint8_t a0, uint8_t a1)
+static int vdriver_ioctl(const struct device_s *dev, unsigned int req, va_list args)
 {
+	unsigned int a0, a1;
+	
+	a0 = va_arg(args, unsigned int);
+	a1 = va_arg(args, unsigned int);
+	
 	switch (req) {
 	case TERM: 		return driver_term(dev, a0);
 	case TEXTATTR:		return driver_textattr(dev, a0);
@@ -212,6 +217,19 @@ static int driver_ioctl(const struct device_s *dev, unsigned int req, uint8_t a0
 	default:
 		return -1;
 	}
+}
+
+static int driver_ioctl(const struct device_s *dev, unsigned int req, ...)
+{
+	int retval;
+	
+	va_list valist;
+
+	va_start(valist, req);
+	retval = vdriver_ioctl(dev, req, valist);
+	va_end(valist);
+	
+	return retval;
 }
 
 
