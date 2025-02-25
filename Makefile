@@ -1,4 +1,4 @@
-VERSION = 0.95
+VERSION = 0.96
 
 TARGET_LIST = \
 	'arm/stm32f401_blackpill' 'arm/stm32f411_blackpill' \
@@ -108,6 +108,10 @@ endif
 	hexdump -v -e '4/1 "%02x" "\n"' $(BUILD_TARGET_DIR)/image.bin > $(BUILD_TARGET_DIR)/code.txt
 
 ## applications
+blink: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/blink.o app/blink.c
+	@$(MAKE) --no-print-directory link
+
 corotine_args: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/corotine_args.o app/corotine_args.c
 	@$(MAKE) --no-print-directory link

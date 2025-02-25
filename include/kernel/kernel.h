@@ -32,7 +32,6 @@ struct kcb_s {
 	struct node_s *task_current;
 	jmp_buf context;
 	int32_t (*rt_sched)(void);
-	struct queue_s *events;
 	struct list_s *timer_lst;
 	volatile uint32_t ticks;
 	uint16_t id_next;
