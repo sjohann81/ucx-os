@@ -1,6 +1,8 @@
 # this is stuff specific to this architecture
 ARCH_DIR = $(SRC_DIR)/arch/$(ARCH)
-INC_DIRS  = -I $(ARCH_DIR)
+INC_DIRS  = -I $(ARCH_DIR) \
+	-I $(ARCH_DIR)/../../common/avr \
+	-I $(ARCH_DIR)/drivers
 
 F_CLK=16000000
 SERIAL_BAUDRATE=57600
@@ -40,7 +42,9 @@ PROGRAMMER = arduino -P $(SERIAL_DEV)
 hal:
 	$(CC) $(CFLAGS) \
 		$(ARCH_DIR)/usart.c \
-		$(ARCH_DIR)/hal.c 
+		$(ARCH_DIR)/hal.c \
+		$(ARCH_DIR)/../../common/avr/ieee754.c \
+		$(ARCH_DIR)/drivers/gpio_drv.c
 
 flash:
 	avrdude -C $(AVRDUDE_CONFIG) -p $(AVRDUDE_PART) -U flash:w:$(BUILD_TARGET_DIR)/image.hex -c $(PROGRAMMER)
