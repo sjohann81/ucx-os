@@ -3,12 +3,12 @@
 #include <gpio.h>
 
 /* GPIO API function wrappers */
-int gpio_config(const struct device_s *dev)
+int gpio_setup(const struct device_s *dev)
 {
 	struct gpio_api_s *api;
 
 	api = (struct gpio_api_s *)dev->custom_api;
-	return api->gpio_config(dev);
+	return api->gpio_setup(dev);
 }
 	
 uint16_t gpio_get(const struct device_s *dev)
@@ -53,14 +53,14 @@ void gpio_togglebits(const struct device_s *dev, uint16_t pins)
 
 
 /* GPIO device driver implementation */
-static int driver_config(const struct device_s *dev)
+static int driver_setup(const struct device_s *dev)
 {
 	struct gpio_config_s *config;
 	int val;
 	
 	config = (struct gpio_config_s *)dev->config;
 	
-	val = config->gpio_ll_config(&config->config_values);
+	val = config->gpio_ll_setup(&config->config_values);
 	
 	return val;
 }
@@ -115,7 +115,7 @@ static void driver_togglebits(const struct device_s *dev, int pins)
 
 /* GPIO device driver function mapping */
 struct gpio_api_s gpio_api = {
-	.gpio_config = driver_config,
+	.gpio_setup = driver_setup,
 	.gpio_get = driver_get,
 	.gpio_set = driver_set,
 	.gpio_setbits = driver_setbits,

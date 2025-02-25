@@ -1,5 +1,5 @@
 /* GPIO driver API */
-int gpio_config(const struct device_s *dev);
+int gpio_setup(const struct device_s *dev);
 uint16_t gpio_get(const struct device_s *dev);
 void gpio_set(const struct device_s *dev, uint16_t pins);
 void gpio_setbits(const struct device_s *dev, uint16_t pins);
@@ -8,7 +8,7 @@ void gpio_togglebits(const struct device_s *dev, uint16_t pins);
 
 /* GPIO configuration definitions */
 struct gpio_api_s {
-	int (*gpio_config)(const struct device_s *dev);
+	int (*gpio_setup)(const struct device_s *dev);
 	int (*gpio_get)(const struct device_s *dev);
 	void (*gpio_set)(const struct device_s *dev, int val);
 	void (*gpio_setbits)(const struct device_s *dev, int val);
@@ -34,17 +34,35 @@ enum pin_names {
 	GPIO_PIN14 = (1 << 14), GPIO_PIN15 = (1 << 15)
 };
 
+enum pin_names_opt {
+	GPIO_PIN0_OPT = 0, GPIO_PIN1_OPT = 2,
+	GPIO_PIN2_OPT = 4, GPIO_PIN3_OPT = 6,
+	GPIO_PIN4_OPT = 8, GPIO_PIN5_OPT = 10,
+	GPIO_PIN6_OPT = 12, GPIO_PIN7_OPT = 14,
+	GPIO_PIN8_OPT = 16, GPIO_PIN9_OPT = 18,
+	GPIO_PIN10_OPT = 20, GPIO_PIN11_OPT = 22,
+	GPIO_PIN12_OPT = 24, GPIO_PIN13_OPT = 26,
+	GPIO_PIN14_OPT = 28, GPIO_PIN15_OPT = 30
+};
+
+enum pin_mode {
+	GPIO_INPUT, GPIO_OUTPUT, GPIO_OUTPUT_OD, GPIO_ALT
+};
+
+enum pin_pull {
+	GPIO_NOPULL, GPIO_PULLUP, GPIO_PULLDOWN
+};
+
 struct gpio_config_values_s {
 	uint8_t port;
-	uint16_t pin;
-	uint16_t direction;
-	uint16_t pull;
-	uint16_t pull_du;
+	uint16_t pinsel;
+	uint32_t mode;
+	uint32_t pull;
 };
 
 struct gpio_config_s {
 	struct gpio_config_values_s config_values;
-	int (*gpio_ll_config)(struct gpio_config_values_s *cfg);
+	int (*gpio_ll_setup)(struct gpio_config_values_s *cfg);
 	int (*gpio_ll_get)(struct gpio_config_values_s *cfg);
 	int (*gpio_ll_set)(struct gpio_config_values_s *cfg, int val);
 };
