@@ -13,8 +13,6 @@ void task1(void)
 	struct message_s *pmsg;
 	
 	while (1) {
-//		printf("t1\n");
-		
 		while (ucx_mq_items(mq1) == 0);
 
 		printf("task 1 enters...\n");
@@ -41,8 +39,6 @@ void task2(void)
 	struct message_s *msg;
 	
 	while (1) {
-//		printf("t2\n");
-		
 		if (ucx_mq_items(mq2) > 0) {
 			printf("task 2 enters...\n");
 
@@ -64,8 +60,6 @@ void task3(void)
 	struct message_s *msg;
 	
 	while (1) {
-//		printf("t3\n");
-		
 		if (ucx_mq_items(mq3) > 0) {
 			printf("task 3 enters...\n");
 			
@@ -86,8 +80,6 @@ void task4(void)
 	struct message_s dummy;
 	
 	while (1) {
-//		printf("t4\n");
-		
 		if (ucx_mq_items(mq4) > 1) {
 			printf("task 4 enters...\n");
 
