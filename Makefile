@@ -112,6 +112,14 @@ blink: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/blink.o app/blink.c
 	@$(MAKE) --no-print-directory link
 
+blinkseq: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/blinkseq.o app/blinkseq.c
+	@$(MAKE) --no-print-directory link
+
+blinkseqkey: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/blinkseqkey.o app/blinkseqkey.c
+	@$(MAKE) --no-print-directory link
+
 corotine_args: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/corotine_args.o app/corotine_args.c
 	@$(MAKE) --no-print-directory link
