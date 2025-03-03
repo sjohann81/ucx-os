@@ -73,10 +73,10 @@ void krnl_panic(uint32_t ecode)
 	int err;
 	
 	_di();
-	printf("\n*** HALT (%08x) - ", ecode);
+	printf("\n*** HALT (%d)", ecode);
 	for (err = 0; perror[err].ecode != ERR_UNKNOWN; err++)
 		if (perror[err].ecode == ecode) break;
-	printf("%s\n", perror[err].desc);
+	printf(" - %s\n", perror[err].desc);
 	
 	for (;;);
 }
