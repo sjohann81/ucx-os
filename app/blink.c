@@ -11,7 +11,9 @@ const struct gpio_config_s gpio_config = {
 	.config_values.pull = GPIO_NOPULL << LED_PIN_OPT,
 	.gpio_ll_setup = gpio_ll_setup,
 	.gpio_ll_get = gpio_ll_get,
-	.gpio_ll_set = gpio_ll_set
+	.gpio_ll_set = gpio_ll_set,
+	.gpio_ll_clear = gpio_ll_clear,
+	.gpio_ll_toggle = gpio_ll_toggle
 };
 
 /* device driver instantiation */
@@ -36,7 +38,7 @@ void task_blink(void)
 	gpio_dev_api->gpio_setup(gpio);
 
 	while (1) {
-		gpio_dev_api->gpio_togglebits(gpio, LED_PIN);
+		gpio_dev_api->gpio_toggle(gpio, LED_PIN);
 		ucx_task_delay(MS_TO_TICKS(500));
 	}
 }
