@@ -27,28 +27,20 @@ void gpio_set(const struct device_s *dev, uint16_t pins)
 	api->gpio_set(dev, (int)pins);
 }
 
-void gpio_setbits(const struct device_s *dev, uint16_t pins)
+void gpio_clear(const struct device_s *dev, uint16_t pins)
 {
 	struct gpio_api_s *api;
 
 	api = (struct gpio_api_s *)dev->custom_api;
-	api->gpio_setbits(dev, (int)pins);
+	api->gpio_clear(dev, (int)pins);
 }
 
-void gpio_clearbits(const struct device_s *dev, uint16_t pins)
+void gpio_toggle(const struct device_s *dev, uint16_t pins)
 {
 	struct gpio_api_s *api;
 
 	api = (struct gpio_api_s *)dev->custom_api;
-	api->gpio_clearbits(dev, (int)pins);
-}
-
-void gpio_togglebits(const struct device_s *dev, uint16_t pins)
-{
-	struct gpio_api_s *api;
-
-	api = (struct gpio_api_s *)dev->custom_api;
-	api->gpio_togglebits(dev, (int)pins);
+	api->gpio_toggle(dev, (int)pins);
 }
 
 
@@ -89,36 +81,30 @@ static void driver_set(const struct device_s *dev, int pins)
 	config->gpio_ll_set(&config->config_values, pins);
 }
 
-static void driver_setbits(const struct device_s *dev, int pins)
+static void driver_clear(const struct device_s *dev, int pins)
 {
-	uint16_t val;
+	struct gpio_config_s *config;
 	
-	val = driver_get(dev) | pins;
-	driver_set(dev, val);
+	config = (struct gpio_config_s *)dev->config;
+	
+	config->gpio_ll_clear(&config->config_values, pins);
 }
 
-static void driver_clearbits(const struct device_s *dev, int pins)
+static void driver_toggle(const struct device_s *dev, int pins)
 {
-	uint16_t val;
+	struct gpio_config_s *config;
 	
-	val = driver_get(dev) & ~pins;
-	driver_set(dev, val);
+	config = (struct gpio_config_s *)dev->config;
+	
+	config->gpio_ll_toggle(&config->config_values, pins);
 }
 
-static void driver_togglebits(const struct device_s *dev, int pins)
-{
-	uint16_t val;
-	
-	val = driver_get(dev) ^ pins;
-	driver_set(dev, val);
-}
 
 /* GPIO device driver function mapping */
 struct gpio_api_s gpio_api = {
 	.gpio_setup = driver_setup,
 	.gpio_get = driver_get,
 	.gpio_set = driver_set,
-	.gpio_setbits = driver_setbits,
-	.gpio_clearbits = driver_clearbits,
-	.gpio_togglebits = driver_togglebits
+	.gpio_clear = driver_clear,
+	.gpio_toggle = driver_toggle
 };

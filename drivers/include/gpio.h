@@ -2,18 +2,17 @@
 int gpio_setup(const struct device_s *dev);
 uint16_t gpio_get(const struct device_s *dev);
 void gpio_set(const struct device_s *dev, uint16_t pins);
-void gpio_setbits(const struct device_s *dev, uint16_t pins);
-void gpio_clearbits(const struct device_s *dev, uint16_t pins);
-void gpio_togglebits(const struct device_s *dev, uint16_t pins);
+void gpio_clear(const struct device_s *dev, uint16_t pins);
+void gpio_toggle(const struct device_s *dev, uint16_t pins);
+
 
 /* GPIO configuration definitions */
 struct gpio_api_s {
 	int (*gpio_setup)(const struct device_s *dev);
 	int (*gpio_get)(const struct device_s *dev);
 	void (*gpio_set)(const struct device_s *dev, int val);
-	void (*gpio_setbits)(const struct device_s *dev, int val);
-	void (*gpio_clearbits)(const struct device_s *dev, int val);
-	void (*gpio_togglebits)(const struct device_s *dev, int val);
+	void (*gpio_clear)(const struct device_s *dev, int val);
+	void (*gpio_toggle)(const struct device_s *dev, int val);
 };
 
 enum port_names {
@@ -53,11 +52,16 @@ enum pin_pull {
 	GPIO_NOPULL, GPIO_PULLUP, GPIO_PULLDOWN
 };
 
+enum pin_irqmode {
+	GPIO_CHANGE, GPIO_RISING, GPIO_FALLING
+};
+
 struct gpio_config_values_s {
 	uint8_t port;
 	uint16_t pinsel;
 	uint32_t mode;
 	uint32_t pull;
+	uint32_t irqmode;
 };
 
 struct gpio_config_s {
@@ -65,6 +69,8 @@ struct gpio_config_s {
 	int (*gpio_ll_setup)(struct gpio_config_values_s *cfg);
 	int (*gpio_ll_get)(struct gpio_config_values_s *cfg);
 	int (*gpio_ll_set)(struct gpio_config_values_s *cfg, int val);
+	int (*gpio_ll_clear)(struct gpio_config_values_s *cfg, int val);
+	int (*gpio_ll_toggle)(struct gpio_config_values_s *cfg, int val);
 };
 
 extern struct gpio_api_s gpio_api;
