@@ -3,6 +3,7 @@
 static struct ecode_s edatadesc[] = {
 	{ERR_OK,			"no error"},
 	{ERR_FAIL,			"failure"},
+#ifndef LOW_MEM
 	{ERR_NO_TASKS,			"no tasks to run"},
 	{ERR_KCB_ALLOC,			"kcb alloc failed"},
 	{ERR_TCB_ALLOC,			"tcb alloc failed"},
@@ -19,6 +20,7 @@ static struct ecode_s edatadesc[] = {
 	{ERR_SEM_OPERATION,		"sema operation failed"},
 	{ERR_MQ_NOTEMPTY,		"message queue not empty"},
 	{ERR_UNKNOWN,			"unknown reason"}
+#endif
 };
 
 struct ecode_s *perror = edatadesc;
