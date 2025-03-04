@@ -108,18 +108,6 @@ endif
 	hexdump -v -e '4/1 "%02x" "\n"' $(BUILD_TARGET_DIR)/image.bin > $(BUILD_TARGET_DIR)/code.txt
 
 ## applications
-blink: rebuild
-	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/blink.o app/blink.c
-	@$(MAKE) --no-print-directory link
-
-blinkseq: rebuild
-	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/blinkseq.o app/blinkseq.c
-	@$(MAKE) --no-print-directory link
-
-blinkseqkey: rebuild
-	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/blinkseqkey.o app/blinkseqkey.c
-	@$(MAKE) --no-print-directory link
-
 corotine_args: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/corotine_args.o app/corotine_args.c
 	@$(MAKE) --no-print-directory link
@@ -147,6 +135,22 @@ driver: rebuild
 
 echo: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/echo.o app/echo.c
+	@$(MAKE) --no-print-directory link
+
+gpio_blink: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/gpio_blink.o app/gpio_blink.c
+	@$(MAKE) --no-print-directory link
+
+gpio_blinkseq: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/gpio_blinkseq.o app/gpio_blinkseq.c
+	@$(MAKE) --no-print-directory link
+
+gpio_blinkseqkey: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/gpio_blinkseqkey.o app/gpio_blinkseqkey.c
+	@$(MAKE) --no-print-directory link
+	
+gpio_int: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/gpio_int.o app/gpio_int.c
 	@$(MAKE) --no-print-directory link
 
 hello: rebuild
