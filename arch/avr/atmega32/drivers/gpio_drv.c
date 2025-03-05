@@ -106,3 +106,77 @@ int gpio_ll_toggle(struct gpio_config_values_s *cfg, int val)
 	
 	return 0;
 }
+
+
+static void (*int_cb[MAX_INT_SOURCES])(void) = { 0 };
+
+ISR(INT0_vect)
+{
+	(int_cb[0])();
+}
+
+ISR(INT1_vect)
+{
+	(int_cb[1])();
+}
+
+ISR(INT2_vect)
+{
+	(int_cb[2])();
+}
+
+int gpio_ll_int_attach(struct gpio_config_values_s *cfg, int pin, void (*callback)(), int trigger)
+{
+	switch (cfg->port) {
+	case GPIO_PORTB:
+		switch (pin) {
+		case GPIO_PIN2:
+			switch (trigger) {
+			case GPIO_RISING:	MCUCSR |= (1 << ISC2); break;
+			case GPIO_FALLING:	break;
+			default:
+				return -1;
+			}
+			GICR |= (1 << INT2);
+			int_cb[2] = callback;
+			break;
+		default:
+			return -1;
+		}
+		break;
+	case GPIO_PORTD:
+		switch (pin) {
+		case GPIO_PIN2:
+			switch (trigger) {
+			case GPIO_LOW:		break;
+			case GPIO_RISING:	MCUCR |= (1 << ISC01) | (1 << ISC00); break;
+			case GPIO_FALLING:	MCUCR |= (1 << ISC01); break;
+			case GPIO_CHANGE:	MCUCR |= (1 << ISC00); break;
+			default:
+				return -1;
+			}
+			GICR |= (1 << INT0);
+			int_cb[0] = callback;
+			break;
+		case GPIO_PIN3:
+			switch (trigger) {
+			case GPIO_LOW:		break;
+			case GPIO_RISING:	MCUCR |= (1 << ISC11) | (1 << ISC10); break;
+			case GPIO_FALLING:	MCUCR |= (1 << ISC11); break;
+			case GPIO_CHANGE:	MCUCR |= (1 << ISC10); break;
+			default:
+				return -1;
+			}
+			GICR |= (1 << INT1);
+			int_cb[1] = callback;
+			break;
+		default:
+			return -1;
+		}
+		break;
+	default:
+		return -1;
+	}
+	
+	return 0;
+}
