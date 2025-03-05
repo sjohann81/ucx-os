@@ -1,6 +1,7 @@
 #include <ucx.h>
 #include <device.h>
 #include <gpio.h>
+#include <gpio_drv.h>
 
 /* GPIO API function wrappers */
 int gpio_setup(const struct device_s *dev)
@@ -60,7 +61,7 @@ static int driver_setup(const struct device_s *dev)
 	
 	config = (struct gpio_config_s *)dev->config;
 	
-	val = config->gpio_ll_setup(&config->config_values);
+	val = gpio_ll_setup(&config->config_values);
 	
 	return val;
 }
@@ -72,7 +73,7 @@ static int driver_get(const struct device_s *dev)
 	
 	config = (struct gpio_config_s *)dev->config;
 	
-	val = config->gpio_ll_get(&config->config_values);
+	val = gpio_ll_get(&config->config_values);
 	
 	if (val < 0)
 		return val;
@@ -86,7 +87,7 @@ static void driver_set(const struct device_s *dev, int pins)
 	
 	config = (struct gpio_config_s *)dev->config;
 	
-	config->gpio_ll_set(&config->config_values, pins);
+	gpio_ll_set(&config->config_values, pins);
 }
 
 static void driver_clear(const struct device_s *dev, int pins)
@@ -95,7 +96,7 @@ static void driver_clear(const struct device_s *dev, int pins)
 	
 	config = (struct gpio_config_s *)dev->config;
 	
-	config->gpio_ll_clear(&config->config_values, pins);
+	gpio_ll_clear(&config->config_values, pins);
 }
 
 static void driver_toggle(const struct device_s *dev, int pins)
@@ -104,7 +105,7 @@ static void driver_toggle(const struct device_s *dev, int pins)
 	
 	config = (struct gpio_config_s *)dev->config;
 	
-	config->gpio_ll_toggle(&config->config_values, pins);
+	gpio_ll_toggle(&config->config_values, pins);
 }
 
 static int driver_int_attach(const struct device_s *dev, int pin, void (*callback)(), int trigger)
@@ -113,7 +114,7 @@ static int driver_int_attach(const struct device_s *dev, int pin, void (*callbac
 	
 	config = (struct gpio_config_s *)dev->config;
 	
-	return config->gpio_ll_int_attach(&config->config_values, pin, callback, trigger);
+	return gpio_ll_int_attach(&config->config_values, pin, callback, trigger);
 }
 
 /* GPIO device driver function mapping */
