@@ -1,7 +1,6 @@
 #include <ucx.h>
 #include <device.h>
 #include <gpio.h>
-#include <gpio_drv.h>
 
 /* GPIO configuration */
 const struct gpio_config_s gpio_config = {
@@ -18,12 +17,7 @@ const struct gpio_config_s gpio_config = {
 				GPIO_NOPULL << GPIO_PIN1_OPT |
 				GPIO_NOPULL << GPIO_PIN2_OPT |
 				GPIO_NOPULL << GPIO_PIN3_OPT |
-				GPIO_PULLUP << GPIO_PIN6_OPT,
-	.gpio_ll_setup = gpio_ll_setup,
-	.gpio_ll_get = gpio_ll_get,
-	.gpio_ll_set = gpio_ll_set,
-	.gpio_ll_clear = gpio_ll_clear,
-	.gpio_ll_toggle = gpio_ll_toggle
+				GPIO_PULLUP << GPIO_PIN6_OPT
 };
 
 /* device driver instantiation */

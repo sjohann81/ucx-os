@@ -1,19 +1,13 @@
 #include <ucx.h>
 #include <device.h>
 #include <gpio.h>
-#include <gpio_drv.h>
 
 /* GPIO configuration */
 const struct gpio_config_s gpio_config = {
 	.config_values.port = LED_PORT,
 	.config_values.pinsel = LED_PIN,
 	.config_values.mode = GPIO_OUTPUT << LED_PIN_OPT,
-	.config_values.pull = GPIO_NOPULL << LED_PIN_OPT,
-	.gpio_ll_setup = gpio_ll_setup,
-	.gpio_ll_get = gpio_ll_get,
-	.gpio_ll_set = gpio_ll_set,
-	.gpio_ll_clear = gpio_ll_clear,
-	.gpio_ll_toggle = gpio_ll_toggle
+	.config_values.pull = GPIO_NOPULL << LED_PIN_OPT
 };
 
 /* device driver instantiation */

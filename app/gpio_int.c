@@ -1,7 +1,6 @@
 #include <ucx.h>
 #include <device.h>
 #include <gpio.h>
-#include <gpio_drv.h>
 
 /* GPIO configuration */
 const struct gpio_config_s gpio_config = {
@@ -12,26 +11,14 @@ const struct gpio_config_s gpio_config = {
 				GPIO_INPUT << GPIO_PIN7_OPT,
 	.config_values.pull	= GPIO_PULLUP << GPIO_PIN5_OPT |
 				GPIO_PULLUP << GPIO_PIN6_OPT |
-				GPIO_PULLUP << GPIO_PIN7_OPT,
-	.gpio_ll_setup = gpio_ll_setup,
-	.gpio_ll_get = gpio_ll_get,
-	.gpio_ll_set = gpio_ll_set,
-	.gpio_ll_clear = gpio_ll_clear,
-	.gpio_ll_toggle = gpio_ll_toggle,
-	.gpio_ll_int_attach = gpio_ll_int_attach
+				GPIO_PULLUP << GPIO_PIN7_OPT
 };
 
 const struct gpio_config_s gpio_config2 = {
 	.config_values.port	= GPIO_PORTD,
 	.config_values.pinsel	= GPIO_PIN2,
 	.config_values.mode	= GPIO_INPUT << GPIO_PIN2_OPT,
-	.config_values.pull	= GPIO_PULLUP << GPIO_PIN2_OPT,
-	.gpio_ll_setup = gpio_ll_setup,
-	.gpio_ll_get = gpio_ll_get,
-	.gpio_ll_set = gpio_ll_set,
-	.gpio_ll_clear = gpio_ll_clear,
-	.gpio_ll_toggle = gpio_ll_toggle,
-	.gpio_ll_int_attach = gpio_ll_int_attach
+	.config_values.pull	= GPIO_PULLUP << GPIO_PIN2_OPT
 };
 
 /* device driver instantiation */
