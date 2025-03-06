@@ -44,7 +44,7 @@ hal:
 		$(ARCH_DIR)/hal.c \
 		$(ARCH_DIR)/../../common/avr/ieee754.c \
 		$(ARCH_DIR)/drivers/usart.c \
-		$(ARCH_DIR)/drivers/gpio_drv.c
+		$(ARCH_DIR)/drivers/gpio_ll.c
 
 flash:
 	avrdude -C $(AVRDUDE_CONFIG) -p $(AVRDUDE_PART) -U flash:w:$(BUILD_TARGET_DIR)/image.hex -c $(PROGRAMMER)

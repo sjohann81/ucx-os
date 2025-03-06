@@ -1,7 +1,7 @@
 #include <hal.h>
 #include <device.h>
 #include <gpio.h>
-#include <gpio_drv.h>
+#include <gpio_ll.h>
 
 
 int gpio_ll_setup(struct gpio_config_values_s *cfg)
