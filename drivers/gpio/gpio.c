@@ -1,7 +1,7 @@
 #include <ucx.h>
 #include <device.h>
 #include <gpio.h>
-#include <gpio_drv.h>
+#include <gpio_ll.h>
 
 /* GPIO API function wrappers */
 int gpio_setup(const struct device_s *dev)
