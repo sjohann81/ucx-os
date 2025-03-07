@@ -1,6 +1,7 @@
 #include <ucx.h>
 #include <device.h>
 #include <i2c.h>
+#include <i2c_ll.h>
 
 /* I2C API function wrappers */
 int i2c_hw_init(const struct device_s *dev)
@@ -48,7 +49,7 @@ static int i2c_hw_driver_init(const struct device_s *dev)
 	if (!data->mutex)
 		return -1;
 
-	config->i2c_ll_init(&config->config_values);
+	i2c_ll_init(&config->config_values);
 	
 	printf("I2C: %s, i2c_hw_init()\n", dev->name);
 	
@@ -90,7 +91,7 @@ static int i2c_hw_driver_open(const struct device_s *dev, int mode)
 		retval = -1;
 	ucx_sem_signal(data->mutex);
 	
-	val = config->i2c_ll_start(&config->config_values);
+	val = i2c_ll_start(&config->config_values);
 	if (val < 0)
 		retval = -1;
 
@@ -108,7 +109,7 @@ static int i2c_hw_driver_close(const struct device_s *dev)
 	if (!data->mutex)
 		return -1;
 
-	config->i2c_ll_stop(&config->config_values);
+	i2c_ll_stop(&config->config_values);
 
 	ucx_sem_wait(data->mutex);
 	data->busy = 0;
@@ -133,13 +134,13 @@ static size_t i2c_hw_driver_read(const struct device_s *dev, void *buf, size_t c
 
 	NOSCHED_ENTER();
 	if (!count)
-		val = config->i2c_ll_restart(&config->config_values);
+		val = i2c_ll_restart(&config->config_values);
 	
 	for (i = 0; i < count; i++) {
 		if (val < 0) break;
 		// ack on all reads except the last one.
-		val = i < count - 1 ? config->i2c_ll_read(&config->config_values, 0) : 
-			config->i2c_ll_read(&config->config_values, 1);
+		val = i < count - 1 ? i2c_ll_read(&config->config_values, 0) : 
+			i2c_ll_read(&config->config_values, 1);
 		p[i] = val;
 	}
 	NOSCHED_LEAVE();
@@ -163,7 +164,7 @@ static size_t i2c_hw_driver_write(const struct device_s *dev, void *buf, size_t 
 		
 	NOSCHED_ENTER();
 	if (!count) {
-		val = config->i2c_ll_restart(&config->config_values);
+		val = i2c_ll_restart(&config->config_values);
 		NOSCHED_LEAVE();
 		
 		return 0;
@@ -171,21 +172,21 @@ static size_t i2c_hw_driver_write(const struct device_s *dev, void *buf, size_t 
 	
 	if (config->config_values.addr_mode == I2C_ADDR10BIT) {
 		if (p[0] & 1)
-			val = config->i2c_ll_rd_addr(&config->config_values, (p[0] << 8) | p[1]);
+			val = i2c_ll_rd_addr(&config->config_values, (p[0] << 8) | p[1]);
 		else
-			val = config->i2c_ll_wr_addr(&config->config_values, (p[0] << 8) | p[1]);
+			val = i2c_ll_wr_addr(&config->config_values, (p[0] << 8) | p[1]);
 		i = 2;
 	} else {
 		if (p[0] & 1)
-			val = config->i2c_ll_rd_addr(&config->config_values, p[0]);
+			val = i2c_ll_rd_addr(&config->config_values, p[0]);
 		else
-			val = config->i2c_ll_wr_addr(&config->config_values, p[0]);
+			val = i2c_ll_wr_addr(&config->config_values, p[0]);
 		i = 1;
 	}
 
 	for (; i < count; i++) {
 		if (val < 0) break;
-		val = config->i2c_ll_write(&config->config_values, p[i]);
+		val = i2c_ll_write(&config->config_values, p[i]);
 	}
 	NOSCHED_LEAVE();
 	
