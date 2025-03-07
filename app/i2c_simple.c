@@ -9,16 +9,7 @@ const struct i2c_hw_config_s i2c_config = {
 	.config_values.speed = 10000,
 	.config_values.mode = I2C_MASTER,
 	.config_values.ack = I2C_NACK,
-	.config_values.addr_mode = I2C_ADDR7BIT,
-	.i2c_ll_init = i2c_ll_init,
-	.i2c_ll_deinit = i2c_ll_deinit,
-	.i2c_ll_start = i2c_ll_start,
-	.i2c_ll_restart = i2c_ll_restart,
-	.i2c_ll_stop = i2c_ll_stop,
-	.i2c_ll_rd_addr = i2c_ll_rd_addr,
-	.i2c_ll_wr_addr = i2c_ll_wr_addr,
-	.i2c_ll_read = i2c_ll_read,
-	.i2c_ll_write = i2c_ll_write
+	.config_values.addr_mode = I2C_ADDR7BIT
 };
 
 struct i2c_hw_data_s i2c_data;
