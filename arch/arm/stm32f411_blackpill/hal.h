@@ -53,6 +53,8 @@ void _timer_disable(void);
 void _interrupt_tick(void);
 void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra);
 
+void syscall(void (*func)(void *), void *args) __attribute__((optimize("1")));
+
 #define strcpy(dst, src)		ucx_strcpy(dst, src)
 #define strncpy(s1, s2, n)		ucx_strncpy(s1, s2, n)
 #define strcat(dst, src)		ucx_strcat(dst, src)
