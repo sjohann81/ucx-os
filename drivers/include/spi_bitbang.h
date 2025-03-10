@@ -28,7 +28,7 @@ struct spi_config_s {
 
 /* SPI (bit bang) data definitions */
 struct spi_data_s {
-	struct sem_s *mutex;
+	char init;
 	char busy;
 };
 

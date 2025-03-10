@@ -38,22 +38,24 @@ static int spi_driver_init(const struct device_s *dev)
 {
 	struct spi_config_s *config;
 	struct spi_data_s *data;
+	int val;
 	
 	config = (struct spi_config_s *)dev->config;
 	data = (struct spi_data_s *)dev->data;
 
-	data->mutex = ucx_sem_create(10, 1);
+	data->init = 0;
 	data->busy = 0;
 	
-	if (!data->mutex)
-		return -1;
+	val = config->gpio_config();
+	if (val < 0)
+		return val;
 	
-	config->gpio_config();
 	config->gpio_cs(config->cs_active ^ SPI_CS_HIGH);
 	if (config->spi_mode == SPI_MODE0 || config->spi_mode == SPI_MODE1)
 		config->gpio_sck(0);
 	else
 		config->gpio_sck(1);
+	data->init = 1;
 	
 	printf("SPI: %s, spi_init()\n", dev->name);
 	
@@ -66,10 +68,8 @@ static int spi_driver_deinit(const struct device_s *dev)
 	
 	data = (struct spi_data_s *)dev->data;
 	
-	if (!data->mutex)
+	if (!data->init)
 		return -1;
-	
-	ucx_sem_destroy(data->mutex);
 
 	printf("SPI: %s, spi_deinit()\n", dev->name);
 	
@@ -85,15 +85,15 @@ static int spi_driver_open(const struct device_s *dev, int mode)
 	config = (struct spi_config_s *)dev->config;
 	data = (struct spi_data_s *)dev->data;
 	
-	if (!data->mutex)
+	if (!data->init)
 		return -1;
 
-	ucx_sem_wait(data->mutex);
+	CRITICAL_ENTER();
 	if (!data->busy)
 		data->busy = 1;
 	else
 		retval = -1;
-	ucx_sem_signal(data->mutex);
+	CRITICAL_LEAVE();
 
 	if (!retval && config->device_mode == SPI_MASTER) {
 		config->gpio_cs(config->cs_active);
@@ -111,12 +111,12 @@ static int spi_driver_close(const struct device_s *dev)
 	config = (struct spi_config_s *)dev->config;
 	data = (struct spi_data_s *)dev->data;
 	
-	if (!data->mutex)
+	if (!data->init)
 		return -1;
 
-	ucx_sem_wait(data->mutex);
+	CRITICAL_ENTER();
 	data->busy = 0;
-	ucx_sem_signal(data->mutex);
+	CRITICAL_LEAVE();
 
 	if (config->device_mode == SPI_MASTER) {
 		config->gpio_cs(config->cs_active ^ SPI_CS_HIGH);
@@ -239,7 +239,7 @@ static size_t spi_driver_read(const struct device_s *dev, void *buf, size_t coun
 	data = (struct spi_data_s *)dev->data;
 	p = (char *)buf;
 	
-	if (!data->mutex)
+	if (!data->init)
 		return -1;
 		
 	if (config->device_mode == SPI_MASTER) {
@@ -278,7 +278,7 @@ static size_t spi_driver_write(const struct device_s *dev, void *buf, size_t cou
 	data = (struct spi_data_s *)dev->data;
 	p = (char *)buf;
 	
-	if (!data->mutex)
+	if (!data->init)
 		return -1;
 		
 	if (config->device_mode == SPI_MASTER) {
