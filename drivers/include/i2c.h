@@ -26,7 +26,7 @@ struct i2c_hw_config_s {
 
 /* I2C data definitions */
 struct i2c_hw_data_s {
-	struct sem_s *mutex;
+	char init;
 	char busy;
 };
 

@@ -16,7 +16,7 @@ struct i2c_config_s {
 
 /* I2C master (bit bang) data definitions */
 struct i2c_data_s {
-	struct sem_s *mutex;
+	char init;
 	char busy;
 };
 

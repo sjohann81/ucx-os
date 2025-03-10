@@ -43,13 +43,11 @@ static int i2c_hw_driver_init(const struct device_s *dev)
 	config = (struct i2c_hw_config_s *)dev->config;
 	data = (struct i2c_hw_data_s *)dev->data;
 
-	data->mutex = ucx_sem_create(10, 1);
+	data->init = 0;
 	data->busy = 0;
-	
-	if (!data->mutex)
-		return -1;
 
 	i2c_ll_init(&config->config_values);
+	data->init = 1;
 	
 	printf("I2C: %s, i2c_hw_init()\n", dev->name);
 	
@@ -62,10 +60,10 @@ static int i2c_hw_driver_deinit(const struct device_s *dev)
 	
 	data = (struct i2c_hw_data_s *)dev->data;
 	
-	if (!data->mutex)
+	if (!data->init)
 		return -1;
 	
-	ucx_sem_destroy(data->mutex);
+	data->init = 0;
 
 	printf("I2C: %s, spi_deinit()\n", dev->name);
 	
@@ -81,15 +79,15 @@ static int i2c_hw_driver_open(const struct device_s *dev, int mode)
 	config = (struct i2c_hw_config_s *)dev->config;
 	data = (struct i2c_hw_data_s *)dev->data;
 	
-	if (!data->mutex)
+	if (!data->init)
 		return -1;
 
-	ucx_sem_wait(data->mutex);
+	CRITICAL_ENTER();
 	if (!data->busy)
 		data->busy = 1;
 	else
 		retval = -1;
-	ucx_sem_signal(data->mutex);
+	CRITICAL_LEAVE();
 	
 	val = i2c_ll_start(&config->config_values);
 	if (val < 0)
@@ -106,14 +104,14 @@ static int i2c_hw_driver_close(const struct device_s *dev)
 	config = (struct i2c_hw_config_s *)dev->config;
 	data = (struct i2c_hw_data_s *)dev->data;
 	
-	if (!data->mutex)
+	if (!data->init)
 		return -1;
 
 	i2c_ll_stop(&config->config_values);
 
-	ucx_sem_wait(data->mutex);
+	CRITICAL_ENTER();
 	data->busy = 0;
-	ucx_sem_signal(data->mutex);
+	CRITICAL_LEAVE();
 
 	return 0;
 }
@@ -129,7 +127,7 @@ static size_t i2c_hw_driver_read(const struct device_s *dev, void *buf, size_t c
 	data = (struct i2c_hw_data_s *)dev->data;
 	p = (char *)buf;
 	
-	if (!data->mutex)
+	if (!data->init)
 		return -1;
 
 	NOSCHED_ENTER();
@@ -159,7 +157,7 @@ static size_t i2c_hw_driver_write(const struct device_s *dev, void *buf, size_t 
 	data = (struct i2c_hw_data_s *)dev->data;
 	p = (char *)buf;
 	
-	if (!data->mutex)
+	if (!data->init)
 		return -1;
 		
 	NOSCHED_ENTER();

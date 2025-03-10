@@ -211,20 +211,22 @@ static int i2c_driver_init(const struct device_s *dev)
 {
 	struct i2c_config_s *config;
 	struct i2c_data_s *data;
+	int val;
 	
 	config = (struct i2c_config_s *)dev->config;
 	data = (struct i2c_data_s *)dev->data;
 
-	data->mutex = ucx_sem_create(10, 1);
 	data->busy = 0;
+	data->init = 0;
 	
-	if (!data->mutex)
-		return -1;
+	val = config->gpio_config();
+	if (val < 0)
+		return val;
 	
-	config->gpio_config();
 	config->gpio_scl(1);
 	config->gpio_sda(1);
 	_delay_us(config->sig_delay);
+	data->init = 1;
 	
 	printf("I2C: %s, i2c_init()\n", dev->name);
 	
@@ -237,10 +239,7 @@ static int i2c_driver_deinit(const struct device_s *dev)
 	
 	data = (struct i2c_data_s *)dev->data;
 	
-	if (!data->mutex)
-		return -1;
-	
-	ucx_sem_destroy(data->mutex);
+	data->init = 0;
 
 	printf("I2C: %s, spi_deinit()\n", dev->name);
 	
@@ -254,15 +253,15 @@ static int i2c_driver_open(const struct device_s *dev, int mode)
 	
 	data = (struct i2c_data_s *)dev->data;
 	
-	if (!data->mutex)
+	if (!data->init)
 		return -1;
 
-	ucx_sem_wait(data->mutex);
+	CRITICAL_ENTER();
 	if (!data->busy)
 		data->busy = 1;
 	else
 		retval = -1;
-	ucx_sem_signal(data->mutex);
+	CRITICAL_LEAVE();
 	
 	if (mode)
 		i2c_reset_bus(dev);
@@ -282,15 +281,15 @@ static int i2c_driver_close(const struct device_s *dev)
 	config = (struct i2c_config_s *)dev->config;
 	data = (struct i2c_data_s *)dev->data;
 	
-	if (!data->mutex)
+	if (!data->init)
 		return -1;
 
 	i2c_stop(dev, 1);
 	_delay_us(config->sig_delay);
 
-	ucx_sem_wait(data->mutex);
+	CRITICAL_ENTER();
 	data->busy = 0;
-	ucx_sem_signal(data->mutex);
+	CRITICAL_LEAVE();
 	
 	return 0;
 }
@@ -304,7 +303,7 @@ static size_t i2c_driver_read(const struct device_s *dev, void *buf, size_t coun
 	data = (struct i2c_data_s *)dev->data;
 	p = (char *)buf;
 	
-	if (!data->mutex)
+	if (!data->init)
 		return -1;
 
 	NOSCHED_ENTER();
@@ -331,7 +330,7 @@ static size_t i2c_driver_write(const struct device_s *dev, void *buf, size_t cou
 	data = (struct i2c_data_s *)dev->data;
 	p = (char *)buf;
 	
-	if (!data->mutex)
+	if (!data->init)
 		return -1;
 		
 	NOSCHED_ENTER();
