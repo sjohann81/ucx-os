@@ -1,6 +1,7 @@
 #include <ucx.h>
 #include <device.h>
 #include <gpio.h>
+#include <gpio_ll.h> 	// for LED_PORT and LED_PIN defs
 
 /* GPIO configuration */
 const struct gpio_config_s gpio_config = {
