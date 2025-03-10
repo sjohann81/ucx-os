@@ -60,27 +60,35 @@ static void tim11_config()
 
 static void tim11_start()
 {
+	/* Stop TIM11 */
+	TIM_Cmd(TIM11, DISABLE);
+	TIM11->CNT = 0;
 	/* Start TIM11 */
 	TIM_Cmd(TIM11, ENABLE);
 }
 
 /* delay routines */
+static volatile uint64_t timeref;
+
 void _delay_ms(uint32_t msec)
 {
-	_delay_us(1000 * msec);
+	uint32_t usec = msec * 1000;
+	
+	while (usec > 65000) {
+		_delay_us(65000);
+		usec -= 65000;
+	}
+	_delay_us(usec);
 }
-
-static volatile uint64_t timeref;
 
 void _delay_us(uint32_t usec)
 {
-	TIM11->CNT = 0;
-	while (usec > 0xffff) {
-		while (TIM11->CNT != 0);
-		usec -= 0xffff;
-	}
-	TIM11->CNT = 0;
-	while (TIM11->CNT <= usec);
+	volatile uint16_t start;
+	
+	tim11_start();
+
+	start = TIM11->CNT;
+	while ((TIM11->CNT - start) < usec);
 }
 
 uint64_t _read_us(void)
@@ -354,9 +362,6 @@ void SysTick_Handler(void)
 }
 
 /* system call interface */
-
-void syscall(void (*func)(void *), void *args) __attribute__((optimize("1")));
-
 void syscall(void (*func)(void *), void *args){
 	// by convention func is in r0 and args is in r1
 	asm volatile("svc 11");
@@ -467,19 +472,6 @@ void _hardware_init(void)
 	/* set PendSV interrupt for the lowest priority */
 	NVIC_SetPriority(PendSV_IRQn, 0xFF);
 
-	GPIO_InitTypeDef GPIO_InitStructure;
-	
-	/* GPIOC Peripheral clock enable. */
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-
-	/* configure board LED as output */
-	GPIO_InitStructure.GPIO_Pin   = GPIO_Pin_13;
-	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
-	
 	/* setup TIM11 for jiffies */
 	tim11_config();
 	tim11_start();
@@ -492,13 +484,8 @@ void _hardware_init(void)
 	_stdpoll_install(__kbhit);
 
 #ifdef USB_SERIAL
-	char buf[80];
-	
-	/* wait from user data terminal to boot */
-	gets(buf);
+	_delay_ms(2000);
 #endif
-	/* turn board LED off */
-	GPIO_SetBits(GPIOC, GPIO_Pin_13);
 }
 
 void _di(void)
