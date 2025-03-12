@@ -6,7 +6,7 @@ enum device_mode {O_RDONLY, O_WRONLY, O_RDWR};
 struct device_s {
 	const char *name;
 	const void *config;
-	const void *data;
+	void *data;
 	const struct device_api_s *api;
 	const void *custom_api;
 };

@@ -26,7 +26,8 @@ BUILD_TARGET_DIR = $(BUILD_DIR)/target
 -include $(SRC_DIR)/arch/$(ARCH)/arch.mak
 -include $(SRC_DIR)/drivers/drivers.mak
 INC_DIRS += -I $(SRC_DIR)/include -I $(SRC_DIR)/include/lib \
-	-I $(SRC_DIR)/drivers/include -I $(SRC_DIR)/arch/common
+	-I $(SRC_DIR)/drivers/bus/include -I $(SRC_DIR)/drivers/device/include \
+	-I $(SRC_DIR)/arch/common
 CFLAGS += -D__VER__=\"$(VERSION)\"
 
 incl:
