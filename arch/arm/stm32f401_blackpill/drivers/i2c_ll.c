@@ -5,8 +5,9 @@
 #include <device.h>
 #include <i2c.h>
 #include <i2c_ll.h>
+#include <libc.h>
 
-#define I2C_TO_US	50000
+#define I2C_TO_US	5000
 
 int i2c_ll_init(struct i2c_hw_config_values_s *config_values)
 {
@@ -24,10 +25,34 @@ int i2c_ll_init(struct i2c_hw_config_values_s *config_values)
 		GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 		GPIO_InitStruct.GPIO_OType = GPIO_OType_OD;
 		GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
-		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_2MHz;
+		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_Init(GPIOB, &GPIO_InitStruct);
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_I2C1);
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_I2C1);
+
+		I2C_InitStruct.I2C_ClockSpeed = config_values->speed;
+		I2C_InitStruct.I2C_Mode = I2C_Mode_I2C;
+		I2C_InitStruct.I2C_DutyCycle = I2C_DutyCycle_2;
+		I2C_InitStruct.I2C_OwnAddress1 = 0xe0;
+		I2C_InitStruct.I2C_Ack = config_values->ack == I2C_ACK ? I2C_Ack_Enable : I2C_Ack_Disable;
+		I2C_InitStruct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+		I2C_Init(I2C1, &I2C_InitStruct);
+		I2C_Cmd(I2C1, ENABLE);
+		break;
+	case I2C_PORT1_ALT:
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+		RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, ENABLE);
+		RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C1, DISABLE);
+	
+		GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;
+		GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
+		GPIO_InitStruct.GPIO_OType = GPIO_OType_OD;
+		GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+		GPIO_Init(GPIOB, &GPIO_InitStruct);
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_I2C1);
 
 		I2C_InitStruct.I2C_ClockSpeed = config_values->speed;
 		I2C_InitStruct.I2C_Mode = I2C_Mode_I2C;
@@ -44,13 +69,13 @@ int i2c_ll_init(struct i2c_hw_config_values_s *config_values)
 		RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, ENABLE);
 		RCC_APB1PeriphResetCmd(RCC_APB1Periph_I2C2, DISABLE);
 		
-		GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_10;
+		GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_10;
 		GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 		GPIO_InitStruct.GPIO_OType = GPIO_OType_OD;
 		GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
-		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_2MHz;
+		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_Init(GPIOB, &GPIO_InitStruct);
-		GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF9_I2C2);
+		GPIO_PinAFConfig(GPIOB, GPIO_PinSource3, GPIO_AF9_I2C2);
 		GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_I2C2);
 
 		I2C_InitStruct.I2C_ClockSpeed = config_values->speed;
@@ -73,7 +98,7 @@ int i2c_ll_init(struct i2c_hw_config_values_s *config_values)
 		GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 		GPIO_InitStruct.GPIO_OType = GPIO_OType_OD;
 		GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
-		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_2MHz;
+		GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_Init(GPIOA, &GPIO_InitStruct);
 		GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
 		GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
