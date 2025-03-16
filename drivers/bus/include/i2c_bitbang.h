@@ -9,7 +9,7 @@ size_t i2c_write(const struct device_s *dev, void *buf, size_t count);
 /* I2C master (bit bang) configuration definitions */
 struct i2c_config_s {
 	unsigned sig_delay;		// default: 4us
-	int (*gpio_config)(void);	// set gpio pins to open drain
+	int (*gpio_configpins)(void);	// set gpio pins to open drain
 	int (*gpio_scl)(int val);	// write: 0 or 1, read: -1
 	int (*gpio_sda)(int val);	// write: 0 or 1, read: -1
 };

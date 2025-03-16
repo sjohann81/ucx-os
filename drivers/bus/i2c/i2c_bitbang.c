@@ -219,7 +219,7 @@ static int i2c_driver_init(const struct device_s *dev)
 	data->busy = 0;
 	data->init = 0;
 	
-	val = config->gpio_config();
+	val = config->gpio_configpins();
 	if (val < 0)
 		return val;
 	
