@@ -4,6 +4,8 @@
 #include <gpio_ll.h>
 
 
+static uint8_t od_outputs[4];
+
 int gpio_ll_setup(struct gpio_config_values_s *cfg)
 {
 	uint32_t modesel, pullsel;
@@ -15,27 +17,42 @@ int gpio_ll_setup(struct gpio_config_values_s *cfg)
 			switch (modesel) {
 			case GPIO_INPUT:
 				switch (cfg->port) {
-				case GPIO_PORTB: 
+				case GPIO_PORTB:
+					od_outputs[1] &= ~(1 << i);
 					if (pullsel == GPIO_PULLUP) PORTB |= (1 << i);
 					DDRB &= ~(1 << i); break;
 				case GPIO_PORTC:
+					od_outputs[2] &= ~(1 << i);
 					if (pullsel == GPIO_PULLUP) PORTC |= (1 << i);
 					DDRC &= ~(1 << i); break;
 				case GPIO_PORTD:
+					od_outputs[3] &= ~(1 << i);
 					if (pullsel == GPIO_PULLUP) PORTD |= (1 << i);
 					DDRD &= ~(1 << i); break;
-				default: break;
+				default:
+					return -1;
 				}
 				break;
 			case GPIO_OUTPUT:
 				switch (cfg->port) {
-				case GPIO_PORTB: DDRB |= (1 << i); break;
-				case GPIO_PORTC: DDRC |= (1 << i); break;
-				case GPIO_PORTD: DDRD |= (1 << i); break;
-				default: break;
+				case GPIO_PORTB: od_outputs[1] &= ~(1 << i); DDRB |= (1 << i); break;
+				case GPIO_PORTC: od_outputs[2] &= ~(1 << i); DDRC |= (1 << i); break;
+				case GPIO_PORTD: od_outputs[3] &= ~(1 << i); DDRD |= (1 << i); break;
+				default:
+					return -1;
 				}
 				break;
-			default: break;
+			case GPIO_OUTPUT_OD:
+				switch (cfg->port) {
+				case GPIO_PORTB: od_outputs[1] |= (1 << i); PORTB &= ~(1 << i); DDRB &= ~(1 << i); break;
+				case GPIO_PORTC: od_outputs[2] |= (1 << i); PORTC &= ~(1 << i); DDRC &= ~(1 << i); break;
+				case GPIO_PORTD: od_outputs[3] |= (1 << i); PORTD &= ~(1 << i); DDRD &= ~(1 << i); break;
+				default:
+					return -1;
+				}
+				break;
+			default:
+				return -1;
 			}
 		}
 	}
@@ -51,21 +68,147 @@ int gpio_ll_get(struct gpio_config_values_s *cfg)
 	case GPIO_PORTB: val = PINB; break;
 	case GPIO_PORTC: val = PINC; break;
 	case GPIO_PORTD: val = PIND; break;
-	default: break;
+	default:
+		return -1;
 	}
 	
 	return val & cfg->pinsel;
 }
 
+
+static struct port_data_s {
+	volatile uint8_t *dir;
+	volatile uint8_t *port;
+	volatile uint8_t *pin;
+} port_data[4] = {
+	{0, 0},
+	{&DDRB, &PORTB, &PINB},
+	{&DDRC, &PORTC, &PINC},
+	{&DDRD, &PORTD, &PIND}
+};
+
+int gpio_ll_set(struct gpio_config_values_s *cfg, int val)
+{
+	uint8_t mask = val & cfg->pinsel;
+
+	if (cfg->port < GPIO_PORTB || cfg->port > GPIO_PORTD)
+		return -1;
+	
+	if (od_outputs[cfg->port]) {
+		for (int i = 0; i < 8; i++) {
+			if ((1 << i) & mask) {
+				if (od_outputs[cfg->port] & (1 << i))
+					*port_data[cfg->port].dir &= ~(1 << i);
+				else
+					*port_data[cfg->port].port |= (1 << i);
+			}
+		}
+	} else {
+		*port_data[cfg->port].port |= mask;
+	}
+
+	return 0;
+}
+
+int gpio_ll_clear(struct gpio_config_values_s *cfg, int val)
+{
+	uint8_t mask = val & cfg->pinsel;
+
+	if (cfg->port < GPIO_PORTB || cfg->port > GPIO_PORTD)
+		return -1;
+	
+	if (od_outputs[cfg->port]) {
+		for (int i = 0; i < 8; i++) {
+			if ((1 << i) & mask) {
+				if (od_outputs[cfg->port] & (1 << i))
+					*port_data[cfg->port].dir |= (1 << i);
+				else
+					*port_data[cfg->port].port &= ~(1 << i);
+					
+			}
+		}
+	} else {
+		*port_data[cfg->port].port &= ~mask;
+	}
+
+	return 0;
+}
+
+int gpio_ll_toggle(struct gpio_config_values_s *cfg, int val)
+{
+	uint8_t mask = val & cfg->pinsel;
+
+	if (cfg->port < GPIO_PORTB || cfg->port > GPIO_PORTD)
+		return -1;
+	
+	if (od_outputs[cfg->port]) {
+		for (int i = 0; i < 8; i++) {
+			if ((1 << i) & mask) {
+				if (od_outputs[cfg->port] & (1 << i))
+					if (*port_data[cfg->port].pin & (1 << i))
+						*port_data[cfg->port].dir |= (1 << i);
+					else *port_data[cfg->port].dir &= ~(1 << i);
+				else
+					*port_data[cfg->port].port ^= (1 << i);
+			}
+		}
+	} else {
+		*port_data[cfg->port].port ^= mask;
+	}
+
+	return 0;
+}
+
+/*
 int gpio_ll_set(struct gpio_config_values_s *cfg, int val)
 {
 	uint8_t mask = val & cfg->pinsel;
 	
 	switch (cfg->port) {
-	case GPIO_PORTB: PORTB |= mask; break;
-	case GPIO_PORTC: PORTC |= mask; break;
-	case GPIO_PORTD: PORTD |= mask; break;
-	default: break;
+	case GPIO_PORTB:
+		if (od_outputs[1]) {
+			for (int i = 0; i < 8; i++) {
+				if ((1 << i) & mask) {
+					if (od_outputs[1] & (1 << i))
+						DDRB &= ~(1 << i);
+					else
+						PORTB |= (1 << i);
+				}
+			}
+		} else {
+			PORTB |= mask;
+		}
+		break;
+	case GPIO_PORTC:
+		if (od_outputs[2]) {
+			for (int i = 0; i < 8; i++) {
+				if ((1 << i) & mask) {
+					if (od_outputs[2] & (1 << i))
+						DDRC &= ~(1 << i);
+					else
+						PORTC |= (1 << i);
+				}
+			}
+		} else {
+			PORTC |= mask;
+		}
+		break;
+	case GPIO_PORTD:
+		if (od_outputs[3]) {
+			for (int i = 0; i < 8; i++) {
+				if ((1 << i) & mask) {
+					if (od_outputs[3] & (1 << i))
+						DDRD &= ~(1 << i);
+					else
+						PORTD |= (1 << i);
+				}
+			}
+		} else {
+			PORTD |= mask;
+		}
+		break;
+	default:
+		return -1;
 	}
 	
 	return 0;
@@ -74,12 +217,52 @@ int gpio_ll_set(struct gpio_config_values_s *cfg, int val)
 int gpio_ll_clear(struct gpio_config_values_s *cfg, int val)
 {
 	uint8_t mask = val & cfg->pinsel;
-	
+
 	switch (cfg->port) {
-	case GPIO_PORTB: PORTB &= ~mask; break;
-	case GPIO_PORTC: PORTC &= ~mask; break;
-	case GPIO_PORTD: PORTD &= ~mask; break;
-	default: break;
+	case GPIO_PORTB:
+		if (od_outputs[1]) {
+			for (int i = 0; i < 8; i++) {
+				if ((1 << i) & mask) {
+					if (od_outputs[1] & (1 << i))
+						DDRB |= (1 << i);
+					else
+						PORTB &= ~(1 << i);
+				}
+			}
+		} else {
+			PORTB &= ~mask;
+		}
+		break;
+	case GPIO_PORTC:
+		if (od_outputs[2]) {
+			for (int i = 0; i < 8; i++) {
+				if ((1 << i) & mask) {
+					if (od_outputs[2] & (1 << i))
+						DDRC |= (1 << i);
+					else
+						PORTC &= ~(1 << i);
+				}
+			}
+		} else {
+			PORTC &= ~mask;
+		}
+		break;
+	case GPIO_PORTD:
+		if (od_outputs[3]) {
+			for (int i = 0; i < 8; i++) {
+				if ((1 << i) & mask) {
+					if (od_outputs[3] & (1 << i))
+						DDRD |= (1 << i);
+					else
+						PORTD &= ~(1 << i);
+				}
+			}
+		} else {
+			PORTD &= ~mask;
+		}
+		break;
+	default:
+		return -1;
 	}
 	
 	return 0;
@@ -88,17 +271,60 @@ int gpio_ll_clear(struct gpio_config_values_s *cfg, int val)
 int gpio_ll_toggle(struct gpio_config_values_s *cfg, int val)
 {
 	uint8_t mask = val & cfg->pinsel;
-	
+
 	switch (cfg->port) {
-	case GPIO_PORTB: PORTB ^= mask; break;
-	case GPIO_PORTC: PORTC ^= mask; break;
-	case GPIO_PORTD: PORTD ^= mask; break;
-	default: break;
+	case GPIO_PORTB:
+		if (od_outputs[1]) {
+			for (int i = 0; i < 8; i++) {
+				if ((1 << i) & mask) {
+					if (od_outputs[1] & (1 << i))
+						if (PINB & (1 << i)) DDRB |= (1 << i);
+						else DDRB &= ~(1 << i);
+					else
+						PORTB ^= (1 << i);
+				}
+			}
+		} else {
+			PORTB ^= mask;
+		}
+		break;
+	case GPIO_PORTC:
+		if (od_outputs[2]) {
+			for (int i = 0; i < 8; i++) {
+				if ((1 << i) & mask) {
+					if (od_outputs[2] & (1 << i))
+						if (PINC & (1 << i)) DDRC |= (1 << i);
+						else DDRC &= ~(1 << i);
+					else
+						PORTC ^= (1 << i);
+				}
+			}
+		} else {
+			PORTC ^= mask;
+		}
+		break;
+	case GPIO_PORTD:
+		if (od_outputs[3]) {
+			for (int i = 0; i < 8; i++) {
+				if ((1 << i) & mask) {
+					if (od_outputs[3] & (1 << i))
+						if (PIND & (1 << i)) DDRD |= (1 << i);
+						else DDRD &= ~(1 << i);
+					else
+						PORTD ^= (1 << i);
+				}
+			}
+		} else {
+			PORTD ^= mask;
+		}
+		break;
+	default:
+		return -1;
 	}
 	
 	return 0;
 }
-
+*/
 
 struct int_source_s {
 	uint8_t trigger;
