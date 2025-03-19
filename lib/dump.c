@@ -25,6 +25,7 @@ int32_t hexdump(char *buf, uint32_t size)
 {
 	uint32_t k, l;
 	char ch;
+	char *obuf = buf;
 
 	buf = (char *)((size_t)buf & ~0xf);
 	
@@ -34,7 +35,12 @@ int32_t hexdump(char *buf, uint32_t size)
 		_putchar(' ');
 		
 		for (l = 0; l < 16; l++) {
-			printhex((uint8_t)buf[k + l], 2);
+			if (&buf[k + l] < obuf) {
+				_putchar(' ');
+				_putchar(' ');
+			} else {
+				printhex((uint8_t)buf[k + l], 2);
+			}
 			_putchar(' ');
 			if (l == 7)
 				_putchar(' ');
