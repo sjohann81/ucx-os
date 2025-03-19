@@ -65,7 +65,7 @@ static int i2c_hw_driver_deinit(const struct device_s *dev)
 	
 	data->init = 0;
 
-	printf("I2C: %s, spi_deinit()\n", dev->name);
+	printf("I2C: %s, i2c_deinit()\n", dev->name);
 	
 	return 0;
 }
