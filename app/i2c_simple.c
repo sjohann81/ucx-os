@@ -35,24 +35,24 @@ void i2c_eeprom_bufread(uint8_t device, uint16_t addr, uint8_t *buf, uint8_t siz
 	data[1] = (addr & 0x7f00) >> 8;
 	data[2] = addr & 0x00ff;
 
-	i2c1->api->dev_open(i2c1, 0);
+	dev_open(i2c1, 0);
 	
 	// select peripheral and write memory address
-	i2c1->api->dev_write(i2c1, data, 3);
+	dev_write(i2c1, data, 3);
 
 	byte = 0xA0 | ((device & 0x07) << 1) | 0x01;
 	data[0] = byte;
 	
 	// restart (write size zero)
-	i2c1->api->dev_write(i2c1, data, 0);
+	dev_write(i2c1, data, 0);
 	
 	// select peripheral for reading
-	i2c1->api->dev_write(i2c1, data, 1);
+	dev_write(i2c1, data, 1);
 	
 	// read data
-	i2c1->api->dev_read(i2c1, buf, size);
+	dev_read(i2c1, buf, size);
 	
-	i2c1->api->dev_close(i2c1);
+	dev_close(i2c1);
 }
 
 void i2c_eeprom_pagewrite(uint8_t device, uint16_t addr, uint8_t *buf, uint8_t size)
@@ -68,13 +68,13 @@ void i2c_eeprom_pagewrite(uint8_t device, uint16_t addr, uint8_t *buf, uint8_t s
 	if (size > 32) size = 32;
 	memcpy(data + 3, buf, size);
 
-	i2c1->api->dev_open(i2c1, 0);
+	dev_open(i2c1, 0);
 	
 	// select peripheral address (should be aligned to page boundary)
 	// and write data
-	i2c1->api->dev_write(i2c1, data, size + 3);
+	dev_write(i2c1, data, size + 3);
 
-	i2c1->api->dev_close(i2c1);
+	dev_close(i2c1);
 	
 	_delay_ms(5);
 }
@@ -107,7 +107,7 @@ int32_t app_main(void)
 	ucx_task_spawn(idle, DEFAULT_STACK_SIZE);
 	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
 
-	i2c1->api->dev_init(i2c1);
+	dev_init(i2c1);
 
 	// start UCX/OS, preemptive mode
 	return 1;

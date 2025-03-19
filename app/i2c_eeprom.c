@@ -119,23 +119,23 @@ void task0(void)
 	int size;
 	
 	if (!eeprom1->api->dev_open(eeprom1, 0)) {
-		eeprom1->api->dev_seek(eeprom1, 0x2000, SEEK_SET);
-		size = eeprom1->api->dev_write(eeprom1, buf, 130);
+		dev_seek(eeprom1, 0x2000, SEEK_SET);
+		size = dev_write(eeprom1, buf, 130);
 		printf("wrote %d bytes.\n", size);
-		eeprom1->api->dev_seek(eeprom1, 0x20c9, SEEK_SET);
-		size = eeprom1->api->dev_write(eeprom1, buf, 15);
+		dev_seek(eeprom1, 0x20c9, SEEK_SET);
+		size = dev_write(eeprom1, buf, 15);
 		printf("wrote %d bytes.\n", size);
-		eeprom1->api->dev_close(eeprom1);
+		dev_close(eeprom1);
 	}
 	
 	while (1) {
 		if (!eeprom1->api->dev_open(eeprom1, 0)) {
-			printf("pos: %d\n", eeprom1->api->dev_seek(eeprom1, 0, SEEK_CUR));
+			printf("pos: %d\n", dev_seek(eeprom1, 0, SEEK_CUR));
 			memset(buf, 0, sizeof(buf));
-			eeprom1->api->dev_seek(eeprom1, 0x2000, SEEK_SET);
-			printf("pos: %d\n", eeprom1->api->dev_seek(eeprom1, 0, SEEK_CUR));
-			eeprom1->api->dev_read(eeprom1, buf, 256);
-			eeprom1->api->dev_close(eeprom1);
+			dev_seek(eeprom1, 0x2000, SEEK_SET);
+			printf("pos: %d\n", dev_seek(eeprom1, 0, SEEK_CUR));
+			dev_read(eeprom1, buf, 256);
+			dev_close(eeprom1);
 			hexdump((char *)buf, 256);
 			printf("\n");
 		} else {
@@ -151,8 +151,8 @@ int32_t app_main(void)
 	ucx_task_spawn(idle, DEFAULT_STACK_SIZE);
 	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
 
-	i2c1->api->dev_init(i2c1);
-	eeprom1->api->dev_init(eeprom1);
+	dev_init(i2c1);
+	dev_init(eeprom1);
 
 	// start UCX/OS, preemptive mode
 	return 1;

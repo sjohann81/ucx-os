@@ -83,19 +83,19 @@ void task0(void)
 	
 	while (1) {
 		memset(buf, 0, sizeof(buf));
-		spi1->api->dev_open(spi1, 0);
+		dev_open(spi1, 0);
 		
 		do {
-			bytes = spi1->api->dev_read(spi1, buf, sizeof(buf));
+			bytes = dev_read(spi1, buf, sizeof(buf));
 		} while (bytes == 0);
 		printf("recv: %d %s\n", bytes, buf);
 		
 		strcat(buf, "hola");
 		do {
-			bytes = spi1->api->dev_write(spi1, buf, strlen(buf) + 1);
+			bytes = dev_write(spi1, buf, strlen(buf) + 1);
 		} while (bytes == 0);
 
-		spi1->api->dev_close(spi1);
+		dev_close(spi1);
 		
 		printf("%s\n", buf);
 	}
@@ -107,7 +107,7 @@ int32_t app_main(void)
 	
 	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
 
-	spi1->api->dev_init(spi1);
+	dev_init(spi1);
 
 	// start UCX/OS, preemptive mode
 	return 1;
