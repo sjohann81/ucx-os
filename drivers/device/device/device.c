@@ -31,6 +31,11 @@ size_t dev_write(const struct device_s *dev, void *buf, size_t count)
 	return dev->api->dev_write(dev, buf, count);
 }
 
+int dev_seek(const struct device_s *dev, long pos, int whence)
+{
+	return dev->api->dev_seek(dev, pos, whence);
+}
+
 int dev_ioctl(const struct device_s *dev, unsigned int req, ...)
 {
 	return dev->api->dev_ioctl(dev, req);
