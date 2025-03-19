@@ -2,6 +2,7 @@
 #include <device.h>
 #include <gpio.h>
 #include <i2c_bitbang.h>
+#include <24lcxx.h>
 
 /* GPIO configuration: PB6 (scl) and PB7 (sda) - port it! */
 const struct gpio_config_s gpio_config = {
@@ -85,81 +86,61 @@ const struct device_s i2c_device1 = {
 const struct device_s *i2c1 = &i2c_device1;
 
 
+/* EEPROM configuration and driver instantiation */
+const struct eeprom_24lc_config_s eeprom_config = {
+	.config_values.type = EEPROM_24LC256,
+	.config_values.select = 0,
+	.i2c_dev = &i2c_device1
+};
+
+struct eeprom_24lc_data_s eeprom_data;
+
+const struct device_s eeprom_device1 = {
+	.name = "24lcxx",
+	.config = &eeprom_config,
+	.data = &eeprom_data,
+	.api = &eeprom_24lc_api
+};
+
+const struct device_s *eeprom1 = &eeprom_device1;
+
+
 /* application */
-void i2c_eeprom_bufread(uint8_t device, uint16_t addr, uint8_t *buf, uint8_t size)
-{
-	uint8_t byte = 0;
-	char data[3];
-
-	byte = 0xA0 | ((device & 0x07) << 1);
-
-	data[0] = byte;
-	data[1] = (addr & 0x7f00) >> 8;
-	data[2] = addr & 0x00ff;
-
-	i2c1->api->dev_open(i2c1, 0);
-	
-	// select peripheral and write memory address
-	i2c1->api->dev_write(i2c1, data, 3);
-
-	byte = 0xA0 | ((device & 0x07) << 1) | 0x01;
-	data[0] = byte;
-	
-	// restart (write size zero)
-	i2c1->api->dev_write(i2c1, data, 0);
-	
-	// select peripheral for reading
-	i2c1->api->dev_write(i2c1, data, 1);
-	
-	// read data
-	i2c1->api->dev_read(i2c1, buf, size);
-	
-	i2c1->api->dev_close(i2c1);
-}
-
-void i2c_eeprom_pagewrite(uint8_t device, uint16_t addr, uint8_t *buf, uint8_t size)
-{
-	uint8_t byte = 0;
-	char data[35];
-
-	byte = 0xA0 | ((device & 0x07) << 1);
-
-	data[0] = byte;
-	data[1] = (addr & 0x7f00) >> 8;
-	data[2] = addr & 0x00ff;
-	if (size > 32) size = 32;
-	memcpy(data + 3, buf, size);
-
-	i2c1->api->dev_open(i2c1, 0);
-	
-	// select peripheral address (should be aligned to page boundary)
-	// and write data
-	i2c1->api->dev_write(i2c1, data, size + 3);
-
-	i2c1->api->dev_close(i2c1);
-	
-	_delay_ms(5);
-}
-
 void idle(void)
 {
 	for (;;);
 }
 
+
+uint8_t buf[300] = "The quick brown fox jumps over the lazy dog THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG QUICK QUICK QUICK QUICK BROWN BROWN BROWN BROWN";
+
 void task0(void)
 {
-	uint8_t buf[100];
+	int size;
 	
-	memset(buf, 0x69, sizeof(buf));
-	i2c_eeprom_pagewrite(0x00, 0x1000, buf, 32);
-	memset(buf, 0x22, sizeof(buf));
-	i2c_eeprom_pagewrite(0x00, 0x1020, buf, 20);
+	if (!eeprom1->api->dev_open(eeprom1, 0)) {
+		eeprom1->api->dev_seek(eeprom1, 0x2000, SEEK_SET);
+		size = eeprom1->api->dev_write(eeprom1, buf, 130);
+		printf("wrote %d bytes.\n", size);
+		eeprom1->api->dev_seek(eeprom1, 0x20c9, SEEK_SET);
+		size = eeprom1->api->dev_write(eeprom1, buf, 15);
+		printf("wrote %d bytes.\n", size);
+		eeprom1->api->dev_close(eeprom1);
+	}
 	
 	while (1) {
-		memset(buf, 0, sizeof(buf));
-		i2c_eeprom_bufread(0x00, 0x1000, buf, 64);
-		hexdump((char *)buf, 64);
-		printf("\n");
+		if (!eeprom1->api->dev_open(eeprom1, 0)) {
+			printf("pos: %d\n", eeprom1->api->dev_seek(eeprom1, 0, SEEK_CUR));
+			memset(buf, 0, sizeof(buf));
+			eeprom1->api->dev_seek(eeprom1, 0x2000, SEEK_SET);
+			printf("pos: %d\n", eeprom1->api->dev_seek(eeprom1, 0, SEEK_CUR));
+			eeprom1->api->dev_read(eeprom1, buf, 256);
+			eeprom1->api->dev_close(eeprom1);
+			hexdump((char *)buf, 256);
+			printf("\n");
+		} else {
+			printf("error opening device %d\n", eeprom1->name);
+		}
 
 		ucx_task_delay(500);
 	}
@@ -171,6 +152,7 @@ int32_t app_main(void)
 	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
 
 	i2c1->api->dev_init(i2c1);
+	eeprom1->api->dev_init(eeprom1);
 
 	// start UCX/OS, preemptive mode
 	return 1;
