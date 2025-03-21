@@ -68,7 +68,7 @@ int gpio_sda(int val)
 
 /* I2C (bitbang) configuration and driver instantiation */
 const struct i2c_config_s i2c_config = {
-	.sig_delay = 4,
+	.sig_delay = I2C_SPEED_NORMAL,
 	.gpio_configpins = gpio_configpins,
 	.gpio_scl = gpio_scl,
 	.gpio_sda = gpio_sda
@@ -118,7 +118,7 @@ void task0(void)
 {
 	int size;
 	
-	if (!eeprom1->api->dev_open(eeprom1, 0)) {
+	if (!dev_open(eeprom1, 0)) {
 		dev_seek(eeprom1, 0x2000, SEEK_SET);
 		size = dev_write(eeprom1, buf, 130);
 		printf("wrote %d bytes.\n", size);
@@ -129,7 +129,7 @@ void task0(void)
 	}
 	
 	while (1) {
-		if (!eeprom1->api->dev_open(eeprom1, 0)) {
+		if (!dev_open(eeprom1, 0)) {
 			printf("pos: %d\n", dev_seek(eeprom1, 0, SEEK_CUR));
 			memset(buf, 0, sizeof(buf));
 			dev_seek(eeprom1, 0x2000, SEEK_SET);

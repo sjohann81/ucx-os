@@ -67,7 +67,7 @@ int gpio_sda(int val)
 
 /* I2C (bitbang) configuration and driver instantiation */
 const struct i2c_config_s i2c_config = {
-	.sig_delay = 4,
+	.sig_delay = I2C_SPEED_NORMAL,
 	.gpio_configpins = gpio_configpins,
 	.gpio_scl = gpio_scl,
 	.gpio_sda = gpio_sda

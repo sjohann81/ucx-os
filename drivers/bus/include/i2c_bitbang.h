@@ -6,6 +6,14 @@ int i2c_close(const struct device_s *dev);
 size_t i2c_read(const struct device_s *dev, void *buf, size_t count);
 size_t i2c_write(const struct device_s *dev, void *buf, size_t count);
 
+enum i2c_speed {
+	I2C_SPEED_FASTEST = 1,
+	I2C_SPEED_FAST = 2,
+	I2C_SPEED_NORMAL = 5,
+	I2C_SPEED_SLOW = 20,
+	I2C_SPEED_SLOWEST = 50
+};
+
 /* I2C master (bit bang) configuration definitions */
 struct i2c_config_s {
 	unsigned sig_delay;		// default: 4us
