@@ -11,7 +11,7 @@
  * MOSI - output (master mode), input (slave mode)
  * MISO - input (master mode), output (slave mode)
  */
-int gpio_config(void)
+int gpio_configpins(void)
 {
 	printf("SPI: gpio_config()\n");
 	
@@ -71,7 +71,7 @@ const struct spi_config_s spi_config = {
 	.cs_active = SPI_CS_LOW,
 	.cs_delay = 1000,
 	.sig_delay = 100,
-	.gpio_config = gpio_config,
+	.gpio_configpins = gpio_configpins,
 	.gpio_cs = gpio_cs,
 	.gpio_sck = gpio_sck,
 	.gpio_mosi = gpio_mosi,
