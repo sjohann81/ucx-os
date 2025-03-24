@@ -218,6 +218,14 @@ spi_slave: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/spi_slave.o app/spi_slave.c
 	@$(MAKE) --no-print-directory link
 	
+spi_periph: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/spi_periph.o app/spi_periph.c
+	@$(MAKE) --no-print-directory link
+	
+spi_eeprom: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/spi_eeprom.o app/spi_eeprom.c
+	@$(MAKE) --no-print-directory link
+	
 suspend: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/suspend.o app/suspend.c
 	@$(MAKE) --no-print-directory link
