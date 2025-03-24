@@ -1,5 +1,5 @@
-/* file:          24lcxx.c
- * description:   24lcxx I2C EEPROM chip driver
+/* file:          24lcxxx.c
+ * description:   24lcxxx I2C EEPROM chip driver
  *                EEPROMs compatible with the Microchip 24lcxx family.
  *                Address and page size varies according to EEPROM chip in use:
  *                24xx01, 24xx02: 1 byte address, 8 bytes page
@@ -11,10 +11,10 @@
 
 #include <ucx.h>
 #include <device.h>
-#include <24lcxx.h>
+#include <24lcxxx.h>
 
 
-/* 24lcxx API function wrappers */
+/* 24lcxxx API function wrappers */
 int eeprom_24lc_init(const struct device_s *dev)
 {
 	return dev->api->dev_init(dev);
@@ -51,7 +51,7 @@ int eeprom_24lc_seek(const struct device_s *dev, long pos, int whence)
 }
 
 
-/* 24lcxx device driver implementation */
+/* 24lcxxx device driver implementation */
 
 static int eeprom_24lc_driver_init(const struct device_s *dev)
 {

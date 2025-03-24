@@ -10,6 +10,7 @@ ddrivers:
 		$(BUS_DRIVERS_DIR)/i2c/i2c.c \
 		$(BUS_DRIVERS_DIR)/uart/uart.c \
 		$(DEVICE_DRIVERS_DIR)/device/device.c \
-		$(DEVICE_DRIVERS_DIR)/24lcxx/24lcxx.c \
+		$(DEVICE_DRIVERS_DIR)/24lcxxx/24lcxxx.c \
+		$(DEVICE_DRIVERS_DIR)/25lcxxx/25lcxxx.c \
 		$(DEVICE_DRIVERS_DIR)/vt100/vt100.c
 
