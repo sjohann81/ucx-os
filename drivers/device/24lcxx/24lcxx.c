@@ -1,12 +1,12 @@
 /* file:          24lcxx.c
  * description:   24lcxx I2C EEPROM chip driver
- *                EEPROMs compatible with the Microchip 25lcxx family.
+ *                EEPROMs compatible with the Microchip 24lcxx family.
  *                Address and page size varies according to EEPROM chip in use:
  *                24xx01, 24xx02: 1 byte address, 8 bytes page
  *                24xx04, 24xx08, 24xx16: 1 byte address, 16 bytes page
- *                24xx32, 24xx64: 2 byte address, 32 byte page
- *                24xx128, 24xx256: 2 byte address, 64 byte page
- *                24xx512, 24xx1024/1025: 2 byte address, 128 byte page
+ *                24xx32, 24xx64: 2 bytes address, 32 bytes page
+ *                24xx128, 24xx256: 2 bytes address, 64 bytes page
+ *                24xx512, 24xx1024/1025: 2 bytes address, 128 bytes page
  */
 
 #include <ucx.h>
