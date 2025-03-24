@@ -2,7 +2,7 @@
 #include <device.h>
 #include <gpio.h>
 #include <i2c_bitbang.h>
-#include <24lcxx.h>
+#include <24lcxxx.h>
 
 /* GPIO configuration: PB6 (scl) and PB7 (sda) - port it! */
 const struct gpio_config_s gpio_config = {
