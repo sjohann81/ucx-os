@@ -46,7 +46,7 @@ static int spi_driver_init(const struct device_s *dev)
 	data->init = 0;
 	data->busy = 0;
 	
-	val = config->gpio_config();
+	val = config->gpio_configpins();
 	if (val < 0)
 		return val;
 	
@@ -55,6 +55,12 @@ static int spi_driver_init(const struct device_s *dev)
 		config->gpio_sck(0);
 	else
 		config->gpio_sck(1);
+	
+	if (config->device_mode == SPI_MASTER)
+		config->gpio_mosi(1);
+	else
+		config->gpio_miso(1);
+		
 	data->init = 1;
 	
 	printf("SPI: %s, spi_init()\n", dev->name);
@@ -121,12 +127,15 @@ static int spi_driver_close(const struct device_s *dev)
 	if (config->device_mode == SPI_MASTER) {
 		config->gpio_cs(config->cs_active ^ SPI_CS_HIGH);
 		_delay_us(config->cs_delay);
+		config->gpio_mosi(1);
+	} else {
+		config->gpio_miso(1);
 	}
 	
 	return 0;
 }
 
-static char spi_master_transfer(const struct device_s *dev, char data, char bit_order)
+static char spi_master_transfer(const struct device_s *dev, char data)
 {
 	struct spi_config_s *config;
 	int i;
@@ -147,7 +156,7 @@ static char spi_master_transfer(const struct device_s *dev, char data, char bit_
 			
 			// read MISO
 			newdata = config->bit_order == SPI_LSB ? newdata >> 1 : newdata << 1;
-			if (config->gpio_miso(0))
+			if (config->gpio_miso(-1))
 				newdata |= config->bit_order == SPI_LSB ? 0x80 : 0x01;
 			
 			// update SCK
@@ -169,7 +178,7 @@ static char spi_master_transfer(const struct device_s *dev, char data, char bit_
 			
 			// read MISO
 			newdata = config->bit_order == SPI_LSB ? newdata >> 1 : newdata << 1;
-			if (config->gpio_miso(0))
+			if (config->gpio_miso(-1))
 				newdata |= config->bit_order == SPI_LSB ? 0x80 : 0x01;
 		}
 	}
@@ -177,7 +186,7 @@ static char spi_master_transfer(const struct device_s *dev, char data, char bit_
 	return newdata;
 }
 
-static char spi_slave_transfer(const struct device_s *dev, char data, char bit_order)
+static char spi_slave_transfer(const struct device_s *dev, char data)
 {
 	struct spi_config_s *config;
 	int i;
@@ -193,7 +202,7 @@ static char spi_slave_transfer(const struct device_s *dev, char data, char bit_o
 			
 			// read MOSI
 			newdata = config->bit_order == SPI_LSB ? newdata >> 1 : newdata << 1;
-			if (config->gpio_mosi(0))
+			if (config->gpio_mosi(-1))
 				newdata |= config->bit_order == SPI_LSB ? 0x80 : 0x01;
 			
 			// write MISO
@@ -212,7 +221,7 @@ static char spi_slave_transfer(const struct device_s *dev, char data, char bit_o
 			
 			// read MOSI
 			newdata = config->bit_order == SPI_LSB ? newdata >> 1 : newdata << 1;
-			if (config->gpio_mosi(0))
+			if (config->gpio_mosi(-1))
 				newdata |= config->bit_order == SPI_LSB ? 0x80 : 0x01;
 
 			// write MISO
@@ -245,7 +254,7 @@ static size_t spi_driver_read(const struct device_s *dev, void *buf, size_t coun
 	if (config->device_mode == SPI_MASTER) {
 		NOSCHED_ENTER();
 		for (i = 0; i < count; i++)
-			p[i] = spi_master_transfer(dev, 0x00, config->bit_order);
+			p[i] = spi_master_transfer(dev, 0x00);
 		NOSCHED_LEAVE();
 	} else {
 		if (config->gpio_cs(0) != config->cs_active)
@@ -253,12 +262,12 @@ static size_t spi_driver_read(const struct device_s *dev, void *buf, size_t coun
 		
 		NOSCHED_ENTER();
 		for (i = 0; i < count; i++) {
-			p[i] = spi_slave_transfer(dev, 0x00, config->bit_order);
+			p[i] = spi_slave_transfer(dev, 0x00);
 			if (config->gpio_cs(0) != config->cs_active) break;
 		}
 		NOSCHED_LEAVE();
 		
-		while (config->gpio_cs(0) == config->cs_active);
+		//while (config->gpio_cs(0) == config->cs_active);
 
 		return i;
 	}
@@ -284,7 +293,7 @@ static size_t spi_driver_write(const struct device_s *dev, void *buf, size_t cou
 	if (config->device_mode == SPI_MASTER) {
 		NOSCHED_ENTER();
 		for (i = 0; i < count; i++) {
-			newdata = spi_master_transfer(dev, p[i], config->bit_order);
+			newdata = spi_master_transfer(dev, p[i]);
 			if (config->duplex_mode == SPI_FULL_DUPLEX)
 				p[i] = newdata;
 		}
@@ -295,7 +304,7 @@ static size_t spi_driver_write(const struct device_s *dev, void *buf, size_t cou
 		
 		NOSCHED_ENTER();
 		for (i = 0; i < count; i++) {
-			newdata = spi_slave_transfer(dev, p[i], config->bit_order);
+			newdata = spi_slave_transfer(dev, p[i]);
 			if (config->gpio_cs(0) != config->cs_active) break;
 
 			if (config->duplex_mode == SPI_FULL_DUPLEX)
@@ -303,7 +312,7 @@ static size_t spi_driver_write(const struct device_s *dev, void *buf, size_t cou
 		}
 		NOSCHED_LEAVE();
 		
-		while (config->gpio_cs(0) == config->cs_active);
+		//while (config->gpio_cs(0) == config->cs_active);
 		
 		return i;
 	}
