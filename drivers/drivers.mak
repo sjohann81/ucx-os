@@ -9,6 +9,7 @@ ddrivers:
 		$(BUS_DRIVERS_DIR)/spi/spi_bitbang.c \
 		$(BUS_DRIVERS_DIR)/i2c/i2c.c \
 		$(BUS_DRIVERS_DIR)/uart/uart.c \
+		$(BUS_DRIVERS_DIR)/pwm/pwm.c \
 		$(DEVICE_DRIVERS_DIR)/device/device.c \
 		$(DEVICE_DRIVERS_DIR)/24lcxxx/24lcxxx.c \
 		$(DEVICE_DRIVERS_DIR)/25lcxxx/25lcxxx.c \
