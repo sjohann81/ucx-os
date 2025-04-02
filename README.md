@@ -1,6 +1,6 @@
 # UCX/OS - Microcontroller Executive / OS
 
-UCX/OS is an experimental preemptive unikernel (library OS) for microcontrollers, aimed to be easily ported. The kernel implements a lightweight multitasking environment in a single address space (based on fibers/coroutines and standard setjmp() and longjmp() library calls), using a minimum amount of resources.
+UCX/OS is an experimental preemptive nanokernel for microcontrollers, aimed to be easily ported. The kernel implements a lightweight multitasking environment in a single address space (based on fibers/coroutines and standard setjmp() and longjmp() library calls), using a minimum amount of resources.
 
 Currently, UCX/OS supports the following targets:
 
@@ -199,7 +199,7 @@ Timers are flexible resources that allow the dispatch of events, implemented as 
 
 ### Device driver API
 
-Device drivers can be implemented with a generic interface or with a custom interface, according to the needs of the specific device or application. The generic interface implements the following operations, and devices are handled as files: *dev_init()*, *dev_deinit()*, *dev_open()*, *dev_close()*, *dev_read()*, *dev_write()* and *dev_ioctl()*. This interface is implemented (or at least, most of this interface) for the majority of devices. This interface can be accessed via direct calls (if a driver implements API function wrappers) or through a pointer in the device descriptor. Other devices may use a different, custom interface, which is specialized according to the specific device.
+Device drivers can be implemented with a generic interface or with a custom interface, according to the needs of the specific device or application. The generic interface implements the following operations, and devices are handled as files: *dev_init()*, *dev_deinit()*, *dev_open()*, *dev_close()*, *dev_read()*, *dev_write()*, *dev_seek()* and *dev_ioctl()*. This interface is implemented (or at least, most of this interface) for the majority of devices. This interface can be accessed via direct calls (if a driver implements API function wrappers) or through a pointer in the device descriptor. Other devices may use a different, custom interface, which is specialized according to the specific device.
 
 A typical device driver is saparated in three parts: a) driver interface (API), macros and function wrappers; b) device driver implementation; c) device driver instantiation and function mapping (implementation to interface mapping). An application can create one or more instances of the same driver and it is responsible for the driver setup and management.
 
@@ -222,7 +222,7 @@ Drivers that use the generic interface can be accessed via *struct device_api_s*
 
 ##### dev_close()
 
-- Close the device and free it.
+- Close the device and free it, releasing exclusive usage (if applicable).
 
 ##### dev_read()
 
@@ -231,6 +231,10 @@ Drivers that use the generic interface can be accessed via *struct device_api_s*
 ##### dev_write()
 
 - Perform a write operation, copying buffer data to the device.
+
+##### dev_seek()
+
+- Position the current file pointer to a specific byte on a block oriented device.
 
 ##### dev_ioctl()
 
