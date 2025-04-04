@@ -47,6 +47,7 @@ hal:
 		$(ARCH_DIR)/../stm32f401_blackpill/usart.c \
 		$(ARCH_DIR)/../stm32f401_blackpill/drivers/gpio_ll.c \
 		$(ARCH_DIR)/../stm32f401_blackpill/drivers/i2c_ll.c \
+		$(ARCH_DIR)/../stm32f401_blackpill/drivers/pwm_ll.c \
 		$(ARCH_DIR)/../../common/muldiv.c \
 		$(ARCH_DIR)/../../common/ieee754.c \
 		$(ARCH_DIR)/../../common/math.c \
