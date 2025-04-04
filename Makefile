@@ -210,6 +210,10 @@ progress: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/progress.o app/progress.c
 	@$(MAKE) --no-print-directory link
 
+pwm_blink: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/pwm_blink.o app/pwm_blink.c
+	@$(MAKE) --no-print-directory link
+
 spi_master: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/spi_master.o app/spi_master.c
 	@$(MAKE) --no-print-directory link
