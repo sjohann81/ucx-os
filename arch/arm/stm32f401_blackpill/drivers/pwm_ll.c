@@ -8,23 +8,43 @@
 #include <libc.h>
 
 
-#define MAX_RELOAD               0xFFFF
+#define SCALE1			1000000
+#define SCALE2			2000000
+#define SCALE4			4000000
+#define SCALE8			8000000
+#define SCALE16			16000000
+#define SCALE32			32000000
 
 long pwm_ll_setup(struct pwm_config_values_s *cfg)
 {
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStruct;
 	TIM_OCInitTypeDef TIM_OCStruct;
 	GPIO_InitTypeDef GPIO_InitStruct;
-	long period_cycles;
 	unsigned prescaler, overflow;
 	unsigned channels;
 
 	if (cfg->frequency == 0)
 		return -1;
 
-	period_cycles = SystemCoreClock / cfg->frequency;
-	prescaler = period_cycles / MAX_RELOAD + 1;
-	overflow = (period_cycles + (prescaler / 2)) / prescaler;
+	if (cfg->frequency < 1000) {
+		prescaler = (SystemCoreClock / SCALE1) - 1;
+		overflow = (SCALE1 / cfg->frequency) - 1;
+	} else if (cfg->frequency < 2000) {
+		prescaler = (SystemCoreClock / SCALE2) - 1;
+		overflow = (SCALE2 / cfg->frequency) - 1;
+	} else if (cfg->frequency < 4000) {
+		prescaler = (SystemCoreClock / SCALE4) - 1;
+		overflow = (SCALE4 / cfg->frequency) - 1;
+	} else if (cfg->frequency < 8000) {
+		prescaler = (SystemCoreClock / SCALE8) - 1;
+		overflow = (SCALE8 / cfg->frequency) - 1;
+	} else if (cfg->frequency < 16000) {
+		prescaler = (SystemCoreClock / SCALE16) - 1;
+		overflow = (SCALE16 / cfg->frequency) - 1;
+	} else {
+		prescaler = (SystemCoreClock / SCALE32) - 1;
+		overflow = (SCALE32 / cfg->frequency) - 1;
+	}
 	
 	if (cfg->direction == PWM_OUTPUT) {
 		switch (cfg->timer) {
@@ -35,7 +55,19 @@ long pwm_ll_setup(struct pwm_config_values_s *cfg)
 			TIM_TimeBaseInitStruct.TIM_Prescaler = prescaler;
 			TIM_TimeBaseInitStruct.TIM_Period = overflow;
 			TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
-			TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_CenterAligned1;
+			
+			switch (cfg->mode) {
+			case PWM_FAST:
+			case PWM_EDGE:
+				TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
+				break;
+			case PWM_PHASE_CORRECT:
+			case PWM_CENTER:
+				TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_CenterAligned2;
+				break;
+			default:
+				return -1;
+			}
 			
 			/* TIM2 initialize */
 			TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStruct);
@@ -129,7 +161,19 @@ long pwm_ll_setup(struct pwm_config_values_s *cfg)
 			TIM_TimeBaseInitStruct.TIM_Prescaler = prescaler;
 			TIM_TimeBaseInitStruct.TIM_Period = overflow;
 			TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
-			TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_CenterAligned1;
+
+			switch (cfg->mode) {
+			case PWM_FAST:
+			case PWM_EDGE:
+				TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
+				break;
+			case PWM_PHASE_CORRECT:
+			case PWM_CENTER:
+				TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_CenterAligned2;
+				break;
+			default:
+				return -1;
+			}
 			
 			/* TIM3 initialize */
 			TIM_TimeBaseInit(TIM3, &TIM_TimeBaseInitStruct);
@@ -223,7 +267,19 @@ long pwm_ll_setup(struct pwm_config_values_s *cfg)
 			TIM_TimeBaseInitStruct.TIM_Prescaler = prescaler;
 			TIM_TimeBaseInitStruct.TIM_Period = overflow;
 			TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
-			TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_CenterAligned1;
+
+			switch (cfg->mode) {
+			case PWM_FAST:
+			case PWM_EDGE:
+				TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
+				break;
+			case PWM_PHASE_CORRECT:
+			case PWM_CENTER:
+				TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_CenterAligned2;
+				break;
+			default:
+				return -1;
+			}
 			
 			/* TIM4 initialize */
 			TIM_TimeBaseInit(TIM4, &TIM_TimeBaseInitStruct);
@@ -317,7 +373,19 @@ long pwm_ll_setup(struct pwm_config_values_s *cfg)
 			TIM_TimeBaseInitStruct.TIM_Prescaler = prescaler;
 			TIM_TimeBaseInitStruct.TIM_Period = overflow;
 			TIM_TimeBaseInitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
-			TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_CenterAligned1;
+
+			switch (cfg->mode) {
+			case PWM_FAST:
+			case PWM_EDGE:
+				TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_Up;
+				break;
+			case PWM_PHASE_CORRECT:
+			case PWM_CENTER:
+				TIM_TimeBaseInitStruct.TIM_CounterMode = TIM_CounterMode_CenterAligned2;
+				break;
+			default:
+				return -1;
+			}
 			
 			/* TIM9 initialize */
 			TIM_TimeBaseInit(TIM9, &TIM_TimeBaseInitStruct);
@@ -383,7 +451,7 @@ long pwm_ll_setup(struct pwm_config_values_s *cfg)
 		return -1;
 	}
 	
-	return overflow;
+	return overflow + 1;
 }
 
 int pwm_ll_get(struct pwm_config_values_s *cfg, unsigned channel, unsigned *pulse)
