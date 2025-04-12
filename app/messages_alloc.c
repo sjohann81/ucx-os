@@ -24,6 +24,7 @@ void task1(void)
 	
 	while (1) {
 		str = malloc(50);
+		printf("malloc(): %p\n", str);
 		if (!str) malloc_failed();
 		
 		sprintf(str, "hello %d from t1...", val);
@@ -32,6 +33,7 @@ void task1(void)
 		ucx_mq_enqueue(mq1, pmsg);
 
 		str = malloc(20);
+		printf("malloc(): %p\n", str);
 		if (!str) malloc_failed();
 		
 		val++;
@@ -42,6 +44,7 @@ void task1(void)
 		ucx_mq_enqueue(mq2, pmsg);
 		
 		str = malloc(20);
+		printf("malloc(): %p\n", str);
 		if (!str) malloc_failed();
 		
 		fval += 0.123;
