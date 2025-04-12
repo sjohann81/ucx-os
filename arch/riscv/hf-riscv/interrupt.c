@@ -229,6 +229,18 @@ void irq0_handler(void)
 			} while (irq);
 			break;
 		case MASK_S0CAUSE_UART:
+			irq = (UARTCAUSE ^ UARTCAUSEINV) & UARTMASK;
+
+			do {
+				if (irq & 0x1) {
+					/* toggle interrupt cause */
+					UARTCAUSEINV ^= (irq & 0x1) << i;
+					/* call irq handler */
+					uart_vector[i]();
+				}
+				irq >>= 1;
+				++i;
+			} while (irq);
 			break;
 		case MASK_S0CAUSE_SPI:
 			break;
