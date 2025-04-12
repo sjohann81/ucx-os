@@ -1,6 +1,7 @@
 # this is stuff specific to this architecture
 ARCH_DIR = $(SRC_DIR)/arch/$(ARCH)
-INC_DIRS = -I $(ARCH_DIR)
+INC_DIRS = -I $(ARCH_DIR)\
+	-I $(ARCH_DIR)/../hf-riscv/drivers
 
 # core speed
 F_CLK = 25000000
@@ -39,4 +40,5 @@ hal:
 		$(ARCH_DIR)/../hf-riscv/interrupt.c \
 		$(ARCH_DIR)/../../common/muldiv.c \
 		$(ARCH_DIR)/../../common/ieee754.c \
-		$(ARCH_DIR)/../../common/math.c
+		$(ARCH_DIR)/../../common/math.c \
+		$(ARCH_DIR)/../hf-riscv/drivers/usart.c

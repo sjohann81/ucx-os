@@ -5,32 +5,42 @@
  */
 
 #include <hal.h>
-#include <lib/console.h>
+#include <console.h>
 #include <lib/libc.h>
 #include <kernel/kernel.h>
+#include <device.h>
+#include <uart.h>
+#include <usart.h>
 
 /*
 libc basic I/O support
 */
 
+const struct device_s *usart0 = &usart0_dev;
+
 #ifndef DEBUG_PORT
 static int __putchar(int value)		// polled putchar()
 {
-	while (UARTCAUSE & MASK_UART0_WRITEBUSY);
-	UART0 = value;
+	usart0->api->dev_write(usart0, &value, 1);
 	
 	return value;
 }
 
 static int __kbhit(void)
 {
-	return UARTCAUSE & MASK_UART0_DATAAVAIL;
+	if (usart0->api->dev_read(usart0, 0, 0))
+		return 1;
+	else
+		return 0;
 }
 
 static int __getchar(void)			// polled getch()
 {
-	while (!_kbhit());
-	return UART0;
+	char buf[2];
+	
+	usart0->api->dev_read(usart0, buf, 1);
+	
+	return buf[0];
 }
 #else
 static int __putchar(int value)		// polled putchar()
@@ -130,13 +140,8 @@ void _hardware_init(void)
 	_di();
 	
 #ifndef DEBUG_PORT
-	uint16_t d;
-
-	d = (uint16_t)(F_CPU / USART_BAUD);
-	UART0DIV = d;
-	UART0 = 0;
-
-	PAALTCFG0 |= MASK_UART0;
+	usart0->api->dev_init(usart0);
+	usart0->api->dev_open(usart0, 0);
 #endif
 	_stdout_install(__putchar);
 	_stdin_install(__getchar);
