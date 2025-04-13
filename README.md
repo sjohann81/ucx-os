@@ -58,15 +58,19 @@ For other emulators, the binary image may need to be passed as a parameter as th
 
 The programming model is very simple and intented to be generic for the development of embedded applications. Along with basic C library support, task control and synchronization abstractions are provided. A thin layer of software (HAL, shorthand for *hardware abstraction layer*) is used to generalize basic architecture abstractions, so applications can be compiled for any of the supported targets without change. Any specific functionality besides basic kernel abstractions can also be used, as long as supported by the target architecture and toolchain (for example, abstractions such as port access, timers and other peripherals provided for the AVR target in the AVR-LIBC library). Such additional functionalities are target dependent and their use limits application portability.
 
-### Tasks, the stack, setjmp() / longjmp()
+### Tasks, the stack, execution context and coroutines
 
-Tasks are basic resources managed by the kernel. In this model, tasks are lightweight execution routines that run indefinitely (tasks never finish) and share the same memory region. During bootup, the kernel initializes all tasks and allocates stack memory for each task local storage. Context switches are easily implemented by portable setjmp() and longjmp() library calls. This ensures very fast context switches, as less state storage is needed for each task and also allows the kernel to run even on severely memory constrained architectures.
+Tasks are basic resources managed by the kernel. In this model, tasks are lightweight execution routines that run indefinitely (tasks never finish. unless canceled) and share the same memory region. During bootup, the kernel initializes all tasks and allocates stack memory for each task local storage. On most targets, context switches can be easily implemented by portable *setjmp()* and *longjmp()* library calls. This ensures very fast context switches, as less state storage is needed for each task and also allows the kernel to run even on severely memory constrained architectures.
+
+Coroutines are lightweight, stackless scheduling resources. Coroutines can be used in separated groups of coroutines, where each group can be managed by a task. Another way to use coroutines is in an application where no tasks are scheduled and only coroutines are executed directly from the *app_main()* context. Coroutines should always return to yield execution to other coroutines (in contrast to tasks) and are scheduled by the application itself. The same stack is shared by all coroutines in the same group.
 
 ### Scheduling (cooperative / preemptive)
 
-There are two scheduling modes in the kernel. An application can invoke the scheduler cooperatively by making a call to the *ucx_task_yield()* function. After initialization, this can happen at any moment inside the task loop. In preemptive mode, the kernel invokes the scheduler asynchronously using a periodic interrupt. Selection of the scheduling mode is performed according to the return value of the application *app_main()* function. When the application returns from this function with a value of 0, the kernel is configured in cooperative mode. If a value of 1 is returned, the kernel is configured in preemptive mode.
+There are two task scheduling modes in the kernel. An application can invoke the scheduler cooperatively by making a call to the *ucx_task_yield()* function. After initialization, this can happen at any moment inside the task loop. In preemptive mode, the kernel invokes the scheduler asynchronously using a periodic interrupt. Selection of the scheduling mode is performed according to the return value of the application *app_main()* function. When the application returns from this function with a value of 0, the kernel is configured in cooperative mode. If a value of 1 is returned, the kernel is configured in preemptive mode.
 
 A priority round-robin algorithm performs the scheduling of tasks. By default, all tasks are configured with the same priority (TASK_NORMAL_PRIO), thus tasks share processor time proportionally. Priorities of each task can be changed after their inclusion in the system (in the *app_main()* function) by the *ucx_task_priority()* function, or configured dynamically (inside the body / during execution of a task) using the same function, according to the application needs. Each task can be configured in one of the following priorities: TASK_CRIT_PRIO (critical), TASK_REALTIME_PRIO (real time), TASK_HIGH_PRIO (high), TASK_ABOVE_PRIO (above normal), TASK_NORMAL_PRIO (normal), TASK_BELOW_PRIO (below normal), TASK_LOW_PRIO (low) and TASK_IDLE_PRIO (lowest).
+
+Another scheduling resource are coroutines, which are a lightweight mechanism. Coroutines can run in a standalone manner (without tasks in the system) or within a task context, and they have their own priority based round-robin scheduler.
 
 ### Stack allocation
 
@@ -87,26 +91,26 @@ Device drivers are the way to enable portability, customization and hardware sup
 
 ### Kernel API
 
-System calls are divided in three classes. The *task* class of system calls are used for task control and information. The *system* class are used for system information and control. The *semaphore* class of system calls are used for task synchronization and the *pipe* class of system calls are used as a basic communication mechanism between tasks. At this moment, system calls are implemented as simple library calls, but this will change in the near future for architectures that suport hardware exceptions and different modes of operation. There is a system call wrapper in place that can be used for as a system call interface, that implements a software interrupt for syscalls and asynchronous callbacks.
+System calls are divided in several classes. The *task* class of system calls are used for task control and information. The *coroutine* class of system calls implement coroutine grouping and scheduling. The *system* class handle system information and control. The *semaphore* class of system calls are used for task synchronization, along with the *pipe* class which define a basic communication mechanism between tasks and coroutines and the more flexible *message queue*. The *timer* interface define system calls that can be used to create configurable and low overhead timers. At this moment, system calls are implemented as simple library calls, but this will change in the near future for architectures that suport hardware exceptions and different modes of operation. There is a system call wrapper in place that can be used for as a system call interface, which implements a software interrupt for syscalls and asynchronous callbacks.
 
-| Task			| System		| Semaphore		| Pipe			| Message Queue		| Timer			|
-| :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- |
-| ucx_task_spawn()	| ucx_ticks()		| ucx_sem_create()	| ucx_pipe_create()	| ucx_mq_create()	| ucx_timer_create()	|
-| ucx_task_cancel()	| ucx_uptime()		| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_mq_destroy()	| ucx_timer_destroy()	|
-| ucx_task_yield()	| 			| ucx_sem_wait()	| ucx_pipe_flush()	| ucx_mq_enqueue()	| ucx_timer_start()	|
-| ucx_task_delay()	| 			| ucx_sem_signal()	| ucx_pipe_size()	| ucx_mq_dequeue()	| ucx_timer_cancel()	|
-| ucx_task_suspend()	|			|			| ucx_pipe_read()	| ucx_mq_peek()		| 			|
-| ucx_task_resume()	|			|			| ucx_pipe_write()	| ucx_mq_items()	| 			|
-| ucx_task_priority()	|			| 			| ucx_pipe_nbread()	|			|			|
-| ucx_task_id()		|			| 			| ucx_pipe_nbwrite()	|			|			|
-| ucx_task_refid()	|			| 			| 			|			|			|
-| ucx_task_wfi()	|			|			| 			|			|			|
-| ucx_task_count()	|			|			| 			|			|			|
+| Task			| Coroutine		| System		| Semaphore		| Pipe			| Message Queue		| Timer			|
+| :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- |
+| ucx_task_spawn()	| ucx_cr_ginit()	| ucx_ticks()		| ucx_sem_create()	| ucx_pipe_create()	| ucx_mq_create()	| ucx_timer_create()	|
+| ucx_task_cancel()	| ucx_cr_gdestroy()	| ucx_uptime()		| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_mq_destroy()	| ucx_timer_destroy()	|
+| ucx_task_yield()	| ucx_cr_add()		|			| ucx_sem_wait()	| ucx_pipe_flush()	| ucx_mq_enqueue()	| ucx_timer_start()	|
+| ucx_task_delay()	| ucx_cr_cancel()	| 			| ucx_sem_signal()	| ucx_pipe_size()	| ucx_mq_dequeue()	| ucx_timer_cancel()	|
+| ucx_task_suspend()	| ucx_cr_schedule()	|			|			| ucx_pipe_read()	| ucx_mq_peek()		|			|
+| ucx_task_resume()	|			|			| 			| ucx_pipe_write()	| ucx_mq_items()	| 			|
+| ucx_task_priority()	|			| 			| 			| ucx_pipe_nbread()	|			|			|
+| ucx_task_id()		|			| 			|			| ucx_pipe_nbwrite()	|			|			|
+| ucx_task_refid()	|			| 			| 			|			|			|			|
+| ucx_task_wfi()	|			|			| 			|			|			|			|
+| ucx_task_count()	|			|			| 			|			|			|			|
 
 
 #### Task
 
-Tasks are the basic scheduling resource. An application in UCX/OS is composed of one or more tasks, which are scheduled according to their priorities. Tasks communicate using shared memory and synchronized or by exchanging data through pipes or event queues.
+Tasks are the basic scheduling resource. An application in UCX/OS is composed of one or more tasks, which are scheduled according to their priorities. Tasks communicate using shared memory and are synchronized by exchanging data through pipes (using blocking and non-blocking calls) or event queues.
 
 ##### ucx_task_spawn()
 
@@ -153,6 +157,31 @@ Tasks are the basic scheduling resource. An application in UCX/OS is composed of
 - Returns the number of tasks in the system.
 
 
+#### Coroutine
+
+Coroutines are lightweight, stackless scheduling resources. An application in UCX/OS is typically composed by tasks, tasks with an associated group of coroutines or standalone coroutines. Coroutines communicate using shared memory and are synchronized by exchanging data through pipes (using non-blocking calls only) or event queues.
+
+##### ucx_cr_ginit()
+
+- Creates and initializes a coroutine group context.
+
+##### ucx_cr_gdestroy()
+
+- Destroys a previously initialized coroutine group context.
+
+##### ucx_cr_add()
+
+- Adds a coroutine to a group context, defining its relative priority to other coroutines in the same group.
+
+##### ucx_cr_cancel()
+
+- Removes a coroutine from a group context.
+
+##### ucx_cr_schedule()
+
+- Schedules the coroutine with the highest priority in the same group, according to a priority round-robin scheduling policy.
+
+
 #### System
 
 ##### ucx_ticks()
@@ -195,6 +224,8 @@ Message queues are simple message oriented communication channels between tasks.
 #### Timer
 
 Timers are flexible resources that allow the dispatch of events, implemented as callback functions. Software timers can be used to control a large number of events, without the limitations of hardware timers, such as limited a set of timers and different configurations for each timer. Software timers are handled in a single task and callbacks are dispatched in the context of this task. This reduces resource usage, compared to timers implemented as several tasks and using the *ucx_task_delay()* primitive. Timers can be configured in single shot or auto-reload modes.
+
+Two implementations are provided for timer management. The first one, uses the *timer_handler_systick()* function which uses the system tick as a time reference. The second one uses the *timer_handler()* which is based on the system uptime, based on a running hardware counter as a time reference.
 
 
 ### Device driver API
