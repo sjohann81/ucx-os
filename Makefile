@@ -1,4 +1,4 @@
-VERSION = 0.96
+VERSION = 0.97
 
 TARGET_LIST = \
 	'arm/stm32f401_blackpill' 'arm/stm32f411_blackpill' \
@@ -28,7 +28,7 @@ BUILD_TARGET_DIR = $(BUILD_DIR)/target
 INC_DIRS += -I $(SRC_DIR)/include -I $(SRC_DIR)/include/lib \
 	-I $(SRC_DIR)/drivers/bus/include -I $(SRC_DIR)/drivers/device/include \
 	-I $(SRC_DIR)/arch/common
-CFLAGS += -D__VER__=\"$(VERSION)\"
+CFLAGS += -D__VER__=\"$(VERSION)\" #-DALT_ALLOCATOR
 
 incl:
 ifeq ('$(ARCH)', 'none')
