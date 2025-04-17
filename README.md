@@ -1,6 +1,6 @@
 # UCX/OS - Microcontroller Executive / OS
 
-UCX/OS is an experimental preemptive nanokernel for microcontrollers, aimed to be easily ported. The kernel implements a lightweight multitasking environment in a single address space (based on fibers/coroutines and standard setjmp() and longjmp() library calls), using a minimum amount of resources.
+UCX/OS is an experimental preemptive nanokernel for microcontrollers, aimed to be easily ported. The kernel implements a lightweight multitasking environment in a single address space (based on tasks and coroutines), using a minimum amount of resources.
 
 Currently, UCX/OS supports the following targets:
 
@@ -30,12 +30,13 @@ Different toolchains based on GCC and LLVM can be used to build the kernel and a
 
 ## Features
 
-- Small footprint (4kB ~ 8kB) for the kernel;
-- Lightweight task model (fibers) where tasks share the same memory region;
+- Small footprint (6kB ~ 10kB) for the kernel.
+- Hibrid lightweight task model (taks and coroutines) where tasks share the same memory region;
 - Preemptive / cooperative scheduling based on a priority round robin (RR) scheduler;
-- Task synchronization using semaphores or pipeline channels;
+- Task synchronization and communication using semaphores, pipeline channels or message queues;
+- Software timers;
 - Dynamic memory allocation;
-- Small C library, along with queue and list libraries.
+- Small C library, along with data structures library.
 
 
 ## Building example applications
