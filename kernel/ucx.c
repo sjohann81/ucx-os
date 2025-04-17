@@ -407,6 +407,9 @@ void ucx_task_wfi()
 {
 	volatile uint32_t s;
 	
+	if (kcb->preemptive == 'n')
+		return;
+	
 	s = kcb->ticks;
 	while (s == kcb->ticks);
 }
