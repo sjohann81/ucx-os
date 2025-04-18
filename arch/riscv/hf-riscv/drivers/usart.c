@@ -39,7 +39,7 @@ int usart0_config(struct uart_config_values_s *config)
 		UARTMASK |= MASK_UART0_DATAAVAIL;
 	}
 
-	PAALTCFG0 |= MASK_UART0;
+	PAALTCFG0 |= (MASK_UART0_TX | MASK_UART0_RX);
 
 	return 0;
 }
