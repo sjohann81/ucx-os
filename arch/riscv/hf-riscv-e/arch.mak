@@ -42,4 +42,12 @@ hal:
 		$(ARCH_DIR)/../../common/ieee754.c \
 		$(ARCH_DIR)/../../common/math.c \
 		$(ARCH_DIR)/../hf-riscv/drivers/usart.c \
-		$(ARCH_DIR)/../hf-riscv/drivers/gpio_ll.c
+		$(ARCH_DIR)/../hf-riscv/drivers/gpio_ll.c \
+		$(ARCH_DIR)/../hf-riscv/drivers/pwm_ll.c
+
+loadbin: serial
+	echo "u" > ${SERIAL_DEVICE}
+	sleep 1
+	cat ${BUILD_TARGET_DIR}/image.bin > ${SERIAL_DEVICE}
+	sleep 5
+	echo "b" > ${SERIAL_DEVICE}
