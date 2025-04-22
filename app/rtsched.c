@@ -65,20 +65,24 @@ struct our_priority_s {
 
 int32_t our_sched(void)
 {
+	struct node_s *task_node;
 	struct tcb_s *task = kcb->task_current->data;
 	struct our_priority_s *priority = task->rt_prio;
 	
 	/* if this task is not blocked or suspended, it is ready */
 	if (task->state == TASK_RUNNING)
 		task->state = TASK_READY;
+		
+	task_node = kcb->task_current;
 	
 	/* is this an RT task? (last task may be a non RT one) */
 	while (task->state != TASK_READY || !task->rt_prio) {
-		kcb->task_current = kcb->task_current->next;
-		if (kcb->task_current == kcb->tasks->tail)
-			kcb->task_current = kcb->tasks->head->next;
+		task_node = task_node->next;
 
-		task = kcb->task_current->data;
+		if (task_node == kcb->tasks->tail)
+			task_node = kcb->tasks->head->next;
+
+		task = task_node->data;
 	}
 	
 	/* task has no credit, reset credits and choose another one */
@@ -87,20 +91,21 @@ int32_t our_sched(void)
 
 		/* get the next RT task */
 		do {
-			kcb->task_current = kcb->task_current->next;
-
 			/* we scheduled all RT tasks */
-			if (kcb->task_current == kcb->tasks->tail) {
-				kcb->task_current = kcb->tasks->head->next;
+			if (task_node == kcb->tasks->tail) {
+				task_node = kcb->tasks->head->next;
 				
 				/* let the kernel schedule a non RT task */
 				return -1;
 			}
-			task = kcb->task_current->data;
+			
+			task_node = task_node->next;
+			task = task_node->data;
 		} while (task->state != TASK_READY || !task->rt_prio);
 	}
 
 	/* put the scheduled task in the running state and return its id */
+	kcb->task_current = task_node;
 	task->state = TASK_RUNNING;
 	
 	return task->id;
