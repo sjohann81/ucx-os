@@ -64,6 +64,7 @@ void ucx_task_delay(uint16_t ticks);
 int32_t ucx_task_suspend(uint16_t id);
 int32_t ucx_task_resume(uint16_t id);
 int32_t ucx_task_priority(uint16_t id, uint16_t priority);
+int32_t ucx_task_rt_priority(uint16_t id, void *priority);
 uint16_t ucx_task_id();
 int32_t ucx_task_idref(void *task);
 void ucx_task_wfi();

@@ -124,7 +124,7 @@ uint16_t krnl_schedule(void)
 			if (itcnt++ > KRNL_SCHED_IMAX)
 				krnl_panic(ERR_NO_TASKS);
 
-		} while (task->state != TASK_READY);
+		} while (task->state != TASK_READY || task->rt_prio);
 	} while (--task->priority & 0xff);
 	
 	task->priority |= (task->priority >> 8) & 0xff;
@@ -213,6 +213,7 @@ int32_t ucx_task_spawn(void *task, uint16_t stack_size)
 	
 	new_task->data = new_tcb;
 	new_tcb->task = task;
+	new_tcb->rt_prio = 0;
 	new_tcb->delay = 0;
 	new_tcb->stack_sz = stack_size;
 	new_tcb->id = kcb->id_next++;
@@ -371,6 +372,30 @@ int32_t ucx_task_priority(uint16_t id, uint16_t priority)
 
 	task = node->data;
 	task->priority = priority;
+	CRITICAL_LEAVE();
+
+	return ERR_OK;
+}
+
+int32_t ucx_task_rt_priority(uint16_t id, void *priority)
+{
+	struct node_s *node;
+	struct tcb_s *task;
+
+	if (!priority)
+		return ERR_TASK_INVALID_PRIO;
+
+	CRITICAL_ENTER();
+	node = list_foreach(kcb->tasks, idcmp, (void *)(size_t)id);
+	
+	if (!node) {
+		CRITICAL_LEAVE();
+		
+		return ERR_TASK_NOT_FOUND;
+	}
+
+	task = node->data;
+	task->rt_prio = priority;
 	CRITICAL_LEAVE();
 
 	return ERR_OK;
