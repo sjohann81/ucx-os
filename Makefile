@@ -213,6 +213,10 @@ progress: rebuild
 pwm_blink: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/pwm_blink.o app/pwm_blink.c
 	@$(MAKE) --no-print-directory link
+	
+rtsched: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/rtsched.o app/rtsched.c
+	@$(MAKE) --no-print-directory link
 
 spi_master: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/spi_master.o app/spi_master.c
