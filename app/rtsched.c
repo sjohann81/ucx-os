@@ -92,12 +92,9 @@ int32_t our_sched(void)
 		/* get the next RT task */
 		do {
 			/* we scheduled all RT tasks */
-			if (task_node == kcb->tasks->tail) {
-				task_node = kcb->tasks->head->next;
-				
-				/* let the kernel schedule a non RT task */
+			/* let the kernel schedule a non RT task */
+			if (task_node == kcb->tasks->tail)
 				return -1;
-			}
 			
 			task_node = task_node->next;
 			task = task_node->data;
