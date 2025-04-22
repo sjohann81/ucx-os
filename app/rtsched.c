@@ -68,6 +68,7 @@ int32_t our_sched(void)
 	struct tcb_s *task = kcb->task_current->data;
 	struct our_priority_s *priority = task->rt_prio;
 	
+	/* if this task is not blocked or suspended, it is ready */
 	if (task->state == TASK_RUNNING)
 		task->state = TASK_READY;
 	
@@ -80,7 +81,7 @@ int32_t our_sched(void)
 		task = kcb->task_current->data;
 	}
 	
-	/* task has no credit, choose another one */
+	/* task has no credit, reset credits and choose another one */
 	if (!(--priority->remaining)) {
 		priority->remaining = priority->credits;
 
@@ -99,6 +100,7 @@ int32_t our_sched(void)
 		} while (task->state != TASK_READY || !task->rt_prio);
 	}
 
+	/* put the scheduled task in the running state and return its id */
 	task->state = TASK_RUNNING;
 	
 	return task->id;
@@ -107,7 +109,11 @@ int32_t our_sched(void)
 int32_t app_main(void)
 {
 	/* Define RT task priorities (3, 4 and 5 credits) */
-	struct our_priority_s priorities[3] = { {3, 3}, {4, 4}, {5, 5} };
+	struct our_priority_s priorities[3] = {
+		{.credits = 3, .remaining = 3},
+		{.credits = 4, .remaining = 4},
+		{.credits = 5, .remaining = 5}
+	};
 	
 	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
 	ucx_task_spawn(task1, DEFAULT_STACK_SIZE);
