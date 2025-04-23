@@ -106,8 +106,8 @@ System calls are divided in several classes. The *task* class of system calls ar
 | ucx_task_suspend()	| ucx_cr_schedule()	|			|			| ucx_pipe_read()	| ucx_mq_peek()		|			|
 | ucx_task_resume()	|			|			| 			| ucx_pipe_write()	| ucx_mq_items()	| 			|
 | ucx_task_priority()	|			| 			| 			| ucx_pipe_nbread()	|			|			|
-| ucx_task_rt_priority()|			| 			| 			| 			|			|			|
-| ucx_task_id()		|			| 			|			| ucx_pipe_nbwrite()	|			|			|
+| ucx_task_rt_priority()|			| 			| 			| ucx_pipe_nbwrite()	|			|			|
+| ucx_task_id()		|			| 			|			| 			|			|			|
 | ucx_task_refid()	|			| 			| 			|			|			|			|
 | ucx_task_wfi()	|			|			| 			|			|			|			|
 | ucx_task_count()	|			|			| 			|			|			|			|
