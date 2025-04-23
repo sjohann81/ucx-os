@@ -1,6 +1,6 @@
 #include <ucx.h>
 
-/* application corotines (executed in a task context) */
+/* application coroutines (executed in a task context) */
 struct cgroup_s *cgroup;
 
 void *cr1(void *arg)

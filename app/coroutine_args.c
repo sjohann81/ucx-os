@@ -1,6 +1,6 @@
 #include <ucx.h>
 
-/* application corotines (executed in a task context) */
+/* application coroutines (executed in a task context) */
 struct cgroup_s *cgroup;
 
 void *cr1(void *arg)
@@ -30,7 +30,7 @@ void *cr3(void *arg)
 	return 0;
 }
 
-/* only corotines in this application */
+/* only coroutines in this application */
 int32_t app_main(void)
 {
 	uint32_t data = 0;

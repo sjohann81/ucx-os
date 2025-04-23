@@ -109,20 +109,20 @@ endif
 	hexdump -v -e '4/1 "%02x" "\n"' $(BUILD_TARGET_DIR)/image.bin > $(BUILD_TARGET_DIR)/code.txt
 
 ## applications
-corotine_args: rebuild
-	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/corotine_args.o app/corotine_args.c
+coroutine_args: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/coroutine_args.o app/coroutine_args.c
 	@$(MAKE) --no-print-directory link
 	
-corotine_mq: rebuild
-	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/corotine_mq.o app/corotine_mq.c
+coroutine_mq: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/coroutine_mq.o app/coroutine_mq.c
 	@$(MAKE) --no-print-directory link
 
-corotine_pipe: rebuild
-	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/corotine_pipe.o app/corotine_pipe.c
+coroutine_pipe: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/coroutine_pipe.o app/coroutine_pipe.c
 	@$(MAKE) --no-print-directory link
 
-corotine_task: rebuild
-	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/corotine_task.o app/corotine_task.c
+coroutine_task: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/coroutine_task.o app/coroutine_task.c
 	@$(MAKE) --no-print-directory link
 
 delay: rebuild
