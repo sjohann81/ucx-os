@@ -31,10 +31,10 @@ Different toolchains based on GCC and LLVM can be used to build the kernel and a
 ## Features
 
 - Small footprint (6kB ~ 10kB) for the kernel.
-- Hibrid lightweight task model (taks and coroutines) where tasks share the same memory region;
-- Preemptive / cooperative scheduling based on a priority round robin (RR) scheduler;
+- Hybrid lightweight task model (taks and coroutines) where tasks share the same memory region;
+- Preemptive / cooperative scheduling based on a priority round robin (RR) scheduler and a user defined realtime scheduler;
 - Task synchronization and communication using semaphores, pipeline channels or message queues;
-- Software timers;
+- Software timers with callback execution;
 - Dynamic memory allocation;
 - Small C library, along with data structures library.
 
@@ -73,6 +73,9 @@ A priority round-robin algorithm performs the scheduling of tasks. By default, a
 
 Another scheduling resource are coroutines, which are a lightweight mechanism. Coroutines can run in a standalone manner (without tasks in the system) or within a task context, and they have their own priority based round-robin scheduler.
 
+The task control block also holds a pointer to a user defined (realtime) scheduler. If implemented, this scheduler has a greater priority over the default (best effort) round-robin scheduling policy. Realtime tasks are defined just as normal tasks, but the user has to implement the scheduler, setup a reference to this scheduler in the *kernel control block* and setup task priorities using the *ucx_task_rt_priority()* function.
+
+
 ### Stack allocation
 
 Memory used for stack inside a task function is allocated from the heap. The *heap* is a region of memory that is managed by a memory allocator, which is used by both the kernel and applications. Data stored in the task stack is consisted by local task variables and data structures. The size of the stack is configurable per a task basis and is specified when a task is added to the system. During execution, the stack space will be used for dynamic allocation during function calls, temporary variables and also to keep processor state during interrupts.
@@ -103,6 +106,7 @@ System calls are divided in several classes. The *task* class of system calls ar
 | ucx_task_suspend()	| ucx_cr_schedule()	|			|			| ucx_pipe_read()	| ucx_mq_peek()		|			|
 | ucx_task_resume()	|			|			| 			| ucx_pipe_write()	| ucx_mq_items()	| 			|
 | ucx_task_priority()	|			| 			| 			| ucx_pipe_nbread()	|			|			|
+| ucx_task_rt_priority()|			| 			| 			| 			|			|			|
 | ucx_task_id()		|			| 			|			| ucx_pipe_nbwrite()	|			|			|
 | ucx_task_refid()	|			| 			| 			|			|			|			|
 | ucx_task_wfi()	|			|			| 			|			|			|			|
@@ -140,6 +144,10 @@ Tasks are the basic scheduling resource. An application in UCX/OS is composed of
 ##### ucx_task_priority()
 
 - Changes a task priority from the default priority. Valid priorities are TASK_IDLE_PRIO, TASK_LOW_PRIO, TASK_BELOW_PRIO, TASK_NORMAL_PRIO (default), TASK_ABOVE_PRIO, TASK_HIGH_PRIO TASK_REALTIME_PRIO and TASK_CRIT_PRIO. These priorities are relative for the task set, according to a priority round-robin scheduler.
+
+##### ucx_task_rt_priority()
+
+- Setup a task realtime priority. The priority is a pointer to a user defined data structure, which holds data that is relevant to a user defined scheduler.
 
 ##### ucx_task_id()
 
