@@ -27,7 +27,14 @@ struct tcb_s {
 };
 
 /* kernel control block */
+//struct runqueue_s {
+//	struct list_s *rt_tasks;
+//	struct list_s *tasks;
+//	struct node_s *task_current;
+//};
+
 struct kcb_s {
+	struct list_s *rt_tasks;
 	struct list_s *tasks;
 	struct node_s *task_current;
 	jmp_buf context;
