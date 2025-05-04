@@ -65,40 +65,45 @@ struct our_priority_s {
 
 int32_t our_sched(void)
 {
-	struct node_s *task_node;
+	static struct node_s *task_node = 0;
+	struct our_priority_s *priority;
 	struct tcb_s *task = kcb->task_current->data;
-	struct our_priority_s *priority = task->rt_prio;
-	
-	/* if this task is not blocked or suspended, it is ready */
+
+	/* no RT task, bail out */
+	if (!kcb->rt_tasks)
+		return -1;
+
+	/* if the current preempted task is not blocked or suspended, it is ready */
 	if (task->state == TASK_RUNNING)
 		task->state = TASK_READY;
-		
-	task_node = kcb->task_current;
 	
-	/* is this an RT task? (last task may be a non RT one) */
-	while (task->state != TASK_READY || !task->rt_prio) {
-		task_node = task_node->next;
-
-		if (task_node == kcb->tasks->tail)
-			task_node = kcb->tasks->head->next;
-
+	/* first run of this scheduler after the default scheduler */
+	if (!task_node) {
+		task_node = kcb->rt_tasks->head->next;
 		task = task_node->data;
-	}
-	
-	/* task has no credit, reset credits and choose another one */
-	if (!(--priority->remaining)) {
-		priority->remaining = priority->credits;
+	} else {
+		/* get current RT task priority */
+		task = task_node->data;
+		priority = task->rt_prio;
 
-		/* get the next RT task */
-		do {
-			/* we scheduled all RT tasks */
-			/* let the kernel schedule a non RT task */
-			if (task_node == kcb->tasks->tail)
-				return -1;
-			
-			task_node = task_node->next;
-			task = task_node->data;
-		} while (task->state != TASK_READY || !task->rt_prio);
+		/* if the task has no credit, reset credits and choose another one */
+		if (!(--priority->remaining)) {
+			priority->remaining = priority->credits;
+
+			/* get the next RT task */
+			do {
+				/* we scheduled all RT tasks */
+				/* let the kernel schedule a non RT task */
+				if (task_node == kcb->rt_tasks->tail) {
+					task_node = 0;
+					
+					return -1;
+				}
+				
+				task_node = list_next(task_node);
+				task = task_node->data;
+			} while (task->state != TASK_READY);
+		}
 	}
 
 	/* put the scheduled task in the running state and return its id */
