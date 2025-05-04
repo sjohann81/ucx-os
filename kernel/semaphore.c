@@ -61,6 +61,20 @@ void ucx_sem_wait(struct sem_s *s)
 	}
 }
 
+int32_t ucx_sem_trywait(struct sem_s *s)
+{
+	int val = 0;
+	
+	CRITICAL_ENTER();
+	if (s->count <= 0)
+		val = -1;
+	else
+		s->count--;
+	CRITICAL_LEAVE();
+	
+	return val;
+}
+
 void ucx_sem_signal(struct sem_s *s)
 {
 	struct tcb_s *tcb_sem;
