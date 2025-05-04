@@ -102,8 +102,8 @@ System calls are divided in several classes. The *task* class of system calls ar
 | ucx_task_spawn()	| ucx_cr_ginit()	| ucx_ticks()		| ucx_sem_create()	| ucx_pipe_create()	| ucx_mq_create()	| ucx_timer_create()	|
 | ucx_task_cancel()	| ucx_cr_gdestroy()	| ucx_uptime()		| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_mq_destroy()	| ucx_timer_destroy()	|
 | ucx_task_yield()	| ucx_cr_add()		|			| ucx_sem_wait()	| ucx_pipe_flush()	| ucx_mq_enqueue()	| ucx_timer_start()	|
-| ucx_task_delay()	| ucx_cr_cancel()	| 			| ucx_sem_signal()	| ucx_pipe_size()	| ucx_mq_dequeue()	| ucx_timer_cancel()	|
-| ucx_task_suspend()	| ucx_cr_schedule()	|			|			| ucx_pipe_read()	| ucx_mq_peek()		|			|
+| ucx_task_delay()	| ucx_cr_cancel()	| 			| ucx_sem_trywait()	| ucx_pipe_size()	| ucx_mq_dequeue()	| ucx_timer_cancel()	|
+| ucx_task_suspend()	| ucx_cr_schedule()	|			| ucx_sem_signal()	| ucx_pipe_read()	| ucx_mq_peek()		|			|
 | ucx_task_resume()	|			|			| 			| ucx_pipe_write()	| ucx_mq_items()	| 			|
 | ucx_task_priority()	|			| 			| 			| ucx_pipe_nbread()	|			|			|
 | ucx_task_rt_priority()|			| 			| 			| ucx_pipe_nbwrite()	|			|			|
@@ -216,7 +216,11 @@ Semaphore is a basic task synchronization primitive, with Dijkstra's semantics. 
 
 ##### ucx_sem_wait()
 
-- Waits on a semaphore. A task can either decrement the semaphore value and pass atomically (semaphore value is > 1 before the call), or block on the semaphore (semaphore value is <= 0 before the call).
+- Waits on a semaphore. A task can either decrement the semaphore value and pass atomically (semaphore value is > 0 before the call), or block on the semaphore (semaphore value is <= 0 before the call).
+
+##### ucx_sem_trywait()
+
+- Tries to waits on a semaphore. A task can either decrement the semaphore value and pass atomically (semaphore value is > 0 before the call), or return with an error.
 
 ##### ucx_sem_signal()
 
