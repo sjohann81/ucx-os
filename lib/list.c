@@ -141,6 +141,39 @@ void *list_popback(struct list_s *list)
 	return val;
 }
 
+struct node_s *list_next(struct node_s *node)
+{
+	return node->next;
+}
+
+struct node_s *list_cnext(struct list_s *list, struct node_s *node)
+{
+	if (node->next->next == 0)
+		return list->head->next;
+	else
+		return node->next;
+}
+
+struct node_s *list_rotate(struct list_s *list)
+{
+	struct node_s *node;
+	struct node_s *last;
+
+	if (!list->head->next->next)
+		return 0;
+	
+	node = list->head->next;
+	list->head->next = node->next;
+	last = list->tail;
+	list->tail->next = node;
+	list->tail->data = node->data;
+	list->tail = node;
+	node->data = 0;
+	node->next = 0;
+	
+	return last;
+}
+
 struct node_s *list_insert(struct list_s *list, struct node_s *prevnode, void *val)
 {
 	struct node_s *node;
@@ -166,7 +199,7 @@ struct node_s *list_insert(struct list_s *list, struct node_s *prevnode, void *v
 	return node;	
 }
 
-struct node_s *list_remove(struct list_s *list, struct node_s *node)
+void *list_remove(struct list_s *list, struct node_s *node)
 {
 	struct node_s *last;
 	void *val;
@@ -252,10 +285,10 @@ struct dlist_s *dlist_create()
 	
 	head->prev = 0;
 	head->next = tail;
-	head->data = (void *)0xbaadf00d;
+	head->data = (void *)0xdead;;
 	tail->prev = head;
 	tail->next = 0;
-	tail->data = (void *)0xdeadbeef;
+	tail->data = (void *)0xbeef;
 	
 	list->head = head;
 	list->tail = tail;
@@ -381,7 +414,7 @@ struct dnode_s *dlist_insert(struct dlist_s *list, struct dnode_s *prevnode, voi
 	return node;	
 }
 
-struct dnode_s *dlist_remove(struct dlist_s *list, struct dnode_s *node)
+void *dlist_remove(struct dlist_s *list, struct dnode_s *node)
 {
 	void *val;
 	
