@@ -68,32 +68,34 @@ static void tim11_start()
 }
 
 /* delay routines */
-static volatile uint64_t timeref;
-
 void _delay_ms(uint32_t msec)
 {
-	uint32_t usec = msec * 1000;
-	
-	while (usec > 65000) {
-		_delay_us(65000);
-		usec -= 65000;
-	}
-	_delay_us(usec);
+	volatile uint64_t start;
+
+	start = _read_us();
+	while ((_read_us() - start) < (uint64_t)msec * 1000);
 }
 
 void _delay_us(uint32_t usec)
 {
-	volatile uint16_t start;
-	
-	tim11_start();
+	volatile uint64_t start;
 
-	start = TIM11->CNT;
-	while ((TIM11->CNT - start) < usec);
+	start = _read_us();
+	while ((_read_us() - start) < (uint64_t)usec);
 }
 
 uint64_t _read_us(void)
 {
-	return (timeref * (1000000 / F_TIMER));
+	static uint64_t timeref = 0;
+	static uint32_t tval2 = 0;
+	static uint16_t tref = 0;
+	volatile uint16_t time = TIM11->CNT;
+
+	if (time < tref) tval2++;
+	tref = time;
+	timeref = ((uint64_t)tval2 << 16) + (uint64_t)time;
+
+	return timeref;
 }
 
 /* hardware dependent stuff and interrupt management */
@@ -349,7 +351,7 @@ void SysTick_Handler(void)
 	struct tcb_s *task = kcb->task_current->data;
 
 	// update microsecond counter
-	timeref++;
+	_read_us();
 
 	// save current PSP, call the scheduler and get new PSP
 	task_psp = &task->context[CONTEXT_PSP];
