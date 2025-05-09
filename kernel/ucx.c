@@ -380,7 +380,6 @@ int32_t ucx_task_priority(uint16_t id, uint16_t priority)
 int32_t ucx_task_rt_priority(uint16_t id, void *priority)
 {
 	struct node_s *node;
-	void *data;
 	struct tcb_s *task;
 
 	if (!priority)
@@ -398,9 +397,7 @@ int32_t ucx_task_rt_priority(uint16_t id, void *priority)
 	if (!kcb->rt_tasks)
 		kcb->rt_tasks = list_create();
 
-	task = list_remove(kcb->tasks, node);	
-	list_pushback(kcb->rt_tasks, task);
-
+	task = list_move(kcb->rt_tasks, kcb->tasks, node);
 	task->rt_prio = priority;
 	CRITICAL_LEAVE();
 
