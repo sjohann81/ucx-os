@@ -17,6 +17,7 @@ void *list_pop(struct list_s *list);
 void *list_popback(struct list_s *list);
 struct node_s *list_next(struct node_s *node);
 struct node_s *list_cnext(struct list_s *list, struct node_s *node);
+void *list_move(struct list_s *list_dst, struct list_s *list_src, struct node_s *node);
 struct node_s *list_rotate(struct list_s *list);
 struct node_s *list_insert(struct list_s *list, struct node_s *prevnode, void *val);
 void *list_remove(struct list_s *list, struct node_s *node);

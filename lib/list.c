@@ -154,6 +154,34 @@ struct node_s *list_cnext(struct list_s *list, struct node_s *node)
 		return node->next;
 }
 
+void *list_move(struct list_s *list_dst, struct list_s *list_src, struct node_s *node)
+{
+	struct node_s *last;
+	void *val;
+	
+	if (node->next == 0 || node == 0)
+		return 0;
+	
+	val = node->data;
+	
+	last = list_src->head;
+	while (last->next != node)
+		last = last->next;
+	
+	last->next = node->next;
+	list_src->length--;
+	
+	node->next = 0;
+	last = list_dst->tail;
+	list_dst->tail->next = node;
+	list_dst->tail->data = val;
+	list_dst->tail = node;
+	node->data = 0;
+	list_dst->length++;
+	
+	return val;
+}
+
 struct node_s *list_rotate(struct list_s *list)
 {
 	struct node_s *node;
