@@ -1,0 +1,194 @@
+#******************************************************************
+#
+# Institute for System Programming of the Russian Academy of Sciences
+# Copyright (C) 2016 ISPRAS
+#
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, Version 3.
+#
+# This program is distributed in the hope # that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# See the GNU General Public License version 3 for more details.
+#
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Import('libpok_env')
+
+locales = [
+    'c'
+]
+
+sources = [
+    'ctype_internal.c',
+]
+
+target_dir = libpok_env['POK_PATH'] + 'libpok/libc/ctype'
+
+for lname in locales:
+    sources.append(target_dir + '/ctype_tables_' + lname + '.c')
+
+class TestClass:
+    def __init__(self, name):
+        self.name = name
+
+class C99Locale:
+    # Should be in accordance to file "ctype_internal.h"
+    CTB_ALNUM = 1
+    CTB_UPPER_OR_SPACE = 2
+    CTB_LOWER_OR_PUNCT = 4
+    CTB_ALPHA_OR_BLANK = 8
+    CTB_DIGIT_OR_CNTRL = 16
+    CTB_PRINT = 32
+    CTB_GRAPH = 64
+    CTB_XDIGIT = 128
+
+    def __init__(self, name, defs):
+        self.defs = defs
+        self.name = name
+        self.c_name = name.replace('-', '_')
+
+    def test_char(self, c, test):
+        if type(test) is list:
+            # Range
+            if c >= ord(test[0]) and c <= ord(test[1]):
+                return True
+            else:
+                return False
+
+        elif type(test) is dict:
+            # Operation (NOT or AND)
+            op = test.keys() [0]
+            if op == 'NOT':
+                return not self.test_char(c, test[op])
+            elif op == 'AND':
+                for subtest in test[op]:
+                    if not self.test_char(c, subtest):
+                        return False
+                return True
+            else:
+                raise RuntimeError("Unknown operation: '%s'" % op)
+
+        elif len(test) > 1:
+            # Class name
+            return self.char_has_class(c, test)
+        else:
+            # Single character
+            if c == ord(test):
+                return True
+
+    def char_has_class(self, c, class_name):
+        ctype_class = self.defs.get(class_name, None)
+        if ctype_class is not None:
+            for test in ctype_class:
+                if self.test_char(c, test):
+                    return True
+
+        return False
+
+    def get_mask(self, c):
+        mask = 0
+        is_alnum = False
+
+        if self.char_has_class(c, "alpha"):
+            mask += self.CTB_ALPHA_OR_BLANK
+            is_alnum = True
+        elif self.char_has_class(c, "digit"):
+            mask += self.CTB_DIGIT_OR_CNTRL
+            is_alnum = True
+
+        if is_alnum:
+            mask += self.CTB_ALNUM
+            if self.char_has_class(c, "lower"):
+                mask += self.CTB_LOWER_OR_PUNCT
+            if self.char_has_class(c, "upper"):
+                mask += self.CTB_UPPER_OR_SPACE
+        else:
+            if self.char_has_class(c, "space"):
+                mask += self.CTB_UPPER_OR_SPACE
+                if self.char_has_class(c, "blank"):
+                    mask += self.CTB_ALPHA_OR_BLANK
+            if self.char_has_class(c, "cntrl"):
+                mask += self.CTB_DIGIT_OR_CNTRL
+            if self.char_has_class(c, "punct"):
+                mask += self.CTB_LOWER_OR_PUNCT
+
+        if self.char_has_class(c, "print"):
+            mask += self.CTB_PRINT
+        if self.char_has_class(c, "graph"):
+            mask += self.CTB_GRAPH
+        if self.char_has_class(c, "xdigit"):
+            mask += self.CTB_XDIGIT
+
+        return mask
+
+    def to_table(self, c, table_name):
+        conversions = self.defs.get(table_name, None)
+        if conversions is not None:
+            for conversion in conversions:
+                start = ord(conversion[0])
+                end = ord(conversion[1])
+                if c >= start and c <= end:
+                    return ord(conversion[2]) + (c - start)
+
+        return c
+
+    def tolower(self, c):
+        return self.to_table(c, "tolower")
+
+    def toupper(self, c):
+        return self.to_table(c, "toupper")
+
+
+if libpok_env.get('jdeveloper'):
+    import sys
+    import os
+    import yaml
+    sys.path.insert(1, os.path.join(os.environ["POK_PATH"], "misc"))
+    import template_generation
+    AddMethod(libpok_env, template_generation.TemplateRender)
+
+    source_dir = libpok_env['POK_PATH'] + 'libpok/libc/ctype'
+
+    # <source-dir> and <target-dir> are the same.
+    #
+    # No needs to simply copy files. Only files generation takes a place.
+
+    def get_locale_definition(source, env):
+        #return TestClass('C')
+
+        if type(source) is list:
+            source = source[0]
+
+        with open(source.path) as f:
+            defs = yaml.load(f)
+
+        return dict(locale = C99Locale(defs['name'], defs))
+
+    lfiles = []
+    for l in locales:
+        lfiles.extend(libpok_env.TemplateRender(
+            target = [target_dir + '/ctype_tables_' + l + '.c',
+                target_dir + '/ctype_tables_' + l + '.h'],
+            source = source_dir + '/ctype_' + l + '.yaml',
+            create_definitions_func = get_locale_definition,
+            template_main = ['ctype_tables_c', 'ctype_tables_h'],
+            template_dir = source_dir + '/templates',
+            NO_DEPS = 1,
+            SOURCE_BASE_DIR = libpok_env['POK_PATH'],
+            GENERATE_TITLE = template_generation.generate_title_c))
+
+    libpok_env.Depends('regenerate', lfiles)
+
+# EOF
+
+
+ctype = libpok_env.StaticObject(sources)
+
+Return('ctype')
+
+# EOF

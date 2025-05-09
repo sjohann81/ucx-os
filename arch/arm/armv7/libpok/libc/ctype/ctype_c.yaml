@@ -1,0 +1,116 @@
+#******************************************************************
+#
+# Institute for System Programming of the Russian Academy of Sciences
+# Copyright (C) 2016 ISPRAS
+#
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, Version 3.
+#
+# This program is distributed in the hope # that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# See the GNU General Public License version 3 for more details.
+#
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+# Format definition:
+#
+# 1. 'name':
+# Name of the locale.
+# Should contain only symbols, suitable for C identifier plus '-'.
+# Required parameter.
+#
+# 2. 'alpha', 'lower', 'upper', 'digit', 'xdigit', 'space',
+# 'blank', 'print', 'graph', 'cntrl', 'punct':
+#
+# List(sequence) of tests for corresponded class. Character is assumed
+# to be included into the class if it passes at least one test.
+#
+# Each test may be:
+#
+#  1) a single character. Test passes only for given character.
+#  2) a sequence of two characters, denoted the first and the last character
+#     in a range. Test passes only for characters in given range.
+#  3) name of another class. Test passes for all characters in given class.
+#  4) mapping with a single key NOT and a subtest as a value.
+#     Test passes only if subtest is failed.
+#  5) mapping with a single key AND and a sequence of subtests as a value.
+#     Test passes only if all subtests pass.
+#
+# If parameter is absent, none symbol is assumed to be classified such.
+#
+# 3. 'tolower', 'toupper'
+#
+# List of conversions from to lower case and upper case correspondignly.
+# Each conversion should be a triple(sequence of 3 elements):
+#
+# [first character in range, last character in range, first converted character].
+#
+# Conversion is applicable for all characters in given range and performed as
+#
+#    c => first_converted_character + (c - first_character_in_range).
+#
+# If none conversion is applicable for given symbol (or corresponded
+# parameter is absent), than the symbol is mapped to itself.
+
+name:
+    C
+
+alpha:
+    - lower
+    - upper
+
+lower:
+    - ['a', 'z']
+
+upper:
+    - ['A', 'Z']
+
+digit:
+    - ['0', '9']
+
+xdigit:
+    - ['0', '9']
+    - ['a', 'f']
+    - ['A', 'F']
+
+space:
+    - ' '
+    - "\f"
+    - "\n"
+    - "\r"
+    - "\t"
+    - "\v"
+
+blank:
+    - ' '
+    - "\t"
+    
+print:
+    - ["\x20", "\x7f"]
+
+graph:
+    - AND:
+        - print
+        - NOT: ' '
+
+cntrl:
+    - ["\0", "\x1f"]
+    - "\x7f"
+
+punct:
+    - AND:
+        - print
+        - NOT: space
+        - NOT: alpha
+        - NOT: digit
+
+tolower:
+    - ['A', 'Z', 'a']
+
+toupper:
+    - ['a', 'z', 'A']
