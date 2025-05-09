@@ -72,7 +72,9 @@ void krnl_panic(uint32_t ecode)
 {
 	int err;
 	
-	_di();
+	// _di(); //TODO: Integrer fonction qui disable les interruptions, check interrupt.asm
+	_disable_interrupt_();
+	
 	printf("\n*** HALT (%d)", ecode);
 	for (err = 0; perror[err].ecode != ERR_UNKNOWN; err++)
 		if (perror[err].ecode == ecode) break;
@@ -270,7 +272,7 @@ int32_t ucx_task_cancel(uint16_t id)
 
 void ucx_task_yield()
 {
-	_yield();
+	_yield(); //Direct call to HAL
 }
 
 void ucx_task_delay(uint16_t ticks)		// FIXME: delay any task
