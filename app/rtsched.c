@@ -69,18 +69,18 @@ int32_t our_sched(void)
 	struct our_priority_s *priority;
 	struct tcb_s *task = kcb->task_current->data;
 
-	/* no RT task, bail out */
-	if (!kcb->rt_tasks)
-		return -1;
-
 	/* if the current preempted task is not blocked or suspended, it is ready */
 	if (task->state == TASK_RUNNING)
 		task->state = TASK_READY;
 	
 	/* first run of this scheduler after the default scheduler */
 	if (!task_node) {
-		task_node = kcb->rt_tasks->head->next;
-		task = task_node->data;
+		task_node = kcb->tasks->head;
+		
+		do {
+			task_node = list_next(task_node);
+			task = task_node->data;
+		} while (task->state != TASK_READY || !task->rt_prio);
 	} else {
 		/* get current RT task priority */
 		task = task_node->data;
@@ -94,7 +94,7 @@ int32_t our_sched(void)
 			do {
 				/* we scheduled all RT tasks */
 				/* let the kernel schedule a non RT task */
-				if (task_node == kcb->rt_tasks->tail) {
+				if (task_node == kcb->tasks->tail) {
 					task_node = 0;
 					
 					return -1;
@@ -102,7 +102,7 @@ int32_t our_sched(void)
 				
 				task_node = list_next(task_node);
 				task = task_node->data;
-			} while (task->state != TASK_READY);
+			} while (task->state != TASK_READY || !task->rt_prio);
 		}
 	}
 

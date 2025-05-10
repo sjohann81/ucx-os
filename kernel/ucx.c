@@ -123,7 +123,7 @@ uint16_t krnl_schedule(void)
 			if (itcnt++ > KRNL_SCHED_IMAX)
 				krnl_panic(ERR_NO_TASKS);
 
-		} while (task->state != TASK_READY);
+		} while (task->state != TASK_READY || task->rt_prio);
 	} while (--task->priority & 0xff);
 	
 	kcb->task_current = node;
@@ -394,10 +394,7 @@ int32_t ucx_task_rt_priority(uint16_t id, void *priority)
 		return ERR_TASK_NOT_FOUND;
 	}
 
-	if (!kcb->rt_tasks)
-		kcb->rt_tasks = list_create();
-
-	task = list_move(kcb->rt_tasks, kcb->tasks, node);
+	task = node->data;
 	task->rt_prio = priority;
 	CRITICAL_LEAVE();
 

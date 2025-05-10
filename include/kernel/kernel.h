@@ -29,7 +29,6 @@ struct tcb_s {
 /* kernel control block */
 struct kcb_s {
 	struct list_s *tasks;
-	struct list_s *rt_tasks;
 	struct node_s *task_current;
 	jmp_buf context;
 	int32_t (*rt_sched)(void);
