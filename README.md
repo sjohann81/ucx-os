@@ -302,6 +302,12 @@ Lists and queues are basic data structures which are provided to applications as
 | list_pushback()	| dlist_pushback()	| queue_enqueue()	|
 | list_pop()		| dlist_pop()		| queue_dequeue()	|
 | list_popback()	| dlist_popback()	| queue_peek()		|
+| list_next()		| dlist_next()		|			|
+| 			| dlist_prev()		|			|
+| list_cnext()		| dlist_cnext()		|			|
+| 			| dlist_cprev()		|			|
+| list_move()		| dlist_move()		|			|
+| list_rotate()		| dlist_rotate()	|			|
 | list_insert()		| dlist_insert()	|			|
 | list_remove()		| dlist_remove()	|			|
 | list_index()		| dlist_index()		|			|
