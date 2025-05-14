@@ -158,3 +158,11 @@ int gpio_ll_get(struct gpio_config_values_s *cfg){
 		default: return -1;
 	}
 }
+
+int gpio_ll_set(struct gpio_config_values_s *cfg, int val){
+	switch (cfg->port) {
+		case GPIO_PORTA:  gioSetBit(gioPORTA, cfg->pinsel); break;
+		case GPIO_PORTB:  gioSetBit(gioPORTB, cfg->pinsel); break;
+		default: return -1;
+	}
+}
