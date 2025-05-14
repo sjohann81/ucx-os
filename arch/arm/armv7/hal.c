@@ -91,6 +91,7 @@ void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)
     ctx->lr = (uint32_t)ja_kernel_thread;
     ctx->sp = (uint32_t)ctx;
 }
+
 #define NUMBER_OF_PINS 16;
 #define gioPORTA
 int gpio_ll_setup(struct gpio_config_values_s *cfg)
@@ -145,5 +146,15 @@ int gpio_ll_setup(struct gpio_config_values_s *cfg)
 
 			}
 		}
+	}
+}
+
+
+int gpio_ll_get(struct gpio_config_values_s *cfg){
+	
+	switch (cfg->port) {
+		case GPIO_PORTA:  gioGetBit(gioPORTA, cfg->pinsel); break;
+		case GPIO_PORTB:  gioGetBit(gioPORTB, cfg->pinsel); break;
+		default: return -1;
 	}
 }
