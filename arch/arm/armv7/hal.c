@@ -91,3 +91,59 @@ void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)
     ctx->lr = (uint32_t)ja_kernel_thread;
     ctx->sp = (uint32_t)ctx;
 }
+#define NUMBER_OF_PINS 16;
+#define gioPORTA
+int gpio_ll_setup(struct gpio_config_values_s *cfg)
+{
+	uint32_t modesel, pullsel;
+	for (int i = 0; i < NUMBER_OF_PINS; i++) {
+		if (cfg->pinsel & (1 << i)) {
+			modesel = (cfg->mode & (3 << (i << 1))) >> (i << 1);
+			pullsel = (cfg->pull & (3 << (i << 1))) >> (i << 1);
+
+			switch (modesel) {
+				case GPIO_INPUT:
+					switch (cfg->port) {
+						case GPIO_PORTA:
+							gioPORTA->DIR = (uint32)((uint32)1 << i);
+							switch (pullsel) {
+								case GPIO_NOPULL:
+									gioPORTA->PULDIS = (uint32)((uint32)1 << i);break;
+								case GPIO_PULLUP: 
+									gioPORTA->PSL = (uint32)((uint32)1 << i);break;
+								case GPIO_PULLDOWN: 
+									gioPORTA->PSL = (uint32)((uint32)0 << i);break;
+								default: return -1;
+								}
+		
+						case GPIO_PORTB:
+							gioPORTB->DIR = (uint32)((uint32)1 << i);
+							switch (pullsel) {
+								case GPIO_NOPULL:
+									gioPORTA->PULDIS = (uint32)((uint32)1 << i);break;
+								case GPIO_PULLUP: 
+									gioPORTA->PSL = (uint32)((uint32)1 << i);break;
+								case GPIO_PULLDOWN: 
+									gioPORTA->PSL = (uint32)((uint32)0 << i);break;
+								default: return -1;
+								}
+							}
+				case GPIO_OUTPUT:
+					gioPORTA->PULDIS = (uint32)((uint32)0 << i);
+					switch (cfg->port) {
+						case GPIO_PORTA:  gioPORTA->DIR = (uint32)((uint32)0 << i);break;
+						case GPIO_PORTB:  gioPORTB->DIR = (uint32)((uint32)0 << i);break;
+						default: return -1;
+					}
+				case GPIO_OUTPUT_OD:
+					gioPORTA->PULDIS = (uint32)((uint32)1 << i);
+					switch (cfg->port) {
+						case GPIO_PORTA:  gioPORTA->DIR = (uint32)((uint32)0 << i);break;
+						case GPIO_PORTB:  gioPORTB->DIR = (uint32)((uint32)0 << i);break;
+						default: return -1;
+					}
+
+			}
+		}
+	}
+}

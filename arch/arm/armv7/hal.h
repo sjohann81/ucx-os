@@ -45,3 +45,7 @@ void _delay_ms(uint32_t msec);
 
 
 void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra);
+
+
+//TODO: Write functions and change constants
+int gpio_ll_setup(struct gpio_config_values_s *cfg);
