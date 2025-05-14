@@ -1,4 +1,4 @@
-TI_ENV = C:/ti/ccs2011/ccs/tools/compiler/ti-cgt-arm_18.12.2.LTS
+TI_ENV = /home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS
 
 SRC_DIR    = armv7
 BUILD_DIR  = build
@@ -15,15 +15,16 @@ A_OBJS = $(A_SRCS:$(SRC_DIR)/%.asm=$(BUILD_DIR)/%.obj)
 
 LINKER_FILE = ../config/linker.cmd
 
-AS = $(TI_ENV)/bin/armcl.exe
-LD = $(TI_ENV)/bin/armlnk.exe
-CC = $(TI_ENV)/bin/armcl.exe
+AS = $(TI_ENV)/bin/armcl
+LD = $(TI_ENV)/bin/armlnk
+CC = $(TI_ENV)/bin/armcl
 
 
 CFLAGS = -mv7R5 --code_state=32 --float_support=VFPv3D16 -Ooff -c      \
          --opt_for_speed=0 -g --c99 --diag_warning=225 --diag_wrap=off \
          --display_error_number --enum_type=packed --abi=eabi          \
          --include_path="armv7/include"                                \
+		 --include_path="armv7/include/bsp"                                \
          --include_path="../kernel/arch/armv7/include"                 \
          --include_path="../kernel/include"
          
