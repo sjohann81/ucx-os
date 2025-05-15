@@ -5,15 +5,15 @@
  *      Author: Alexy
  */
 
-#include "armv7/include/bsp/bsp.h"
+#include <bsp.h>
 
 #include <core/time.h>
 #include <interrupt.h>
 #include <space.h>
 
-#include "armv7/include/bsp/rti.h"
-#include "armv7/include/bsp/serial.h"
-#include "armv7/include/bsp/vim.h"
+#include <bsp/rti.h>
+#include <bsp/serial.h>
+#include <bsp/vim.h>
 
 #include <asp/entries.h>
 #include <core/debug.h>
