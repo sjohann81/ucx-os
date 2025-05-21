@@ -16,7 +16,7 @@ LDFLAGS_STRIP = --gc-sections
 
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
 ASFLAGS = -march=rv64imzicsr -mabi=lp64 #-fPIC
-CFLAGS = -Wall --target=riscv64 -march=rv64im -mabi=lp64 -O2 -c -ffreestanding -nostdlib -fomit-frame-pointer -mcmodel=medany $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN
+CFLAGS = -Wall --target=riscv64 -march=rv64im -mabi=lp64 -O2 -c -ffreestanding -nostdlib -fomit-frame-pointer -mcmodel=medany $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP)
 ARFLAGS = r
 
 LDFLAGS = -melf64lriscv $(LDFLAGS_STRIP)
@@ -41,4 +41,5 @@ hal:
 
 run_riscv64:
 	echo "hit Ctrl+a x to quit"
-	qemu-system-riscv64 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic
+#	qemu-system-riscv64 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic
+	qemu-system-riscv64 -smp 2 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic
