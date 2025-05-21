@@ -238,7 +238,7 @@ int32_t ucx_task_spawn(void *task, uint16_t stack_size)
 
 	new_tcb->state = TASK_READY;
 
-	return ERR_OK;
+	return new_tcb->id;
 }
 
 int32_t ucx_task_cancel(uint16_t id)

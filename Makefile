@@ -59,8 +59,8 @@ main.o: $(SRC_DIR)/init/main.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/init/main.c
 ucx.o: $(SRC_DIR)/kernel/ucx.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/ucx.c
-corotine.o:
-	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/corotine.c
+coroutine.o:
+	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/coroutine.c
 syscall.o: $(SRC_DIR)/kernel/syscall.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/syscall.c
 ecodes.o: $(SRC_DIR)/kernel/ecodes.c
