@@ -13,17 +13,17 @@
  *
  * Created by julien on Thu Jan 15 23:34:13 2009
  */
-#include "config.h"
+#include "libpok_legacy/config.h"
 
 #include <errno.h>
 
-#include "Cioports.h"
+// #include "Cioports.h"
 #include "libc.h"
-#include <core/debug.h>
-#include <asp/cons.h>
+#include <libpok_legacy/debug.h>
+// #include <asp/cons.h>
 
-#include "armv7/include/bsp/bsp.h"
-#include "armv7/include/bsp/serial.h"
+#include "bsp/bsp.h"
+#include "bsp/serial.h"
 
 #if defined (POK_NEEDS_CONSOLE) || defined (POK_NEEDS_DEBUG) || defined (POK_NEEDS_INSTRUMENTATION) || defined (POK_NEEDS_COVERAGE_INFOS)
 
@@ -47,6 +47,44 @@ static size_t iostream_read_debug(char* s, size_t length)
 {
     return 0;
 }
+
+struct jet_iostream
+{
+    /*
+     * Write given string of given length into stream.
+     * 
+     * Return number of characters which has been written.
+     * 
+     * Never return 0.
+     * 
+     * TODO: Is returning error should be supported?
+     * 
+     * NULL means that writing is not supported.
+     */
+    size_t (*write)(const char* s, size_t length);
+
+    /*
+     * Read from the stream into given string.
+     * 
+     * At most 'length' characters will be read.
+     * 
+     * Return number of characters which has been read.
+     * Return 0 if there is no available characters in the stream.
+     * 
+     * TODO: Is returning error should be supported?
+     * 
+     * NULL means that reading is not supported.
+     */
+    size_t (*read)(char* s, size_t length);
+    
+    /* If not NULL, this function should be called before use
+     * .write and .read methods.
+     * 
+     * NOTE: This function may be called many times.
+     */
+    void (*init)(void);
+};
+
 
 struct jet_iostream arm_stream_main =
 {

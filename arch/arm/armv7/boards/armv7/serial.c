@@ -5,7 +5,7 @@
  *      Author: Alexy
  */
 
-#include "armv7/include/bsp/serial.h"
+#include "bsp/serial.h"
 
 void init_serial(void)
 {

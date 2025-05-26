@@ -16,6 +16,10 @@ int32_t ucx_timer_destroy(uint16_t timer_id);
 int32_t ucx_timer_start(uint16_t timer_id, uint8_t mode);
 int32_t ucx_timer_cancel(uint16_t timer_id);
 
+#define F_TIMER_FIXED 1000 //TODO define fr 
+#define F_TIMER 1000 //TODO define fr 
+
+
 #if F_TIMER == 0
 #define MS_TO_TICKS(ms) (((unsigned long)(ms) * (unsigned long)(F_TIMER_FIXED)) / 1000)
 #else

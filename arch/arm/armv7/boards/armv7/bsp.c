@@ -7,7 +7,11 @@
 
 #include <bsp.h>
 
-#include <core/time.h>
+#include <libpok_legacy/types.h>
+#include <errno.h>
+#include <libpok_legacy/syscall.h>
+
+// #include <core/time.h>
 #include <interrupt.h>
 #include <space.h>
 
@@ -15,8 +19,10 @@
 #include <bsp/serial.h>
 #include <bsp/vim.h>
 
-#include <asp/entries.h>
-#include <core/debug.h>
+// #include <asp/entries.h>
+#include <libpok_legacy/debug.h>
+
+#define POK_TIMER_FREQUENCY 1000
 
 extern void __TI_auto_init(void);
 

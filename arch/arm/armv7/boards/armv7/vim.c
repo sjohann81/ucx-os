@@ -5,9 +5,9 @@
  *      Author: Alexy
  */
 
-#include "armv7/include/bsp/vim.h"
+#include "bsp/vim.h"
 
-#include "armv7/include/bsp/rti.h"
+#include "bsp/rti.h"
 
 extern void defaultint(void);
 extern void timer_int_wrapper(void);

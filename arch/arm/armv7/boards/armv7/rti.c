@@ -51,17 +51,18 @@
 
 /* Include Files */
 
-#include "armv7/include/bsp/rti.h"
+#include "bsp/rti.h"
 
-#include <core/time.h>
-#include <asp/entries.h>
-#include "armv7/include/bsp/vim.h"
-#include "uapi/errno.h"
+// #include <core/time.h>
+// #include <asp/entries.h>
+#include "bsp/vim.h"
+#include "errno.h"
 
 /* Two parts of system time, each one can be upated atomically. */
 volatile uint32_t system_time_low;
 volatile uint32_t system_time_high;
 
+typedef long time_t;
 /*
  * Hardcoded calendar time at the beginning of the OS loading.
  *
@@ -385,7 +386,7 @@ void rtiEnableNotification(rtiBASE_t *rtiREG, uint32_t notification)
 }
 
 
-pok_time_t ja_system_time(void)
+int64_t ja_system_time(void)
 {
    uint32_t low, high;
    uint32_t high1 = system_time_high;
@@ -411,8 +412,8 @@ time_t ja_calendar_time(void)
 void ja_bsp_process_timer(void)
 {
    rti_eoi();
-   uint32_t system_time_low_new = system_time_low + (1000000000 / POK_TIMER_FREQUENCY);
-   if(system_time_low_new < (1000000000 / POK_TIMER_FREQUENCY)) {
+   uint32_t system_time_low_new = system_time_low + (1000000000 / 1000);
+   if(system_time_low_new < (1000000000 / 1000)) {
       // Overflow of low part.
       system_time_high++;
    }
@@ -422,16 +423,16 @@ void ja_bsp_process_timer(void)
    jet_on_tick();
 }
 
-pok_ret_t ja_get_hpet_ns(uint64_t *timer)
+int ja_get_hpet_ns(uint64_t *timer)
 {
     uint64_t time_lo = rtiREG1->CNT[1U].FRCx;
     uint64_t time_hi = rtiREG1->CNT[1U].UCx;
 
-    if(timer != NULL)
+    if(timer != 0)
     {
         *timer = (uint64_t)((double)(time_hi | (time_lo<< 32)) * (double)RTI_COUNTER_1_RES_NS);
-        return POK_ERRNO_OK;
+        return 0; //POK_ERRNO_OK;
     }
 
-    return POK_ERRNO_PARAM;
+    return 3; //POK_ERRNO_PARAM;
 }

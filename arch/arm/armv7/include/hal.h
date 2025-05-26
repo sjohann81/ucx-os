@@ -1,8 +1,12 @@
 #include <stdint.h>
 #include <stdint.h>
 #include <stddef.h>
-#include </home/victorgilbert/Portage_UCX-OS_TMS570/repo/ucx-os-forked/include/kernel/kernel.h>
 
+// #include </home/victorgilbert/Portage_UCX-OS_TMS570/repo/ucx-os-forked/arch/arm/armv7/boards/armv7/include/gpio_ll.h>
+#define __ARCH__	"ARM Cortex R5 (TMS570x)"
+extern uint32_t __bss_start;
+extern uint32_t __bss_end;
+extern uint32_t __stack;
 
 #define strcpy(dst, src)		ucx_strcpy(dst, src)
 #define strncpy(s1, s2, n)		ucx_strncpy(s1, s2, n)
@@ -53,8 +57,9 @@ void _delay_ms(uint32_t msec);
 //   uint32_t sp;
 //   uint32_t lr;
 // };
+typedef uint32_t jmp_buf[15];
 // #define jmp_buf jet_context
-void _context_init(struct jmp_buf *ctx, size_t sp, size_t ss, size_t ra);
+void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra);
 
 /* hardware dependent C library stuff */
 #define CONTEXT_RA	0 //VERIFIER
@@ -64,27 +69,27 @@ void _context_init(struct jmp_buf *ctx, size_t sp, size_t ss, size_t ra);
 #define MAX_INT_SOURCES 16
 
 //TODO: Write functions and change constants
-int gpio_ll_setup(struct gpio_config_values_s *cfg);
-int gpio_ll_get(struct gpio_config_values_s *cfg);
-int gpio_ll_set(struct gpio_config_values_s *cfg, int val);
-int gpio_ll_clear(struct gpio_config_values_s *cfg, int val);
-int gpio_ll_toggle(struct gpio_config_values_s *cfg, int val);
-int gpio_ll_int_attach(struct gpio_config_values_s *cfg, int pin, void (*callback)(), int trigger);
+// int gpio_ll_setup(struct gpio_config_values_s *cfg);
+// int gpio_ll_get(struct gpio_config_values_s *cfg);
+// int gpio_ll_set(struct gpio_config_values_s *cfg, int val);
+// int gpio_ll_clear(struct gpio_config_values_s *cfg, int val);
+// int gpio_ll_toggle(struct gpio_config_values_s *cfg, int val);
+// int gpio_ll_int_attach(struct gpio_config_values_s *cfg, int pin, void (*callback)(), int trigger);
 
-int i2c_ll_init(struct i2c_hw_config_values_s *config_values);
-int i2c_ll_deinit(struct i2c_hw_config_values_s *config_values);
-int i2c_ll_start(struct i2c_hw_config_values_s *config_values);
-int i2c_ll_restart(struct i2c_hw_config_values_s *config_values);
-int i2c_ll_stop(struct i2c_hw_config_values_s *config_values);
-int i2c_ll_wr_addr(struct i2c_hw_config_values_s *config_values, unsigned short addr);
-int i2c_ll_rd_addr(struct i2c_hw_config_values_s *config_values, unsigned short addr);
-int i2c_ll_write(struct i2c_hw_config_values_s *config_values, unsigned char val);
-int i2c_ll_read(struct i2c_hw_config_values_s *config_values, uint8_t nack);
+// int i2c_ll_init(struct i2c_hw_config_values_s *config_values);
+// int i2c_ll_deinit(struct i2c_hw_config_values_s *config_values);
+// int i2c_ll_start(struct i2c_hw_config_values_s *config_values);
+// int i2c_ll_restart(struct i2c_hw_config_values_s *config_values);
+// int i2c_ll_stop(struct i2c_hw_config_values_s *config_values);
+// int i2c_ll_wr_addr(struct i2c_hw_config_values_s *config_values, unsigned short addr);
+// int i2c_ll_rd_addr(struct i2c_hw_config_values_s *config_values, unsigned short addr);
+// int i2c_ll_write(struct i2c_hw_config_values_s *config_values, unsigned char val);
+// int i2c_ll_read(struct i2c_hw_config_values_s *config_values, uint8_t nack);
 
 #define PWM_DEFAULT_TIMER	PWM_TIMER4
 #define PWM_DEFAULT_CHANNEL	PWM_CHANNEL1
 #define PWM_DEFAULT_ALT_CHANNEL	PWM_CHANNEL4
 
-long pwm_ll_setup(struct pwm_config_values_s *cfg);
-int pwm_ll_get(struct pwm_config_values_s *cfg, unsigned channel, unsigned *pulse);
-int pwm_ll_set(struct pwm_config_values_s *cfg, unsigned channel, unsigned pulse);
+// long pwm_ll_setup(struct pwm_config_values_s *cfg);
+// int pwm_ll_get(struct pwm_config_values_s *cfg, unsigned channel, unsigned *pulse);
+// int pwm_ll_set(struct pwm_config_values_s *cfg, unsigned channel, unsigned pulse);
