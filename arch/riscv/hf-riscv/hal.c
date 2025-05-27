@@ -46,6 +46,8 @@ static int __getchar(void)			// polled getch()
 static int __putchar(int value)		// polled putchar()
 {
 	DEBUG_ADDR = value;
+	
+	return value;
 }
 
 static int __kbhit(void)
@@ -150,8 +152,6 @@ void _hardware_init(void)
 #if F_TIMER > 0
 	TIMER1PRE = TIMERPRE_DIV16;
 
-	/* unlock TIMER1 for reset */
-	TIMER1 = TIMERSET;
 	TIMER1 = 0;
 
 	/* TIMER1 frequency: 100 interrupts/s (every 250000 cycles, 10ms timer @ 25MHz) */

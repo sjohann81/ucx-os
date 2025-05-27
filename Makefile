@@ -53,7 +53,7 @@ ucx: incl hal libs ddrivers kernel
 	$(AR) $(ARFLAGS) $(BUILD_TARGET_DIR)/libucxos.a \
 		$(BUILD_KERNEL_DIR)/*.o
 
-kernel: timer.o message.o pipe.o semaphore.o ecodes.o syscall.o corotine.o ucx.o main.o
+kernel: timer.o message.o pipe.o semaphore.o ecodes.o syscall.o coroutine.o ucx.o main.o
 
 main.o: $(SRC_DIR)/init/main.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/init/main.c
