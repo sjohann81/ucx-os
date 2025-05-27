@@ -11,8 +11,9 @@ static int my_init(const struct device_s *dev)
 	
 	CRITICAL_ENTER();
 	pdata = (struct my_data_s *)dev->data;
-	memset(pdata->buff, 0, BUF_SIZE);
+	pdata->buf = 0;
 	pdata->size = 0;
+	pdata->mode = 0;
 	pdata->in_use = -1;
 	CRITICAL_LEAVE();
 
@@ -24,18 +25,23 @@ static int my_open(const struct device_s *dev, int mode)
 	struct my_data_s *pdata;
 	int retval = 0;
 
-	CRITICAL_ENTER();	
+	NOSCHED_ENTER();
 	pdata = (struct my_data_s *)dev->data;
+
+	pdata->mode = mode;
 
 	if (pdata->in_use == -1) {
 		pdata->in_use = ucx_task_id();
-		printf("DEV: device open (task %d)\n", pdata->in_use);
+		
+		if (pdata->mode)
+			printf("DEV: device open (task %d)\n", pdata->in_use);
 	} else {
-		printf("DEV: device open failed\n");
+		if (pdata->mode)
+			printf("DEV: device open failed\n");
 
 		retval = -1;
 	}
-	CRITICAL_LEAVE();
+	NOSCHED_LEAVE();
 
 	return retval;
 }
@@ -45,18 +51,22 @@ static int my_close(const struct device_s *dev)
 	struct my_data_s *pdata;
 	int retval = 0;
 
-	CRITICAL_ENTER();	
+	NOSCHED_ENTER();
 	pdata = (struct my_data_s *)dev->data;
 
 	if (pdata->in_use > -1) {
-		printf("DEV: device close (task %d)\n", pdata->in_use);
+		if (pdata->mode)
+			printf("DEV: device close (task %d)\n", pdata->in_use);
+		
+		pdata->mode = 0;
 		pdata->in_use = -1;
 	} else {
-		printf("DEV: device close failed\n");
+		if (pdata->mode)
+			printf("DEV: device close failed\n");
 		
 		retval = -1;
 	}
-	CRITICAL_LEAVE();
+	NOSCHED_LEAVE();
 
 	return retval;
 }
@@ -65,11 +75,11 @@ static size_t my_read(const struct device_s *dev, void *buf, size_t count)
 {
 	struct my_data_s *pdata;
 	
-	CRITICAL_ENTER();
+	NOSCHED_ENTER();
 	pdata = (struct my_data_s *)dev->data;
 	
 	if (pdata->in_use != ucx_task_id()) {
-		CRITICAL_LEAVE();
+		NOSCHED_LEAVE();
 		
 		return -1;
 	}
@@ -78,12 +88,17 @@ static size_t my_read(const struct device_s *dev, void *buf, size_t count)
 		pdata->size = count;
 	else
 		count = pdata->size;
-		
-	memcpy(buf, pdata->buff, pdata->size);
-	pdata->size = 0;
-	CRITICAL_LEAVE();
 	
-	printf("DEV: device read %d bytes\n", count);
+	if (pdata->size) {
+		memcpy(buf, pdata->buf, pdata->size);
+		pdata->size = 0;
+		free(pdata->buf);
+		pdata->buf = 0;
+	}
+	NOSCHED_LEAVE();
+	
+	if (pdata->mode)
+		printf("DEV: device read %d bytes\n", count);
 	
 	return count;
 }
@@ -92,20 +107,33 @@ static size_t my_write(const struct device_s *dev, void *buf, size_t count)
 {
 	struct my_data_s *pdata;
 
-	CRITICAL_ENTER();
+	NOSCHED_ENTER();
 	pdata = (struct my_data_s *)dev->data;
 	
 	if (pdata->in_use != ucx_task_id()) {
-		CRITICAL_LEAVE();
+		NOSCHED_LEAVE();
 		
 		return -1;
 	}
 
-	memcpy(pdata->buff, buf, count);
-	pdata->size = count;
-	CRITICAL_LEAVE();
-	
-	printf("DEV: device write %d bytes\n", count);
+	if (!pdata->buf) {
+		pdata->buf = malloc(count);
+		if (!pdata->buf) {
+			printf("DEV: out of memory.\n");
+			
+			return -1;
+		}
+		
+		memcpy(pdata->buf, buf, count);
+		pdata->size = count;
+		
+		if (pdata->mode)
+			printf("DEV: device write %d bytes\n", count);
+	} else {
+		if (pdata->mode)
+			printf("DEV: device drop %d bytes\n", count);
+	}
+	NOSCHED_LEAVE();
 	
 	return pdata->size;
 }

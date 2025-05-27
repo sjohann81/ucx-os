@@ -2,6 +2,9 @@
 #include <device.h>
 #include "driver.h"
 
+#define BUF_SIZE	128
+#define DEBUG		0
+
 struct my_data_s my_data1, my_data2;
 
 /* device driver instantiation */
@@ -18,6 +21,11 @@ const struct device_s device2 = {
 };
 
 /* user tasks */
+void idle(void)
+{
+	for (;;);
+}
+
 void task0(void)
 {
 	const struct device_s *dev = &device1;
@@ -25,15 +33,16 @@ void task0(void)
 	int i = 0;
 	
 	while (1) {
-		if (dev->api->dev_open(dev, 0)) {
+		if (dev_open(dev, DEBUG)) {
+			printf("task %d: driver in use.\n", ucx_task_id());
 			ucx_task_delay(MS_TO_TICKS(100));
 			continue;
 		}
 		sprintf(buf, "hello world! %d", i++);
-		dev->api->dev_write(dev, buf, strlen(buf) + 1);
-		dev->api->dev_close(dev);
+		dev_write(dev, buf, strlen(buf) + 1);
+		dev_close(dev);
 		
-		ucx_task_delay(MS_TO_TICKS(1000));
+		ucx_task_delay(MS_TO_TICKS(500));
 	}
 }
 
@@ -44,23 +53,20 @@ void task1(void)
 	size_t size;
 	
 	while (1) {
-		if (dev->api->dev_open(dev, 0)) {
+		if (dev_open(dev, DEBUG)) {
+			printf("task %d: driver in use.\n", ucx_task_id());
 			ucx_task_delay(MS_TO_TICKS(100));
 			continue;
 		}
 
-		size = dev->api->dev_read(dev, buf, BUF_SIZE);
+		size = dev_read(dev, buf, BUF_SIZE);
 		if (size)
 			printf("data (%d): %s\n", size, buf);
-		dev->api->dev_close(dev);
+		else
+			printf("no data\n");
+		dev_close(dev);
 		
-		ucx_task_delay(MS_TO_TICKS(1000));
-	}
-}
-
-void idle(void)
-{
-	while (1) {
+		ucx_task_delay(MS_TO_TICKS(500));
 	}
 }
 
@@ -75,8 +81,8 @@ int32_t app_main(void)
 	ucx_task_spawn(task1, DEFAULT_STACK_SIZE);
 	ucx_task_spawn(idle, DEFAULT_STACK_SIZE);
 	ucx_task_priority(0, TASK_LOW_PRIO);
-	dev1->api->dev_init(dev1);
-	dev2->api->dev_init(dev2);
+	dev_init(dev1);
+	dev_init(dev2);
 
 	// start UCX/OS
 	return 1;

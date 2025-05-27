@@ -1,9 +1,8 @@
 /* user data */
-#define BUF_SIZE	50
-
 struct my_data_s {
-	char buff[BUF_SIZE];
+	char *buf;
 	size_t size;
+	int mode;
 	int in_use;
 };
 
