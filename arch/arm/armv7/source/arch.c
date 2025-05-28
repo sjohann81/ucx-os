@@ -7,9 +7,13 @@
 
 #include <space.h>
 #include <interrupt.h>
-#include "include/types.h"
+// #include "include/types.h": #include "./uapi/types.h"
+#include <stdint.h>
+#include <stddef.h>
+#include <kernel/errno.h>
 #include <bsp/bsp.h>
 #include <space.h>
+#include <libpok_legacy/libpok_legacy.h>
 
 extern unsigned int _get_cspr_(void);
 extern void _idle_loop(void);
