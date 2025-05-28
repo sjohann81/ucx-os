@@ -160,20 +160,20 @@ void rtiInit(void)
 /* SourceId : RTI_SourceId_002 */
 /* DesignId : RTI_DesignId_002 */
 /* Requirements : HL_CONQ_RTI_SR3 */
-void rtiStartCounter(rtiBASE_t *rtiREG, uint32 counter)
-{
-/* USER CODE BEGIN (4) */
-/* USER CODE END */
+// void rtiStartCounter(rtiBASE_t *rtiREG, uint32 counter)
+// {
+// /* USER CODE BEGIN (4) */
+// /* USER CODE END */
 
-    rtiREG->GCTRL |= ((uint32)1U << (counter & 3U));
+//     rtiREG->GCTRL |= ((uint32)1U << (counter & 3U));
 
-    /**   @note The function rtiInit has to be called before this function can be used.\n
-    *           This function has to be executed in privileged mode.
-    */
+//     /**   @note The function rtiInit has to be called before this function can be used.\n
+//     *           This function has to be executed in privileged mode.
+//     */
 
-/* USER CODE BEGIN (5) */
-/* USER CODE END */
-}
+// /* USER CODE BEGIN (5) */
+// /* USER CODE END */
+// }
 
 /** @fn void rtiStopCounter(rtiBASE_t *rtiREG, uint32 counter)
 *   @brief Stops RTI Counter block
@@ -187,20 +187,20 @@ void rtiStartCounter(rtiBASE_t *rtiREG, uint32 counter)
 /* SourceId : RTI_SourceId_003 */
 /* DesignId : RTI_DesignId_003 */
 /* Requirements : HL_CONQ_RTI_SR4 */
-void rtiStopCounter(rtiBASE_t *rtiREG, uint32 counter)
-{
-/* USER CODE BEGIN (6) */
-/* USER CODE END */
+// void rtiStopCounter(rtiBASE_t *rtiREG, uint32 counter)
+// {
+// /* USER CODE BEGIN (6) */
+// /* USER CODE END */
 
-    rtiREG->GCTRL &= ~(uint32)((uint32)1U << (counter & 3U));
+//     rtiREG->GCTRL &= ~(uint32)((uint32)1U << (counter & 3U));
 
-    /**   @note The function rtiInit has to be called before this function can be used.\n
-    *           This function has to be executed in privileged mode.
-    */
+//     /**   @note The function rtiInit has to be called before this function can be used.\n
+//     *           This function has to be executed in privileged mode.
+//     */
 
-/* USER CODE BEGIN (7) */
-/* USER CODE END */
-}
+// /* USER CODE BEGIN (7) */
+// /* USER CODE END */
+// }
 
 /** @fn uint32 rtiResetCounter(rtiBASE_t *rtiREG, uint32 counter)
 *   @brief Reset RTI Counter block
@@ -217,31 +217,31 @@ void rtiStopCounter(rtiBASE_t *rtiREG, uint32 counter)
 /* SourceId : RTI_SourceId_004 */
 /* DesignId : RTI_DesignId_004 */
 /* Requirements : HL_CONQ_RTI_SR5 */
-uint32 rtiResetCounter(rtiBASE_t *rtiREG, uint32 counter)
-{
-    uint32 success = 0U;
+// uint32 rtiResetCounter(rtiBASE_t *rtiREG, uint32 counter)
+// {
+//     uint32 success = 0U;
 
-/* USER CODE BEGIN (8) */
-/* USER CODE END */
-    /*SAFETYMCUSW 134 S MR:12.2 <APPROVED> "Hardware status bit read check" */
-    if ((rtiREG->GCTRL & (uint32)((uint32)1U << (counter & 3U))) == 0U)
-    {
-        rtiREG->CNT[counter].UCx = 0x00000000U;
-        rtiREG->CNT[counter].FRCx = 0x00000000U;
+// /* USER CODE BEGIN (8) */
+// /* USER CODE END */
+//     /*SAFETYMCUSW 134 S MR:12.2 <APPROVED> "Hardware status bit read check" */
+//     if ((rtiREG->GCTRL & (uint32)((uint32)1U << (counter & 3U))) == 0U)
+//     {
+//         rtiREG->CNT[counter].UCx = 0x00000000U;
+//         rtiREG->CNT[counter].FRCx = 0x00000000U;
 
-        success = 1U;
-    }
+//         success = 1U;
+//     }
 
-    /**   @note The function rtiInit has to be called before this function can be used.\n
-    *           This function has to be executed in privileged mode.\n
-    *           The selected counter block has to be stopped before it can reset.
-    */
+//     /**   @note The function rtiInit has to be called before this function can be used.\n
+//     *           This function has to be executed in privileged mode.\n
+//     *           The selected counter block has to be stopped before it can reset.
+//     */
 
-/* USER CODE BEGIN (9) */
-/* USER CODE END */
+// /* USER CODE BEGIN (9) */
+// /* USER CODE END */
 
-    return success;
-}
+//     return success;
+// }
 
 /** @fn void rtiSetPeriod(rtiBASE_t *rtiREG, uint32 compare, uint32 period)
 *   @brief Set new period of RTI compare
@@ -260,22 +260,22 @@ uint32 rtiResetCounter(rtiBASE_t *rtiREG, uint32 counter)
 /* SourceId : RTI_SourceId_005 */
 /* DesignId : RTI_DesignId_005 */
 /* Requirements : HL_CONQ_RTI_SR6 */
-void rtiSetPeriod(rtiBASE_t *rtiREG, uint32 compare, uint32 period)
-{
-/* USER CODE BEGIN (10) */
-/* USER CODE END */
+// void rtiSetPeriod(rtiBASE_t *rtiREG, uint32 compare, uint32 period)
+// {
+// /* USER CODE BEGIN (10) */
+// /* USER CODE END */
 
-    rtiREG->CMP[compare].UDCPx = period;
+//     rtiREG->CMP[compare].UDCPx = period;
 
-    /**   @note The function rtiInit has to be called before this function can be used.\n
-    *           This function has to be executed in privileged mode.\n
-    *           When the corresponding counter block is not stopped,\n
-    *           the period will change on the next compare match of the old period.
-    */
+//     /**   @note The function rtiInit has to be called before this function can be used.\n
+//     *           This function has to be executed in privileged mode.\n
+//     *           When the corresponding counter block is not stopped,\n
+//     *           the period will change on the next compare match of the old period.
+//     */
 
-/* USER CODE BEGIN (11) */
-/* USER CODE END */
-}
+// /* USER CODE BEGIN (11) */
+// /* USER CODE END */
+// }
 
 /** @fn uint32 rtiGetPeriod(rtiBASE_t *rtiREG, uint32 compare)
 *   @brief Get current period of RTI compare
@@ -294,23 +294,23 @@ void rtiSetPeriod(rtiBASE_t *rtiREG, uint32 compare, uint32 period)
 /* SourceId : RTI_SourceId_006 */
 /* DesignId : RTI_DesignId_006 */
 /* Requirements : HL_CONQ_RTI_SR9 */
-uint32 rtiGetPeriod(rtiBASE_t *rtiREG, uint32 compare)
-{
-    uint32 period;
+// uint32 rtiGetPeriod(rtiBASE_t *rtiREG, uint32 compare)
+// {
+//     uint32 period;
 
-/* USER CODE BEGIN (12) */
-/* USER CODE END */
+// /* USER CODE BEGIN (12) */
+// /* USER CODE END */
 
-    period = rtiREG->CMP[compare].UDCPx;
+//     period = rtiREG->CMP[compare].UDCPx;
 
-    /**   @note The function rtiInit has to be called before this function can be used.
-    */
+//     /**   @note The function rtiInit has to be called before this function can be used.
+//     */
 
-/* USER CODE BEGIN (13) */
-/* USER CODE END */
+// /* USER CODE BEGIN (13) */
+// /* USER CODE END */
 
-    return period;
-}
+//     return period;
+// }
 
 /** @fn uint32 rtiGetCurrentTick(rtiBASE_t *rtiREG, uint32 compare)
 *   @brief Get current tick of RTI compare
@@ -327,27 +327,27 @@ uint32 rtiGetPeriod(rtiBASE_t *rtiREG, uint32 compare)
 /* SourceId : RTI_SourceId_007 */
 /* DesignId : RTI_DesignId_007 */
 /* Requirements : HL_CONQ_RTI_SR10 */
-uint32 rtiGetCurrentTick(rtiBASE_t *rtiREG, uint32 compare)
-{
-    uint32 tick;
-    uint32 counter = ((rtiREG->COMPCTRL & (uint32)((uint32)1U << (compare << 2U))) != 0U ) ? 1U : 0U;
-	uint32 RTI_CNT_FRCx = rtiREG->CNT[counter].FRCx;
-	uint32 RTI_CMP_COMPx = rtiREG->CMP[compare].COMPx;
-	uint32 RTI_CMP_UDCPx = rtiREG->CMP[compare].UDCPx;
+// uint32 rtiGetCurrentTick(rtiBASE_t *rtiREG, uint32 compare)
+// {
+//     uint32 tick;
+//     uint32 counter = ((rtiREG->COMPCTRL & (uint32)((uint32)1U << (compare << 2U))) != 0U ) ? 1U : 0U;
+// 	uint32 RTI_CNT_FRCx = rtiREG->CNT[counter].FRCx;
+// 	uint32 RTI_CMP_COMPx = rtiREG->CMP[compare].COMPx;
+// 	uint32 RTI_CMP_UDCPx = rtiREG->CMP[compare].UDCPx;
 
-/* USER CODE BEGIN (14) */
-/* USER CODE END */
+// /* USER CODE BEGIN (14) */
+// /* USER CODE END */
 
-    tick = RTI_CNT_FRCx - (RTI_CMP_COMPx - RTI_CMP_UDCPx);
+//     tick = RTI_CNT_FRCx - (RTI_CMP_COMPx - RTI_CMP_UDCPx);
 
-    /**   @note The function rtiInit has to be called before this function can be used.
-    */
+//     /**   @note The function rtiInit has to be called before this function can be used.
+//     */
 
-/* USER CODE BEGIN (15) */
-/* USER CODE END */
+// /* USER CODE BEGIN (15) */
+// /* USER CODE END */
 
-    return tick;
-}
+//     return tick;
+// }
 
 /** @fn void dwdInit(rtiBASE_t *rtiREG, uint16 dwdPreload)
 *   @brief Initialize DWD Expiration Period 
@@ -676,21 +676,21 @@ dwdViolation_t dwdGetViolationStatus(rtiBASE_t *rtiREG)
 /* SourceId : RTI_SourceId_019 */
 /* DesignId : RTI_DesignId_008 */
 /* Requirements : HL_CONQ_RTI_SR7 */
-void rtiEnableNotification(rtiBASE_t *rtiREG, uint32 notification)
-{
-/* USER CODE BEGIN (38) */
-/* USER CODE END */
+// void rtiEnableNotification(rtiBASE_t *rtiREG, uint32 notification)
+// {
+// /* USER CODE BEGIN (38) */
+// /* USER CODE END */
 
-    rtiREG->INTFLAG = notification;
-    rtiREG->SETINTENA   = notification;
+//     rtiREG->INTFLAG = notification;
+//     rtiREG->SETINTENA   = notification;
 
-    /**   @note The function rtiInit has to be called before this function can be used.\n
-    *           This function has to be executed in privileged mode.
-    */
+//     /**   @note The function rtiInit has to be called before this function can be used.\n
+//     *           This function has to be executed in privileged mode.
+//     */
 
-/* USER CODE BEGIN (39) */
-/* USER CODE END */
-}
+// /* USER CODE BEGIN (39) */
+// /* USER CODE END */
+// }
 
 /** @fn void rtiDisableNotification(rtiBASE_t *rtiREG, uint32 notification)
 *   @brief Disable notification of RTI module
