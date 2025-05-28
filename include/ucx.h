@@ -12,7 +12,7 @@
 #include <kernel/kernel.h>
 #include <kernel/corotine.h>
 #include <kernel/errno.h>
-#include <kernel/stat.h>
+// #include <kernel/stat.h> //TODO: Make it compile without this being commented
 #include <kernel/ecodes.h>
 #include <kernel/syscall.h>
 #include <stdarg.h>
