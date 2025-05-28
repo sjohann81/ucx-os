@@ -92,23 +92,30 @@ console.o: $(SRC_DIR)/lib/console.c
 		
 ## kernel + application link
 link:
-ifeq ('$(ARCH)', 'avr/atmega32')
-	$(LD) $(LDFLAGS) -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
-else ifeq ('$(ARCH)', 'avr/atmega328p')
-	$(LD) $(LDFLAGS) -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
-else ifeq ('$(ARCH)', 'avr/atmega2560')
-	$(LD) $(LDFLAGS) -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
-else 
-	$(LD) $(LDFLAGS) -T$(LDSCRIPT) -Map $(BUILD_TARGET_DIR)/image.map -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
+ifeq ('$(ARCH)', 'arm/armv7')
+# $(LD) $(LDFLAGS) -T$(LDSCRIPT) -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
+# $(CC) -mcpu=cortex-r5f -v $(BUILD_KERNEL_DIR)/main.o -o a.out -wlarch/arm/armv7/drivers/source/HL_sys_link.cmd
+	$(CC) --run_linker $(LDFLAGS) $(BUILD_APP_DIR)/*.o $(BUILD_KERNEL_DIR)/*.o --output_file=app.out --no_warnings --library=/home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/lib/libc.a --library=arch/arm/armv7/drivers/source/HL_sys_link.cmd
+# --library=/home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/lib/lnk.cmd
+#--library=arch/arm/armv7/drivers/source/HL_sys_link.cmd
+else
+	ifeq ('$(ARCH)', 'avr/atmega32')
+		$(LD) $(LDFLAGS) -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
+	else ifeq ('$(ARCH)', 'avr/atmega328p')
+		$(LD) $(LDFLAGS) -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
+	else ifeq ('$(ARCH)', 'avr/atmega2560')
+		$(CC) $(LDFLAGS) -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
+	else 
+		$(LD) $(LDFLAGS) -T$(LDSCRIPT) -Map $(BUILD_TARGET_DIR)/image.map -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
+	endif
+		$(DUMP) --disassemble --reloc $(BUILD_TARGET_DIR)/image.elf > $(BUILD_TARGET_DIR)/image.lst
+		$(DUMP) -h $(BUILD_TARGET_DIR)/image.elf > $(BUILD_TARGET_DIR)/image.sec
+		$(DUMP) -s $(BUILD_TARGET_DIR)/image.elf > $(BUILD_TARGET_DIR)/image.cnt
+		$(OBJ) -O binary $(BUILD_TARGET_DIR)/image.elf $(BUILD_TARGET_DIR)/image.bin
+		$(OBJ) -R .eeprom -O ihex $(BUILD_TARGET_DIR)/image.elf $(BUILD_TARGET_DIR)/image.hex
+		$(SIZE) $(BUILD_TARGET_DIR)/image.elf
+		hexdump -v -e '4/1 "%02x" "\n"' $(BUILD_TARGET_DIR)/image.bin > $(BUILD_TARGET_DIR)/code.txt
 endif
-	$(DUMP) --disassemble --reloc $(BUILD_TARGET_DIR)/image.elf > $(BUILD_TARGET_DIR)/image.lst
-	$(DUMP) -h $(BUILD_TARGET_DIR)/image.elf > $(BUILD_TARGET_DIR)/image.sec
-	$(DUMP) -s $(BUILD_TARGET_DIR)/image.elf > $(BUILD_TARGET_DIR)/image.cnt
-	$(OBJ) -O binary $(BUILD_TARGET_DIR)/image.elf $(BUILD_TARGET_DIR)/image.bin
-	$(OBJ) -R .eeprom -O ihex $(BUILD_TARGET_DIR)/image.elf $(BUILD_TARGET_DIR)/image.hex
-	$(SIZE) $(BUILD_TARGET_DIR)/image.elf
-	hexdump -v -e '4/1 "%02x" "\n"' $(BUILD_TARGET_DIR)/image.bin > $(BUILD_TARGET_DIR)/code.txt
-
 ## applications
 coroutine_args: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/coroutine_args.o app/coroutine_args.c
@@ -122,11 +129,11 @@ coroutine_pipe: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/coroutine_pipe.o app/coroutine_pipe.c
 	@$(MAKE) --no-print-directory link
 
-coroutine_task: rebuild
+coroutine_task:
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/coroutine_task.o app/coroutine_task.c
 	@$(MAKE) --no-print-directory link
 
-delay: rebuild
+delay:
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/delay.o app/delay.c
 	@$(MAKE) --no-print-directory link
 
@@ -135,7 +142,7 @@ driver: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/app.o app/driver/app.c
 	@$(MAKE) --no-print-directory link
 
-echo: rebuild
+echo:
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/echo.o app/echo.c
 	@$(MAKE) --no-print-directory link
 
