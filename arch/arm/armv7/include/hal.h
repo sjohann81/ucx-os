@@ -93,3 +93,6 @@ void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra);
 // long pwm_ll_setup(struct pwm_config_values_s *cfg);
 // int pwm_ll_get(struct pwm_config_values_s *cfg, unsigned channel, unsigned *pulse);
 // int pwm_ll_set(struct pwm_config_values_s *cfg, unsigned channel, unsigned pulse);
+#define DEFAULT_STACK_SIZE	2048
+
+void _interrupt_tick(void);
