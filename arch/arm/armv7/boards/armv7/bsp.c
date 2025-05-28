@@ -298,11 +298,6 @@ void ja_bsp_init(void)
     serial_write("Timers Initialized\r\n", 20);
 }
 
-
-void pok_bsp_get_info(void *addr) {
-    pok_fatal("pok_bsp_get_info unimplemented on armv7");
-}
-
 void bsp_soft_reset(void)
 {
     SYS_REG_1_BASE->SYSECR |= (1 << 15);
