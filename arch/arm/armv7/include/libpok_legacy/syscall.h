@@ -26,7 +26,7 @@
 #include <libpok_legacy/common.h>
 
 #include <libpok_legacy/syscall_types.h>
-
+#include <libpok_legacy/errno.h>
 typedef struct
 {
    uint32_t             nargs;
@@ -80,4 +80,29 @@ int	pok_core_syscall (const pok_syscall_id_t     syscall_id,
  */
 int pok_syscall_init();
 
-#endif /* __POK_SYSCALL_H__ */
+
+
+#define LIBJET_ARCH_DECLARE_SYSCALL 1
+
+pok_ret_t lja_do_syscall (pok_syscall_id_t syscall_id, pok_syscall_args_t* args);
+
+#define lja_syscall0(sid) \
+             lja_do_syscall(sid,&((pok_syscall_args_t){0,0,0,0,0,0}))
+
+#define lja_syscall1(sid,arg1) \
+             lja_do_syscall(sid,&((pok_syscall_args_t){1,arg1,0,0,0,0}))
+
+#define lja_syscall2(sid,arg1,arg2) \
+             lja_do_syscall(sid,&((pok_syscall_args_t){2,arg1,arg2,0,0,0}))
+
+#define lja_syscall3(sid,arg1,arg2,arg3) \
+             lja_do_syscall(sid,&((pok_syscall_args_t){3,arg1,arg2,arg3,0,0}))
+
+#define lja_syscall4(sid,arg1,arg2,arg3,arg4) \
+             lja_do_syscall(sid,&((pok_syscall_args_t){4,arg1,arg2,arg3,arg4,0}))
+
+#define lja_syscall5(sid,arg1,arg2,arg3,arg4,arg5) \
+             lja_do_syscall(sid,&((pok_syscall_args_t){5,arg1,arg2,arg3,arg4,arg5}))
+
+
+#endif /* SOURCES_LIBPOK_ARCH_ARMV7_INCLUDE_SYSCALL_H_ */
