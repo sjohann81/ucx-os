@@ -1,7 +1,7 @@
-// #define LED_PORT	GPIO_PORTB
-// #define LED_PIN		GPIO_PIN5
-// #define LED_PIN_OPT	GPIO_PIN5_OPT
-// #define MAX_INT_SOURCES	3
+#define LED_PORT	GPIO_PORTB
+#define LED_PIN		GPIO_PIN6
+#define LED_PIN_OPT	GPIO_PIN5_OPT
+#define MAX_INT_SOURCES	3
 
 int gpio_ll_setup(struct gpio_config_values_s *cfg);
 int gpio_ll_get(struct gpio_config_values_s *cfg);
