@@ -44,19 +44,11 @@
 #pragma CHECK_MISRA("-20.1") /* standard headers must define standard names */
 #pragma CHECK_MISRA("-20.2") /* standard headers must define standard names */
 
+#include "_types.h"
 
 /*
- * Unusual type definitions.
- */
-#ifdef __TI_COMPILER_VERSION__
-typedef struct __va_list_t {
-    void * __ap;
-} __va_list;
-#elif defined(__GNUCLIKE_BUILTIN_VARARGS)
-typedef __builtin_va_list	__va_list;	/* internally known to gcc */
-#else
-typedef	char *			__va_list;
-#endif /* __GNUCLIKE_BUILTIN_VARARGS */
+* Unusual type definitions.
+*/
 #if defined(__GNUCLIKE_BUILTIN_VAALIST) && !defined(__GNUC_VA_LIST) \
     && !defined(__NO_GNUC_VA_LIST)
 #define __GNUC_VA_LIST
