@@ -522,6 +522,22 @@ _enable_IRQ_interrupt_
 
         .endasmfunc
 ;-------------------------------------------------------------------------------
+; Disable interrupts - CPU IRQ & FIQ
+; SourceId : CORE_SourceId_027
+; DesignId : CORE_DesignId_024
+; Requirements: HL_CONQ_CORE_SR10
+
+       .def _disable_interrupt_
+       .asmfunc
+
+_disable_interrupt_
+
+        cpsid if
+        bx    lr
+
+        .endasmfunc
+        
+;-------------------------------------------------------------------------------
 ; Enable interrupts - CPU IRQ & FIQ
 ; SourceId : CORE_SourceId_027
 ; DesignId : CORE_DesignId_024
