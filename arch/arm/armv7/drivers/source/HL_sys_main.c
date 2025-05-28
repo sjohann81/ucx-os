@@ -66,13 +66,13 @@
 uint8	emacAddress[6U] = 	{0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU};
 uint32 	emacPhyAddress	=	1U;
 
-int main(void)
-{
-/* USER CODE BEGIN (3) */
-/* USER CODE END */
+// int main(void)
+// {
+// /* USER CODE BEGIN (3) */
+// /* USER CODE END */
 
-    return 0;
-}
+//     return 0;
+// }
 
 
 /* USER CODE BEGIN (4) */
