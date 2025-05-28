@@ -1,5 +1,5 @@
-TI_ENV = /home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/bin #Change for general localisation template
-# TI_ENV_WIN = C:/Program Files/CodeComposer/ccs/tools/compiler/ti-cgt-arm_18.12.2.LTS
+PATH_TO_TI_DIR = /home/user/ti
+TI_ENV = ${PATH_TO_TI_DIR}/compiler/ti-cgt-arm_20.2.7.LTS/bin 
 ARCH_DIR = $(SRC_DIR)/arch/$(ARCH)
 
 # core speed
@@ -18,23 +18,19 @@ INC_DIRS  = -I $(ARCH_DIR)/include \
 	-I $(SRC_DIR)/include/kernel \
 	-I $(SRC_DIR)/drivers/bus/include/ \
 	-I $(SRC_DIR)/include/libpok_legacy \
-	-I /home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/lib/src \
-	-I /home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/lib/src/machine \
+	-I ${PATH_TO_TI_DIR}/compiler/ti-cgt-arm_20.2.7.LTS/lib/src \
+	-I ${PATH_TO_TI_DIR}/compiler/ti-cgt-arm_20.2.7.LTS/lib/src/machine \
 	-I $(ARCH_DIR)/common
 
-# C_OBJS = $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/build/*.obj))
 
-CC = /home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/bin/armcl
-AS = /home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/bin/armasm
-LD = /home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/bin/armlnk
-DUMP = /home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/bin/armobjdump
-READ = /home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/bin/armreadelf
-OBJ = /home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/bin/armobjcopy
-SIZE = /home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/bin/armsize
-AR = /home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/bin/armar
-
-# MCU_DEFINES = -mabi=atpcs -mthumb -fsingle-precision-constant
-# C_DEFINES = -D HSE_VALUE=25000000 -D USB_SERIAL
+CC = ${PATH_TO_TI_DIR}/compiler/ti-cgt-arm_20.2.7.LTS/bin/armcl
+AS = ${PATH_TO_TI_DIR}/compiler/ti-cgt-arm_20.2.7.LTS/bin/armasm
+LD = ${PATH_TO_TI_DIR}/compiler/ti-cgt-arm_20.2.7.LTS/bin/armlnk
+DUMP = ${PATH_TO_TI_DIR}/compiler/ti-cgt-arm_20.2.7.LTS/bin/armobjdump
+READ = ${PATH_TO_TI_DIR}/compiler/ti-cgt-arm_20.2.7.LTS/bin/armreadelf
+OBJ = ${PATH_TO_TI_DIR}/compiler/ti-cgt-arm_20.2.7.LTS/bin/armobjcopy
+SIZE = ${PATH_TO_TI_DIR}/compiler/ti-cgt-arm_20.2.7.LTS/bin/armsize
+AR = ${PATH_TO_TI_DIR}/compiler/ti-cgt-arm_20.2.7.LTS/bin/armar
 
 CFLAGS = -mv7R5 --code_state=32 --float_support=VFPv3D16 -Ooff -c      	\
          --opt_for_speed=0 -g --c99 --diag_warning=225 --diag_wrap=off 	\
@@ -44,25 +40,12 @@ CFLAGS = -mv7R5 --code_state=32 --float_support=VFPv3D16 -Ooff -c      	\
 		 -D F_CPU=$(F_CLK) -D USART_BAUD=$(SERIAL_BAUDRATE) \
 		 -DF_TIMER=${F_TICK} -D UNKNOWN_HEAP -D LOW_MEM\
          
-LDFLAGS = -i"/home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/lib"
-# LDFLAGS = -mv7R5 -Ooff         \
-#           --opt_for_speed=0 -g --c99 --diag_warning=225 --diag_wrap=off \
-#            --display_error_number --abi=eabi \
-# 			-i"/home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/bin/lib" 											\
-#            --reread_libs --diag_wrap=off --display_error_number         \
-#            --warn_sections 							    				\
-		#    -D F_CPU=$(F_CLK) -D USART_BAUD=$(SERIAL_BAUDRATE) 			\
-		#    -DF_TIMER=${F_TICK} $(INC_DIRS) -D UNKNOWN_HEAP -D LOW_MEM	\
-
+LDFLAGS = -i"${PATH_TO_TI_DIR}/compiler/ti-cgt-arm_20.2.7.LTS/lib"
 .PHONY: hal
 hal:
 	$(CC) $(CFLAGS) -o cswitch.o $(ARCH_DIR)/source/cswitch.asm
 	$(CC) $(CFLAGS) -o syscall.o $(ARCH_DIR)/source/syscall.asm
 	$(CC) $(CFLAGS) -o fpu.o $(ARCH_DIR)/source/fpu.asm
-# $(CC) $(CFLAGS) -o syscall.o $(ARCH_DIR)/source/interrupt.asm
-# $(CC) $(CFLAGS) -o entry.o $(ARCH_DIR)/source/entry.asm
-# $(CC) $(CFLAGS) -o interrupt.o $(ARCH_DIR)/source/interrupt.asm
-# $(CC) $(CFLAGS) -o mpu.o $(ARCH_DIR)/source/mpu.asm
 	$(CC) $(CFLAGS) -o space_asm.o $(ARCH_DIR)/source/space_asm.asm
 	$(CC) $(CFLAGS) -o HL_sys_core.o $(ARCH_DIR)/drivers/source/HL_sys_core.asm
 	$(CC) $(CFLAGS) -o HL_sys_intvecs.o $(ARCH_DIR)/drivers/source/HL_sys_intvecs.asm
@@ -73,8 +56,5 @@ hal:
 		$(ARCH_DIR)/source/*.c \
 		$(ARCH_DIR)/drivers/source/*.c \
 		$(ARCH_DIR)/boards/armv7/*.c \
-		$(LDFLAGS)/src/*.c
-# $(ARCH_DIR)/../../common/*.c \
-# $(ARCH_DIR)/../../common/*.s 
-	
+		$(LDFLAGS)/src/*.c	
 	sh ./$(ARCH_DIR)/rename_obj_to_o.sh
