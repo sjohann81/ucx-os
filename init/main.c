@@ -6,6 +6,8 @@
 
 #include <ucx.h>
 
+uint32_t __bss_end; //TODO: Make it compile without this definition
+
 /* main() function, called from the C runtime */
 
 int32_t main(void)
