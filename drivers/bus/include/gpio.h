@@ -16,6 +16,7 @@ struct gpio_api_s {
 	int (*gpio_int_attach)(const struct device_s *dev, int pin, void (*callback)(), int trigger);
 };
 
+#ifndef GPIO_PORTA //TODO: Remove this if, has to not be necessary
 enum port_names {
 	GPIO_PORTA, GPIO_PORTB, GPIO_PORTC, GPIO_PORTD,
 	GPIO_PORTE, GPIO_PORTF, GPIO_PORTG, GPIO_PORTH,
@@ -69,3 +70,4 @@ struct gpio_config_s {
 };
 
 extern struct gpio_api_s gpio_api;
+#endif
