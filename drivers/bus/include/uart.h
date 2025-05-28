@@ -20,23 +20,9 @@ enum uart_config_values {
 	INTDISABLE = 0, INTENABLE
 };
 
-struct uart_config_values_s {
-	unsigned port : 4;
-	unsigned baudrate : 4;
-	unsigned databits : 3;
-	unsigned parity : 2;
-	unsigned stopbits : 2;
-	unsigned interrupt : 1;
-};
+struct uart_config_values_s; //TODO: Rewrite definition here
 
-struct uart_config_s {
-	struct uart_config_values_s config_values;
-	unsigned rx_buffer_size;
-	int (*uart_config)(struct uart_config_values_s *config);
-	int (*uart_poll)(void);
-	int (*uart_tx)(int val);		// blocking tx
-	int (*uart_rx)(void);			// blocking rx
-};
+struct uart_config_s; //TODO: Rewrite definition here
 
 /* UART data definitions */
 struct uart_data_s {
