@@ -7,13 +7,12 @@
 
 #include <arch/deployment.h>
 #include <stdint.h>
-#include "include/types.h"
-#include <common.h>
+#include <libpok_legacy/types.h>
+#include <libpok_legacy/common.h>
 #include <libc.h>
-#include <asp/arch.h>
-#include <asp/space.h>
+#include <libpok_legacy/arch.h>
+#include <libpok_legacy/space.h>
 #include <mpu.h>
-#include <space.h>
 
 #include "../../boards/armv7/include/bsp/serial.h"
 #define mpuSUBREGION_DISABLE (mpuSUBREGION0_DISABLE | mpuSUBREGION1_DISABLE | mpuSUBREGION2_DISABLE |\
