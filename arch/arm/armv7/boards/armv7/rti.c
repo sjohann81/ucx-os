@@ -420,7 +420,7 @@ void ja_bsp_process_timer(void)
 
    system_time_low = system_time_low_new;
 
-   jet_on_tick();
+//    jet_on_tick(); //TODO: Fix this function and make buildable
 }
 
 int ja_get_hpet_ns(uint64_t *timer)
