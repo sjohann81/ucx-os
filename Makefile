@@ -93,11 +93,7 @@ console.o: $(SRC_DIR)/lib/console.c
 ## kernel + application link
 link:
 ifeq ('$(ARCH)', 'arm/armv7')
-# $(LD) $(LDFLAGS) -T$(LDSCRIPT) -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
-# $(CC) -mcpu=cortex-r5f -v $(BUILD_KERNEL_DIR)/main.o -o a.out -wlarch/arm/armv7/drivers/source/HL_sys_link.cmd
-	$(CC) --run_linker $(LDFLAGS) $(BUILD_APP_DIR)/*.o $(BUILD_KERNEL_DIR)/*.o --output_file=app.out --no_warnings --library=/home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/lib/libc.a --library=arch/arm/armv7/drivers/source/HL_sys_link.cmd
-# --library=/home/victorgilbert/ti/compiler/ti-cgt-arm_20.2.7.LTS/lib/lnk.cmd
-#--library=arch/arm/armv7/drivers/source/HL_sys_link.cmd
+	$(CC) --run_linker $(LDFLAGS) $(BUILD_APP_DIR)/*.o $(BUILD_KERNEL_DIR)/*.o --output_file=app.out --no_warnings --library=${PATH_TO_TI_DIR}/compiler/ti-cgt-arm_20.2.7.LTS/lib/libc.a --library=./arch/arm/armv7/drivers/source/HL_sys_link.cmd
 else
 	ifeq ('$(ARCH)', 'avr/atmega32')
 		$(LD) $(LDFLAGS) -o $(BUILD_TARGET_DIR)/image.elf $(BUILD_APP_DIR)/*.o -L$(BUILD_TARGET_DIR) -lucxos
