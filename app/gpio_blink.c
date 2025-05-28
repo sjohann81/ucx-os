@@ -2,7 +2,11 @@
 #include <device.h>
 #include <gpio.h>
 #include <gpio_ll.h> 	// for LED_PORT and LED_PIN defs
-
+//TODO: relocate these definitions
+#define LED_PORT	GPIO_PORTB
+#define LED_PIN		GPIO_PIN6
+#define LED_PIN_OPT	GPIO_PIN5_OPT
+#define MAX_INT_SOURCES	3
 /* GPIO configuration */
 const struct gpio_config_s gpio_config = {
 	.config_values.port = LED_PORT,
