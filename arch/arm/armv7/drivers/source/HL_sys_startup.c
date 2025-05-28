@@ -61,7 +61,7 @@
 #include "HL_esm.h"
 #include "HL_sys_mpu.h"
 #include "HL_errata_SSWF021_45.h"
-
+#include "autoinit.h"
 /* USER CODE BEGIN (1) */
 /* USER CODE END */
 
@@ -91,6 +91,72 @@ void _c_int00(void);
 #pragma CODE_STATE(_c_int00, 32)
 #pragma INTERRUPT(_c_int00, RESET)
 #pragma WEAK(_c_int00)
+
+#define WDTPW                (0x5A00)
+#define WDTCNTCL             (0x0008)
+#define WDTHOLD              (0x0080)
+#define RESTORE_WDT(setting) (WDTPW | (0x00FF & (setting)) | WDTCNTCL)
+#define HOLD_WDT             (WDTPW | WDTHOLD)
+
+
+static __inline __attribute__((always_inline))
+void __TI_auto_init_template(int RUN_BINIT, int RUN_PINIT,
+                             volatile uint16_t* WDTCTL_ptr)
+{
+        if (RUN_BINIT)
+        run_binit();
+    
+       uint16_t initial_WDT;
+       if (WDTCTL_ptr)
+       {
+          initial_WDT = *WDTCTL_ptr;
+          *WDTCTL_ptr = HOLD_WDT;
+       }
+    
+       run_cinit();
+    
+       if (WDTCTL_ptr)
+          *WDTCTL_ptr = RESTORE_WDT(initial_WDT);
+    
+        /*-----------------------------------------------------------------------*/
+        /* Call the startup hook function.                                       */
+        /*-----------------------------------------------------------------------*/
+        _system_post_cinit();
+    
+    #ifdef _TMS320C6X
+       /*------------------------------------------------------------------------*/
+       /* Initialize master thread's Thread-Local variables. The RTS library     */
+       /* provides the function __TI_tls_init to initialize TLS block of a       */
+       /* given thread.  The address of the newly allocated TLS Block of the     */
+       /* thread is passed as input parameter to this routine. If NULL is passed */
+       /* the master thread's TLS block allocated by the linker is initialized.  */
+       /*------------------------------------------------------------------------*/
+       __TI_tls_init(NULL);
+    #else
+       /*------------------------------------------------------------------------*/
+       /* For those targets that support table driven exception handling,        */
+       /* initialize the global exception stack data structure here before       */
+       /* calling C++ global constructors to prepare for the first exception.    */
+       /*------------------------------------------------------------------------*/
+       /* C6x will call __tdeh_init() from within __TI_tls_init() since each     */
+       /* thread must set up its own private exception stack.                    */
+       /*------------------------------------------------------------------------*/
+    #if defined(__TI_TABLE_DRIVEN_EXCEPTIONS)
+        __tdeh_init();
+    #endif
+    #endif
+    
+        if (RUN_PINIT)
+           run_pinit();
+
+}
+
+void AUTO_INIT(void)
+{
+   __TI_auto_init_template(1, 1, NULL);
+   
+}
+
 
 /* SourceId : STARTUP_SourceId_001 */
 /* DesignId : STARTUP_DesignId_001 */
