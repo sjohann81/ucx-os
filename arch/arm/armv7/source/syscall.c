@@ -23,14 +23,14 @@
 
 
 #include <errno.h>
-#include <core/debug.h>
-#include <core/syscall.h>
-#include <core/partition.h>
+#include <libpok_legacy/debug.h>
+#include <libpok_legacy/syscall.h>
+#include <libpok_legacy/partition.h>
 
-#include "include/types.h"
+#include "libpok_legacy/types.h"
 #include <libc.h>
 
-pok_ret_t pok_arch_sc_int(uint32_t num, pok_syscall_args_t* args)
+int pok_arch_sc_int(uint32_t num, pok_syscall_args_t* args)
 {
 
    uint8_t              part_id;
