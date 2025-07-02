@@ -74,7 +74,7 @@ message.o: $(SRC_DIR)/kernel/message.c
 timer.o: $(SRC_DIR)/kernel/timer.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/timer.c
 
-libs: console.o libc.o dump.o malloc.o list.o queue.o
+libs: console.o libc.o fixed.o dump.o malloc.o list.o queue.o
 
 queue.o: $(SRC_DIR)/lib/queue.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/lib/queue.c
@@ -84,6 +84,8 @@ malloc.o: $(SRC_DIR)/lib/malloc.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/lib/malloc.c
 dump.o: $(SRC_DIR)/lib/dump.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/lib/dump.c
+fixed.o:$(SRC_DIR)/lib/fixed.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/lib/fixed.c
 libc.o: $(SRC_DIR)/lib/libc.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/lib/libc.c
 console.o: $(SRC_DIR)/lib/console.c
