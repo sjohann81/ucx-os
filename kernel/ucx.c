@@ -90,6 +90,7 @@ void krnl_panic(uint32_t ecode)
 void _dispatch(void) __attribute__ ((weak, alias ("dispatch")));
 void _yield(void) __attribute__ ((weak, alias ("yield")));
 
+#ifdef CONFIG_SCHED_SIMPLE
 /*
  * The scheduler switches tasks based on task states and priorities, using
  * a priority driven round robin algorithm. Current interrupted task is checked
@@ -132,6 +133,68 @@ uint16_t krnl_schedule(void)
 	
 	return task->id;
 }
+
+#else
+
+/*
+ * The scheduler switches tasks based on task states and priorities, using
+ * a priority driven round robin algorithm. Current interrupted task is
+ * checked for its state and if RUNNING, it is changed to READY. Task
+ * priority is kept in the TCB entry in 16 bits, where the 8 MSBs hold
+ * the task priority and the 8 LSBs keep current task priority. This
+ * algorithm traverses the task list twice. In the first run, the highest
+ * priority task is selected. On the second run, the priority from the
+ * selected task is subtracted from all other ready tasks. Only a task
+ * on the READY state is considered to be scheduled.
+ * 
+ * In the end, a task is selected for execution, has its priority reassigned
+ * and its state changed to RUNNING.
+ */
+
+uint16_t krnl_schedule(void)
+{
+	struct tcb_s *task = kcb->task_current->data;
+	struct node_s *node, *select;
+	struct tcb_s *tselect;
+	uint16_t priority;
+	
+	if (task->state == TASK_RUNNING)
+		task->state = TASK_READY;
+	
+	select = kcb->tasks->head->next;
+	tselect = select->data;
+	node = kcb->tasks->head;
+	while ((node = list_next(node))) {
+		if (!node->next) break;
+		task = node->data;
+		if ((task->priority & 0xff) <= (tselect->priority & 0xff)) {
+			if (task->state == TASK_READY && !task->rt_prio) {
+				select = node;
+				tselect = select->data;
+			}
+		}
+	};
+	
+	tselect = select->data;
+	if (tselect->state != TASK_READY || tselect->rt_prio)
+		krnl_panic(ERR_NO_TASKS);
+	
+	priority = tselect->priority;
+	node = kcb->tasks->head;
+	while ((node = list_next(node))) {
+		if (!node->next) break;
+		task = node->data;
+		if (task->state == TASK_READY && !task->rt_prio)
+			task->priority -= (priority & 0xff);
+	};
+	
+	kcb->task_current = select;
+	tselect->priority |= (tselect->priority >> 8) & 0xff;
+	tselect->state = TASK_RUNNING;
+
+	return tselect->id;
+}
+#endif
 
 int32_t krnl_noop_rtsched(void)
 {
