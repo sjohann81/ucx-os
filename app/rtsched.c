@@ -92,17 +92,18 @@ int32_t our_sched(void)
 
 			/* get the next RT task */
 			do {
+				task_node = list_next(task_node);
+
 				/* we scheduled all RT tasks */
-				/* let the kernel schedule a non RT task */
-				if (task_node == kcb->tasks->tail) {
+				/* let the kernel schedule a non RT task */				
+				if (!task_node->next) {
 					task_node = 0;
-					
 					return -1;
 				}
 				
-				task_node = list_next(task_node);
 				task = task_node->data;
 			} while (task->state != TASK_READY || !task->rt_prio);
+
 		}
 	}
 
