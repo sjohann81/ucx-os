@@ -135,6 +135,10 @@ delay: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/delay.o app/delay.c
 	@$(MAKE) --no-print-directory link
 
+dht_sensor: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/dht_sensor.o app/dht_sensor.c
+	@$(MAKE) --no-print-directory link
+
 driver: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/driver.o app/driver/driver.c
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/app.o app/driver/app.c
