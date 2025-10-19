@@ -13,5 +13,6 @@ ddrivers:
 		$(DEVICE_DRIVERS_DIR)/device/device.c \
 		$(DEVICE_DRIVERS_DIR)/24lcxxx/24lcxxx.c \
 		$(DEVICE_DRIVERS_DIR)/25lcxxx/25lcxxx.c \
+		$(DEVICE_DRIVERS_DIR)/dht/dht.c \
+		$(DEVICE_DRIVERS_DIR)/enc28j60/enc28j60.c \
 		$(DEVICE_DRIVERS_DIR)/vt100/vt100.c
-
