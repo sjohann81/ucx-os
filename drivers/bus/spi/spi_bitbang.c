@@ -125,8 +125,8 @@ static int spi_driver_close(const struct device_s *dev)
 	CRITICAL_LEAVE();
 
 	if (config->device_mode == SPI_MASTER) {
-		config->gpio_cs(config->cs_active ^ SPI_CS_HIGH);
 		_delay_us(config->cs_delay);
+		config->gpio_cs(config->cs_active ^ SPI_CS_HIGH);
 		config->gpio_mosi(1);
 	} else {
 		config->gpio_miso(1);

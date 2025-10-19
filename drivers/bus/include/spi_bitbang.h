@@ -8,8 +8,8 @@ size_t spi_write(const struct device_s *dev, void *buf, size_t count);
 
 enum spi_speed {
 	SPI_SPEED_CS = 5,
-	SPI_SPEED_FASTEST = 1,
-	SPI_SPEED_FAST = 2,
+	SPI_SPEED_FASTEST = 0,
+	SPI_SPEED_FAST = 1,
 	SPI_SPEED_NORMAL = 4,
 	SPI_SPEED_SLOW = 16,
 	SPI_SPEED_SLOWEST = 32
