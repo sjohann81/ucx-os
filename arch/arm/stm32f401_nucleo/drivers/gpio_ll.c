@@ -61,6 +61,20 @@ int gpio_ll_setup(struct gpio_config_values_s *cfg)
 					}
 					GPIO_Init(GPIOC, &GPIO_InitStructure);
 					break;
+				case GPIO_PORTD:
+					RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+					GPIO_InitStructure.GPIO_Pin   = (1 << i);
+					GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN;
+					GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+					GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
+					switch (pullsel) {
+					case GPIO_NOPULL: GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL; break;
+					case GPIO_PULLUP: GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP; break;
+					case GPIO_PULLDOWN: GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN; break;
+					default: return -1;
+					}
+					GPIO_Init(GPIOD, &GPIO_InitStructure);
+					break;
 				default:
 					return -1;
 				}
@@ -93,6 +107,15 @@ int gpio_ll_setup(struct gpio_config_values_s *cfg)
 					GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
 					GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
 					GPIO_Init(GPIOC, &GPIO_InitStructure);
+					break;
+				case GPIO_PORTD:
+					RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+					GPIO_InitStructure.GPIO_Pin   = (1 << i);
+					GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+					GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+					GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
+					GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+					GPIO_Init(GPIOD, &GPIO_InitStructure);
 					break;
 				default:
 					return -1;
@@ -127,6 +150,15 @@ int gpio_ll_setup(struct gpio_config_values_s *cfg)
 					GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
 					GPIO_Init(GPIOC, &GPIO_InitStructure);
 					break;
+				case GPIO_PORTD:
+					RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+					GPIO_InitStructure.GPIO_Pin   = (1 << i);
+					GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+					GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+					GPIO_InitStructure.GPIO_Speed = GPIO_Speed_25MHz;
+					GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+					GPIO_Init(GPIOD, &GPIO_InitStructure);
+					break;
 				default:
 					return -1;
 				}
@@ -148,6 +180,7 @@ int gpio_ll_get(struct gpio_config_values_s *cfg)
 	case GPIO_PORTA: val = GPIO_ReadInputData(GPIOA); break;
 	case GPIO_PORTB: val = GPIO_ReadInputData(GPIOB); break;
 	case GPIO_PORTC: val = GPIO_ReadInputData(GPIOC); break;
+	case GPIO_PORTD: val = GPIO_ReadInputData(GPIOD); break;
 	default: 
 		return -1;
 	}
@@ -163,6 +196,7 @@ int gpio_ll_set(struct gpio_config_values_s *cfg, int val)
 	case GPIO_PORTA: GPIO_SetBits(GPIOA, mask); break;
 	case GPIO_PORTB: GPIO_SetBits(GPIOB, mask); break;
 	case GPIO_PORTC: GPIO_SetBits(GPIOC, mask); break;
+	case GPIO_PORTD: GPIO_SetBits(GPIOD, mask); break;
 	default:
 		return -1;
 	}
@@ -178,6 +212,7 @@ int gpio_ll_clear(struct gpio_config_values_s *cfg, int val)
 	case GPIO_PORTA: GPIO_ResetBits(GPIOA, mask); break;
 	case GPIO_PORTB: GPIO_ResetBits(GPIOB, mask); break;
 	case GPIO_PORTC: GPIO_ResetBits(GPIOC, mask); break;
+	case GPIO_PORTD: GPIO_ResetBits(GPIOD, mask); break;
 	default:
 		return -1;
 	}
@@ -193,6 +228,7 @@ int gpio_ll_toggle(struct gpio_config_values_s *cfg, int val)
 	case GPIO_PORTA: GPIO_ToggleBits(GPIOA, mask); break;
 	case GPIO_PORTB: GPIO_ToggleBits(GPIOB, mask); break;
 	case GPIO_PORTC: GPIO_ToggleBits(GPIOC, mask); break;
+	case GPIO_PORTD: GPIO_ToggleBits(GPIOD, mask); break;
 	default:
 		return -1;
 	}
@@ -544,6 +580,108 @@ int gpio_ll_int_attach(struct gpio_config_values_s *cfg, int pin, void (*callbac
 			break;
 		case GPIO_PIN15:
 			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOC, EXTI_PinSource15);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line15;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
+			int_cb[15] = callback;
+			break;
+		default:
+			return -1;
+		}
+		break;
+	case GPIO_PORTD:
+		switch (pin) {
+		case GPIO_PIN0:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource0);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line0;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
+			int_cb[0] = callback;
+			break;
+		case GPIO_PIN1:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource1);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line1;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI1_IRQn;
+			int_cb[1] = callback;
+			break;
+		case GPIO_PIN2:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource2);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line2;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
+			int_cb[2] = callback;
+			break;
+		case GPIO_PIN3:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource3);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line3;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI3_IRQn;
+			int_cb[3] = callback;
+			break;
+		case GPIO_PIN4:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource4);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line4;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI4_IRQn;
+			int_cb[4] = callback;
+			break;
+		case GPIO_PIN5:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource5);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line5;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+			int_cb[5] = callback;
+			break;
+		case GPIO_PIN6:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource6);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line6;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+			int_cb[6] = callback;
+			break;
+		case GPIO_PIN7:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource7);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line7;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+			int_cb[7] = callback;
+			break;
+		case GPIO_PIN8:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource8);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line8;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+			int_cb[8] = callback;
+			break;
+		case GPIO_PIN9:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource9);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line9;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
+			int_cb[9] = callback;
+			break;
+		case GPIO_PIN10:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource10);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line10;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
+			int_cb[10] = callback;
+			break;
+		case GPIO_PIN11:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource11);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line11;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
+			int_cb[11] = callback;
+			break;
+		case GPIO_PIN12:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource12);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line12;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
+			int_cb[12] = callback;
+			break;
+		case GPIO_PIN13:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource13);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line13;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
+			int_cb[13] = callback;
+			break;
+		case GPIO_PIN14:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource14);
+			EXTI_InitStructure.EXTI_Line = EXTI_Line14;
+			NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
+			int_cb[14] = callback;
+			break;
+		case GPIO_PIN15:
+			SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource15);
 			EXTI_InitStructure.EXTI_Line = EXTI_Line15;
 			NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;
 			int_cb[15] = callback;
