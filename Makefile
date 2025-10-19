@@ -243,7 +243,11 @@ spi_periph: rebuild
 spi_eeprom: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/spi_eeprom.o app/spi_eeprom.c
 	@$(MAKE) --no-print-directory link
-	
+
+spi_enc28j60: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/spi_enc28j60.o app/spi_enc28j60.c
+	@$(MAKE) --no-print-directory link
+		
 suspend: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/suspend.o app/suspend.c
 	@$(MAKE) --no-print-directory link
