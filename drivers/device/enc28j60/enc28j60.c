@@ -259,6 +259,9 @@ static int enc28j60_init(void)
 	enc28j60_write(EPMCSL, 0xf9);
 	enc28j60_write(EPMCSH, 0xf7);
 */
+	// set promiscuous mode
+	enc28j60_write(ERXFCON, 0);
+
 	// do bank 2 stuff
 	// enable MAC receive
 	enc28j60_write(MACON1, MACON1_MARXEN | MACON1_TXPAUS | MACON1_RXPAUS);
@@ -358,13 +361,6 @@ static int enc28j60_transmit(uint8_t *frame, uint16_t size)
 {
 	uint16_t timeout = 50;
 	
-	// Reset the transmit logic. See Rev. B4 Silicon Errata points 12 and 13.
-	if ((enc28j60_read(EIR) & EIR_TXERIF)) {
-		enc28j60_writeop(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRST);
-		enc28j60_writeop(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_TXRST);
-		enc28j60_writeop(ENC28J60_BIT_FIELD_CLR, EIR, EIR_TXERIF | EIR_TXIF);
-	}
-
 	// Set the write pointer to start of transmit buffer area
 	enc28j60_write(EWRPTL, TXSTART_INIT & 0xFF);
 	enc28j60_write(EWRPTH, TXSTART_INIT >> 8);
@@ -378,6 +374,11 @@ static int enc28j60_transmit(uint8_t *frame, uint16_t size)
 
 	// copy the packet into the transmit buffer
 	enc28j60_writebuf(frame, size);
+
+	// Reset the transmit logic. See Rev. B4 Silicon Errata points 12 and 13.
+	enc28j60_writeop(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRST);
+	enc28j60_writeop(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_TXRST);
+	enc28j60_writeop(ENC28J60_BIT_FIELD_CLR, EIR, EIR_TXERIF | EIR_TXIF);
 
 	// send the contents of the transmit buffer onto the network
 	enc28j60_writeop(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRTS);
@@ -409,6 +410,7 @@ static int eth_init(const struct device_s *dev)
 	pdata->init = enc28j60_init();
 	if (pdata->init > -1)
 		enc28j60_id();
+	_delay_ms(100);
 	if (enc28j60_linkup())
 		printf("ENC28J60: link up\n");
 	else
