@@ -10,7 +10,7 @@ static const struct uart_config_s usart0_cfg = {
 	.config_values.parity = PARITYNONE,
 	.config_values.stopbits = STOPBITS1,
 	.config_values.interrupt = INTENABLE,
-	.rx_buffer_size = 32,
+	.rx_buffer_size = 128,
 	.uart_config = usart0_config,
 	.uart_poll = usart0_poll,
 	.uart_tx = usart0_tx,
@@ -32,7 +32,7 @@ int usart0_config(struct uart_config_values_s *config)
 	uint32_t ubrr_val;
 	
 	/* set USART baud rate */
-	ubrr_val = ((uint32_t)F_CPU / (16 * USART_BAUD)) - 1;
+	ubrr_val = F_CPU / 16 / USART_BAUD - 1;
 	UBRRH = (uint8_t)(ubrr_val >> 8);
 	UBRRL = (uint8_t)(ubrr_val & 0xff);
 	/* set frame format to 8 data bits, no parity, 1 stop bit */
