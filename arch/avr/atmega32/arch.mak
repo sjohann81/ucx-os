@@ -27,7 +27,7 @@ AR = avr-ar
 # serial port
 SERIAL_DEV = /dev/ttyACM0
 # uart baud rate
-SERIAL_BR = 57600
+SERIAL_BR = $(SERIAL_BAUDRATE)
 
 AVRDUDE_CONFIG=/usr/local/avr/gcc/etc/avrdude.conf
 AVRDUDE_PART=m32
