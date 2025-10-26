@@ -20,15 +20,17 @@ BUILD_DIR = $(SRC_DIR)/build
 BUILD_APP_DIR = $(BUILD_DIR)/app
 BUILD_HAL_DIR = $(BUILD_DIR)/hal
 BUILD_DRIVERS_DIR = $(BUILD_DIR)/drivers
+BUILD_NET_DIR = $(BUILD_DIR)/net
 BUILD_KERNEL_DIR = $(BUILD_DIR)/kernel
 BUILD_TARGET_DIR = $(BUILD_DIR)/target
 
 -include $(BUILD_TARGET_DIR)/target.mak
 -include $(SRC_DIR)/arch/$(ARCH)/arch.mak
 -include $(SRC_DIR)/drivers/drivers.mak
+-include $(SRC_DIR)/net/net.mak
 INC_DIRS += -I $(SRC_DIR)/include -I $(SRC_DIR)/include/lib \
 	-I $(SRC_DIR)/drivers/bus/include -I $(SRC_DIR)/drivers/device/include \
-	-I $(SRC_DIR)/arch/common
+	-I $(SRC_DIR)/net/include -I $(SRC_DIR)/arch/common
 CFLAGS += -D__VER__=\"$(VERSION)\" \
 #-DCONFIG_POWER_ALLOC \
 #-DCONFIG_ALT_ALLOCATOR \
@@ -52,7 +54,7 @@ debug: serial
 	cat ${SERIAL_DEVICE}
 
 ## kernel
-ucx: incl hal libs ddrivers kernel
+ucx: incl hal libs ddrivers network kernel
 	mv *.o $(SRC_DIR)/build/kernel
 	$(AR) $(ARFLAGS) $(BUILD_TARGET_DIR)/libucxos.a \
 		$(BUILD_KERNEL_DIR)/*.o
@@ -228,6 +230,10 @@ rtsched: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/rtsched.o app/rtsched.c
 	@$(MAKE) --no-print-directory link
 
+serial_inet: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/serial_inet.o app/serial_inet.c
+	@$(MAKE) --no-print-directory link
+	
 spi_master: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/spi_master.o app/spi_master.c
 	@$(MAKE) --no-print-directory link
@@ -246,6 +252,10 @@ spi_eeprom: rebuild
 
 spi_enc28j60: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/spi_enc28j60.o app/spi_enc28j60.c
+	@$(MAKE) --no-print-directory link
+
+spi_enc28j60_inet: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/spi_enc28j60_inet.o app/spi_enc28j60_inet.c
 	@$(MAKE) --no-print-directory link
 		
 suspend: rebuild
