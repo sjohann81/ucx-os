@@ -77,9 +77,11 @@ hal:
 usb_serial:
 	stty -F ${SERIAL_DEV} ${SERIAL_BR} raw cs8 -echo
 
-usb_load:
+usb_load: usb_serial
 	echo '' > ${SERIAL_DEV}
 	cat ${SERIAL_DEV}
 
 flash:
 	dfu-util -a 0 -s 0x08000000:leave -D build/target/image.bin
+	sleep 3
+	make usb_serial

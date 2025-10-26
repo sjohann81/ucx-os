@@ -65,9 +65,11 @@ hal:
 usb_serial:
 	stty -F ${SERIAL_DEV} ${SERIAL_BR} raw cs8 -echo
 
-usb_load:
+usb_load: usb_serial
 	echo '' > ${SERIAL_DEV}
 	cat ${SERIAL_DEV}
 
 flash:
 	openocd -f board/st_nucleo_f4.cfg -c "program build/target/image.bin 0x08000000 verify reset exit"
+	sleep 1
+	make usb_serial

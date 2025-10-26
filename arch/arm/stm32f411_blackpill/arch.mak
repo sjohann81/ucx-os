@@ -77,7 +77,7 @@ hal:
 usb_serial:
 	stty -F ${SERIAL_DEV} ${SERIAL_BR} raw cs8 -echo
 
-usb_load:
+usb_load: usb_serial
 	echo '' > ${SERIAL_DEV}
 	cat ${SERIAL_DEV}
 
