@@ -405,7 +405,7 @@ static int eth_init(const struct device_s *dev)
 	NOSCHED_ENTER();
 	pdata = (struct eth_enc28j60_data_s *)dev->data;
 	pdata->mode = 0;
-	pdata->in_use = -1;
+	pdata->busy = 0;
 	sel_dev = (struct device_s *)dev;
 	pdata->init = enc28j60_init();
 	if (pdata->init > -1)
@@ -431,11 +431,11 @@ static int eth_open(const struct device_s *dev, int mode)
 
 	pdata->mode = mode;
 
-	if (pdata->in_use == -1 && pdata->init >= 0 && sel_dev == 0) {
-		pdata->in_use = ucx_task_id();
+	if (!pdata->busy && pdata->init >= 0 && sel_dev == 0) {
+		pdata->busy = 1;
 		sel_dev = (struct device_s *)dev;
 		if (pdata->mode)
-			printf("ENC28J60: device open (task %d)\n", pdata->in_use);
+			printf("ENC28J60: device open\n");
 	} else {
 		if (pdata->mode)
 			printf("ENC28J60: device open failed\n");
@@ -455,12 +455,12 @@ static int eth_close(const struct device_s *dev)
 	NOSCHED_ENTER();
 	pdata = (struct eth_enc28j60_data_s *)dev->data;
 
-	if (pdata->in_use > -1 && sel_dev != 0) {
+	if (pdata->busy && sel_dev != 0) {
 		if (pdata->mode)
-			printf("ENC28J60: device close (task %d)\n", pdata->in_use);
+			printf("ENC28J60: device close\n");
 		
 		pdata->mode = 0;
-		pdata->in_use = -1;
+		pdata->busy = 0;
 		sel_dev = 0;
 	} else {
 		if (pdata->mode)
@@ -475,21 +475,9 @@ static int eth_close(const struct device_s *dev)
 
 static size_t eth_read(const struct device_s *dev, void *buf, size_t count)
 {
-	struct eth_enc28j60_data_s *pdata;
 	int val;
-	
-	NOSCHED_ENTER();
-	pdata = (struct eth_enc28j60_data_s *)dev->data;
-	
-	if (pdata->in_use != ucx_task_id()) {
-		NOSCHED_LEAVE();
-		
-		return -1;
-	}
-	NOSCHED_LEAVE();
 
 	val = enc28j60_receive(buf, count);
-
 	ucx_task_yield();
 	
 	return val;
@@ -497,21 +485,9 @@ static size_t eth_read(const struct device_s *dev, void *buf, size_t count)
 
 static size_t eth_write(const struct device_s *dev, void *buf, size_t count)
 {
-	struct eth_enc28j60_data_s *pdata;
 	int val;
 
-	NOSCHED_ENTER();
-	pdata = (struct eth_enc28j60_data_s *)dev->data;
-	
-	if (pdata->in_use != ucx_task_id()) {
-		NOSCHED_LEAVE();
-		
-		return -1;
-	}
-	NOSCHED_LEAVE();
-
 	val = enc28j60_transmit(buf, count);
-	
 	ucx_task_yield();
 	
 	return val;

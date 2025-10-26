@@ -272,8 +272,8 @@ struct eth_enc28j60_config_s {
 /* 25lcxx data definitions */
 struct eth_enc28j60_data_s {
 	int mode;
-	int in_use;
-	int init;
+	char busy;
+	char init;
 };
 
 extern struct device_api_s eth_enc28j60_api;
