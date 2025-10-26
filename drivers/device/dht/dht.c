@@ -170,7 +170,7 @@ static int dht_init(const struct device_s *dev)
 	config = (struct dht_config_s *)dev->config;
 	pdata = (struct dht_data_s *)dev->data;
 	pdata->mode = 0;
-	pdata->in_use = -1;
+	pdata->busy = 0;
 	
 	/* setup GPIO */
 	config->gpio_configpin();
@@ -190,11 +190,11 @@ static int dht_open(const struct device_s *dev, int mode)
 
 	pdata->mode = mode;
 
-	if (pdata->in_use == -1) {
-		pdata->in_use = ucx_task_id();
+	if (!pdata->busy) {
+		pdata->busy = 1;
 		
 		if (pdata->mode)
-			printf("DEV: device open (task %d)\n", pdata->in_use);
+			printf("DEV: device open\n");
 	} else {
 		if (pdata->mode)
 			printf("DEV: device open failed\n");
@@ -214,12 +214,12 @@ static int dht_close(const struct device_s *dev)
 	NOSCHED_ENTER();
 	pdata = (struct dht_data_s *)dev->data;
 
-	if (pdata->in_use > -1) {
+	if (pdata->busy) {
 		if (pdata->mode)
-			printf("DEV: device close (task %d)\n", pdata->in_use);
+			printf("DEV: device close\n");
 		
 		pdata->mode = 0;
-		pdata->in_use = -1;
+		pdata->busy = 0;
 	} else {
 		if (pdata->mode)
 			printf("DEV: device close failed\n");
@@ -238,12 +238,6 @@ static size_t dht_read(const struct device_s *dev, void *buf, size_t count)
 	
 	NOSCHED_ENTER();
 	pdata = (struct dht_data_s *)dev->data;
-	
-	if (pdata->in_use != ucx_task_id()) {
-		NOSCHED_LEAVE();
-		
-		return -1;
-	}
 	
 	val = dht_read_sensor(dev);
 

@@ -32,7 +32,7 @@ struct dht_config_s {
 
 struct dht_data_s {
 	int mode;
-	int in_use;
+	char busy;
 	uint8_t data[5];
 	uint16_t temperature;
 	uint16_t humidity;
