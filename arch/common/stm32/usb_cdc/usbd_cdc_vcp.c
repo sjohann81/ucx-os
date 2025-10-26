@@ -188,7 +188,7 @@ static uint16_t VCP_DataTx (uint8_t* Buf, uint32_t Len)
   * @retval Result of the opeartion: USBD_OK if all operations are OK else VCP_FAIL
   */
 
-#define APP_TX_BUF_SIZE 128
+#define APP_TX_BUF_SIZE 1024
 uint8_t APP_Tx_Buffer[APP_TX_BUF_SIZE];
 uint32_t APP_tx_ptr_head;
 uint32_t APP_tx_ptr_tail;
