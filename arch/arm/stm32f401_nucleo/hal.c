@@ -6,35 +6,42 @@
 
 #include <hal.h>
 #include <console.h>
-#include <usart.h>
 #include <lib/libc.h>
 #include <lib/dump.h>
 #include <lib/list.h>
 #include <kernel/kernel.h>
 #include <kernel/ecodes.h>
-
+#include <device.h>
+#include <uart.h>
+#include <usart.h>
 
 /*
 libc basic I/O support
 */
+const struct device_s *uart_con = &uart2_dev;
+
 static int __putchar(int value)		// polled putchar()
 {
-	usart_tx(USART_PORT, value);
+	uart_con->api->dev_write(uart_con, &value, 1);
 	
 	return value;
 }
 
 static int __kbhit(void)
 {
-	if (usart_rxsize(USART_PORT) > 0)
+	if (uart_con->api->dev_read(uart_con, 0, 0))
 		return 1;
 	else
 		return 0;
 }
 
-static int __getchar(void)			// polled getch()
+static int __getchar(void)
 {
-	return usart_rx(USART_PORT);
+	char buf[2];
+	
+	uart_con->api->dev_read(uart_con, buf, 1);
+	
+	return buf[0];
 }
 
 /* timer setup for delays */
@@ -479,7 +486,8 @@ void _hardware_init(void)
 	tim11_start();
 
 	/* configure USART */
-	usart_init(USART_PORT, USART_BAUD, 0);
+	uart_con->api->dev_init(uart_con);
+	uart_con->api->dev_open(uart_con, 0);
 	
 	_stdout_install(__putchar);
 	_stdin_install(__getchar);

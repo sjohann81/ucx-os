@@ -1,61 +1,94 @@
-/* file:          usart.c
- * description:   hardware supported USART port driver management and routines
- * date:          05/2023
- * author:        Sergio Johann Filho <sergio.johann@acad.pucrs.br>
- */
-
 #include <stm32f4xx.h>
 #include <system_stm32f4xx.h>
 #include <stm32f4xx_conf.h>
 #include <stm32f4xx_usart.h>
 #include <hal.h>
+#include <device.h>
+#include <uart.h>
 #include <usart.h>
 
-/* USART definitions, data structures and basic routines */
 
-#define RX_BUFFER_SIZE		128
-#define RX_BUFFER_MASK		(RX_BUFFER_SIZE - 1)
+#if USART_BAUD==9600
+#define UART_BAUD	BAUD9600
+#endif
+#if USART_BAUD==57600
+#define UART_BAUD	BAUD57600
+#endif
+#if USART_BAUD==115200
+#define UART_BAUD	BAUD115200
+#endif
 
-struct usart_s {
-	volatile uint8_t rx_buffer[RX_BUFFER_SIZE];
-	volatile uint16_t rx_head, rx_tail, rx_size;
-	volatile uint32_t rx_errors;
-	uint8_t polled;
+/* UART configuration and data for ports 1, 2 and 6 */
+static const struct uart_config_s uart1_cfg = {
+	.config_values.port = UART_PORT1,
+	.config_values.baudrate = UART_BAUD,
+	.config_values.databits = DATABITS8,
+	.config_values.parity = PARITYNONE,
+	.config_values.stopbits = STOPBITS1,
+	.config_values.interrupt = INTENABLE,
+	.rx_buffer_size = 128,
+	.uart_config = uart_config,
+	.uart_poll = uart1_poll,
+	.uart_tx = uart1_tx,
+	.uart_rx = uart1_rx
 };
 
-static struct usart_s uartfifo[3];
-static struct usart_s *uart1 = &uartfifo[0];
-static struct usart_s *uart2 = &uartfifo[1];
-static struct usart_s *uart6 = &uartfifo[2];
+static struct uart_data_s uart1_data;
 
-static void put_fifo(struct usart_s *usart_p, uint8_t c)
-{
-	uint16_t tail;
+const struct device_s uart1_dev = {
+	.name = "uart1",
+	.config = &uart1_cfg,
+	.data = &uart1_data,
+	.api = &uart_api
+};
 
-	// if there is space, put data in rx fifo
-	tail = (usart_p->rx_tail + 1) & RX_BUFFER_MASK;
-	if (tail != usart_p->rx_head) {
-		usart_p->rx_buffer[usart_p->rx_tail] = c;
-		usart_p->rx_tail = tail;
-		usart_p->rx_size++;
-	} else {
-		// fifo is full
-		usart_p->rx_errors++;
-	}
-}
 
-static uint8_t get_fifo(struct usart_s *usart_p)
-{
-	uint8_t data = 0;
-	
-	if (usart_p->rx_head != usart_p->rx_tail) {
-		data = usart_p->rx_buffer[usart_p->rx_head];
-		usart_p->rx_head = (usart_p->rx_head + 1) & RX_BUFFER_MASK;
-		usart_p->rx_size--;
-	}
-	
-	return data;
-}
+static const struct uart_config_s uart2_cfg = {
+	.config_values.port = UART_PORT2,
+	.config_values.baudrate = UART_BAUD,
+	.config_values.databits = DATABITS8,
+	.config_values.parity = PARITYNONE,
+	.config_values.stopbits = STOPBITS1,
+	.config_values.interrupt = INTENABLE,
+	.rx_buffer_size = 128,
+	.uart_config = uart_config,
+	.uart_poll = uart2_poll,
+	.uart_tx = uart2_tx,
+	.uart_rx = uart2_rx
+};
+
+static struct uart_data_s uart2_data;
+
+const struct device_s uart2_dev = {
+	.name = "uart2",
+	.config = &uart2_cfg,
+	.data = &uart2_data,
+	.api = &uart_api
+};
+
+
+static const struct uart_config_s uart6_cfg = {
+	.config_values.port = UART_PORT6,
+	.config_values.baudrate = UART_BAUD,
+	.config_values.databits = DATABITS8,
+	.config_values.parity = PARITYNONE,
+	.config_values.stopbits = STOPBITS1,
+	.config_values.interrupt = INTENABLE,
+	.rx_buffer_size = 128,
+	.uart_config = uart_config,
+	.uart_poll = uart6_poll,
+	.uart_tx = uart6_tx,
+	.uart_rx = uart6_rx
+};
+
+static struct uart_data_s uart6_data;
+
+const struct device_s uart6_dev = {
+	.name = "uart6",
+	.config = &uart6_cfg,
+	.data = &uart6_data,
+	.api = &uart_api
+};
 
 
 /* USART interrupt service routines */
@@ -66,7 +99,7 @@ void USART1_IRQHandler(void)
 
 	while (USART_GetITStatus(USART1, USART_IT_RXNE)) {
 		c = USART_ReceiveData(USART1);
-		put_fifo(uart1, c);
+		uart1_data.put_fifo_cb(&uart1_data, c);
 	}
 }
 
@@ -76,7 +109,7 @@ void USART2_IRQHandler(void)
 
 	while (USART_GetITStatus(USART2, USART_IT_RXNE)) {
 		c = USART_ReceiveData(USART2);
-		put_fifo(uart2, c);
+		uart2_data.put_fifo_cb(&uart2_data, c);
 	}
 }
 
@@ -86,23 +119,22 @@ void USART6_IRQHandler(void)
 
 	while (USART_GetITStatus(USART6, USART_IT_RXNE)) {
 		c = USART_ReceiveData(USART6);
-		put_fifo(uart6, c);
+		uart6_data.put_fifo_cb(&uart6_data, c);
 	}
 }
 
 
-/* USART application API */
+/* driver callbacks */
 
-int16_t usart_init(uint8_t port, uint32_t baud, uint8_t polled)
+int uart_config(struct uart_config_values_s *config)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 	USART_InitTypeDef USART_InitStruct;
 	NVIC_InitTypeDef NVIC_InitStructure;
-	struct usart_s *usart_p = 0;
+	int val = 0;
 	
-	switch (port) {
-	case 1:
-		usart_p = uart1;
+	switch (config->port) {
+	case UART_PORT1:
 		// Enable clock for GPIOB
 		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 		// Enable clock for USART1
@@ -122,7 +154,7 @@ int16_t usart_init(uint8_t port, uint32_t baud, uint8_t polled)
 		GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 		// Initialization of USART1
-		USART_InitStruct.USART_BaudRate = baud;
+		USART_InitStruct.USART_BaudRate = USART_BAUD;
 		USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 		USART_InitStruct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 		USART_InitStruct.USART_Parity = USART_Parity_No;
@@ -130,7 +162,7 @@ int16_t usart_init(uint8_t port, uint32_t baud, uint8_t polled)
 		USART_InitStruct.USART_WordLength = USART_WordLength_8b;
 		USART_Init(USART1, &USART_InitStruct);
 
-		if (!polled) {
+		if (config->interrupt == INTENABLE) {
 			// enable the USART1 receive interrupt
 			USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 			NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
@@ -138,15 +170,12 @@ int16_t usart_init(uint8_t port, uint32_t baud, uint8_t polled)
 			NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 			NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 			NVIC_Init(&NVIC_InitStructure);
-
-			usart_flush(1);
 		}
 
 		// Enable USART1
 		USART_Cmd(USART1, ENABLE);
 		break;
-	case 2:
-		usart_p = uart2;
+	case UART_PORT2:
 		// Enable clock for GPIOA
 		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 		// Enable clock for USART2
@@ -166,7 +195,7 @@ int16_t usart_init(uint8_t port, uint32_t baud, uint8_t polled)
 		GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 		// Initialization of USART2
-		USART_InitStruct.USART_BaudRate = baud;
+		USART_InitStruct.USART_BaudRate = USART_BAUD;
 		USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 		USART_InitStruct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 		USART_InitStruct.USART_Parity = USART_Parity_No;
@@ -174,7 +203,7 @@ int16_t usart_init(uint8_t port, uint32_t baud, uint8_t polled)
 		USART_InitStruct.USART_WordLength = USART_WordLength_8b;
 		USART_Init(USART2, &USART_InitStruct);
 
-		if (!polled) {
+		if (config->interrupt == INTENABLE) {
 			// enable the USART2 receive interrupt
 			USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
 			NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
@@ -182,15 +211,12 @@ int16_t usart_init(uint8_t port, uint32_t baud, uint8_t polled)
 			NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 			NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 			NVIC_Init(&NVIC_InitStructure);
-
-			usart_flush(2);
 		}
 
 		// Enable USART2
 		USART_Cmd(USART2, ENABLE);
 		break;
-	case 6:
-		usart_p = uart6;
+	case UART_PORT6:
 		// Enable clock for GPIOC
 		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 		// Enable clock for USART1
@@ -210,7 +236,7 @@ int16_t usart_init(uint8_t port, uint32_t baud, uint8_t polled)
 		GPIO_Init(GPIOC, &GPIO_InitStruct);
 
 		// Initialization of USART6
-		USART_InitStruct.USART_BaudRate = baud;
+		USART_InitStruct.USART_BaudRate = USART_BAUD;
 		USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 		USART_InitStruct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 		USART_InitStruct.USART_Parity = USART_Parity_No;
@@ -218,7 +244,7 @@ int16_t usart_init(uint8_t port, uint32_t baud, uint8_t polled)
 		USART_InitStruct.USART_WordLength = USART_WordLength_8b;
 		USART_Init(USART6, &USART_InitStruct);
 
-		if (!polled) {
+		if (config->interrupt == INTENABLE) {
 			// enable the USART6 receive interrupt
 			USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
 			NVIC_InitStructure.NVIC_IRQChannel = USART6_IRQn;
@@ -226,158 +252,105 @@ int16_t usart_init(uint8_t port, uint32_t baud, uint8_t polled)
 			NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 			NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 			NVIC_Init(&NVIC_InitStructure);
-
-			usart_flush(6);
 		}
 
 		// Enable USART6
 		USART_Cmd(USART6, ENABLE);
 		break;
 	default:
+		val = -1;
 		break;
 	}
 	
-	if (!usart_p)
-		return -1;
-		
-	usart_p->polled = polled;
-	
-	return 0;
+	return val;
 }
 
-void usart_flush(uint8_t port)
-{
-	struct usart_s *usart_p = 0;
-	
-	switch (port) {
-	case 1:
-		usart_p = uart1;
-		break;
-	case 2:
-		usart_p = uart2;
-		break;
-	case 6:
-		usart_p = uart6;
-		break;
-	default:
-		return;
-	}
-	
-	usart_p->rx_head = 0;
-	usart_p->rx_tail = 0;
-	usart_p->rx_size = 0;
-}
 
-uint16_t usart_rxsize(uint8_t port)
+int uart1_poll(void)
 {
-	struct usart_s *usart_p = 0;
 	uint32_t data = 0;
 	
-	switch (port) {
-	case 1:
-		usart_p = uart1;
-		data = USART_GetFlagStatus(USART1, USART_FLAG_RXNE);
-		break;
-	case 2:
-		usart_p = uart2;
-		data = USART_GetFlagStatus(USART2, USART_FLAG_RXNE);
-		break;
-	case 6:
-		usart_p = uart6;
-		data = USART_GetFlagStatus(USART6, USART_FLAG_RXNE);
-		break;
-	default:
-		return 0;
-	}
-	
-	if (!usart_p->polled)
-		return usart_p->rx_size;
+	data = USART_GetFlagStatus(USART1, USART_FLAG_RXNE);
 	
 	if (data)
 		return 1;
+	else
+		return 0;
+}
+
+int uart2_poll(void)
+{
+	uint32_t data = 0;
+	
+	data = USART_GetFlagStatus(USART2, USART_FLAG_RXNE);
+	
+	if (data)
+		return 1;
+	else
+		return 0;
+}
+
+int uart6_poll(void)
+{
+	uint32_t data = 0;
+	
+	data = USART_GetFlagStatus(USART6, USART_FLAG_RXNE);
+	
+	if (data)
+		return 1;
+	else
+		return 0;
+}
+
+
+int uart1_tx(int val)
+{
+	uint8_t data = val;
+	
+	while (!USART_GetFlagStatus(USART1, USART_FLAG_TXE));
+	USART_SendData(USART1, data);
 	
 	return 0;
 }
 
-void usart_tx(uint8_t port, uint8_t data)
+int uart2_tx(int val)
 {
-	switch (port) {
-	case 1:
-		// Wait until transmit data register is empty
-		while (!USART_GetFlagStatus(USART1, USART_FLAG_TXE));
-		USART_SendData(USART1, data);
-		break;
-	case 2:
-		while (!USART_GetFlagStatus(USART2, USART_FLAG_TXE));
-		USART_SendData(USART2, data);
-		break;
-	case 6:
-		while (!USART_GetFlagStatus(USART6, USART_FLAG_TXE));
-		USART_SendData(USART6, data);
-		break;
-	default:
-		break;
-	}
-
+	uint8_t data = val;
+	
+	while (!USART_GetFlagStatus(USART2, USART_FLAG_TXE));
+	USART_SendData(USART2, data);
+	
+	return 0;
 }
 
-uint8_t usart_rx(uint8_t port)
+int uart6_tx(int val)
 {
-	struct usart_s *usart_p = 0;
-	uint8_t data;
+	uint8_t data = val;
+	
+	while (!USART_GetFlagStatus(USART6, USART_FLAG_TXE));
+	USART_SendData(USART6, data);
+	
+	return 0;
+}
 
-	switch (port) {
-	case 1:
-		usart_p = uart1;
-		if (!usart_p->polled) {
-			// wait for data...
-			while (usart_p->rx_head == usart_p->rx_tail);
 
-			_di();
-			// fetch data from fifo
-			data = get_fifo(usart_p);
-			_ei();
-		} else {
-			while (!USART_GetFlagStatus(USART1, USART_FLAG_RXNE));
-			
-			return USART_ReceiveData(USART1);
-		}
-		break;
-	case 2:
-		usart_p = uart2;
-		if (!usart_p->polled) {
-			// wait for data...
-			while (usart_p->rx_head == usart_p->rx_tail);
-			
-			_di();
-			// fetch data from fifo
-			data = get_fifo(usart_p);
-			_ei();
-		} else {
-			while (!USART_GetFlagStatus(USART2, USART_FLAG_RXNE));
-			
-			return USART_ReceiveData(USART2);
-		}
-		break;
-	case 6:
-		usart_p = uart6;
-		if (!usart_p->polled) {
-			// wait for data...
-			while (usart_p->rx_head == usart_p->rx_tail);
-			
-			_di();
-			// fetch data from fifo
-			data = get_fifo(usart_p);
-			_ei();
-		} else {
-			while (!USART_GetFlagStatus(USART6, USART_FLAG_RXNE));
-			
-			return USART_ReceiveData(USART6);
-		}
-		break;
-	default:
-		return 0;
-	}
+int uart1_rx(void)
+{
+	while (!USART_GetFlagStatus(USART1, USART_FLAG_RXNE));
+	
+	return USART_ReceiveData(USART1);
+}
 
-	return data;
+int uart2_rx(void)
+{
+	while (!USART_GetFlagStatus(USART2, USART_FLAG_RXNE));
+	
+	return USART_ReceiveData(USART2);
+}
+
+int uart6_rx(void)
+{
+	while (!USART_GetFlagStatus(USART6, USART_FLAG_RXNE));
+	
+	return USART_ReceiveData(USART6);
 }
