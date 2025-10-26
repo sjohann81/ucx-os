@@ -13,7 +13,7 @@
 #include <kernel/ecodes.h>
 #include <device.h>
 #include <uart.h>
-#include <usart.h>
+#include <usart_ll.h>
 
 /*
 libc basic I/O support

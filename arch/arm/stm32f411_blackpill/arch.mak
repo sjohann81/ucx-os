@@ -44,7 +44,7 @@ hal:
 	$(CC) $(CFLAGS) -o aeabi.o $(ARCH_DIR)/../../common/aeabi.s
 	$(CC) $(CFLAGS) \
 		$(ARCH_DIR)/../stm32f401_blackpill/hal.c \
-		$(ARCH_DIR)/../stm32f401_blackpill/usart.c \
+		$(ARCH_DIR)/../stm32f401_blackpill/drivers/usart_ll.c \
 		$(ARCH_DIR)/../stm32f401_blackpill/drivers/gpio_ll.c \
 		$(ARCH_DIR)/../stm32f401_blackpill/drivers/i2c_ll.c \
 		$(ARCH_DIR)/../stm32f401_blackpill/drivers/pwm_ll.c \

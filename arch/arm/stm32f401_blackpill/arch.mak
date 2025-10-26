@@ -44,7 +44,7 @@ hal:
 	$(CC) $(CFLAGS) -o aeabi.o $(ARCH_DIR)/../../common/aeabi.s
 	$(CC) $(CFLAGS) \
 		$(ARCH_DIR)/hal.c \
-		$(ARCH_DIR)/usart.c \
+		$(ARCH_DIR)/drivers/usart_ll.c \
 		$(ARCH_DIR)/drivers/gpio_ll.c \
 		$(ARCH_DIR)/drivers/i2c_ll.c \
 		$(ARCH_DIR)/drivers/pwm_ll.c \

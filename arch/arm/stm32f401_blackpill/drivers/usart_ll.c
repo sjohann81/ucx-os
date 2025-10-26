@@ -5,7 +5,7 @@
 #include <hal.h>
 #include <device.h>
 #include <uart.h>
-#include <usart.h>
+#include <usart_ll.h>
 #include <usbd_cdc_vcp.h>
 
 
