@@ -13,7 +13,7 @@
 #include <usart.h>
 
 #define TIMER_CLK2		F_CPU / 1024
-#define IRQ_FREQ2		100					// irq frequency, in Hz
+#define IRQ_FREQ2		F_TIMER					// irq frequency, in Hz
 
 const struct device_s *usart0 = &usart0_dev;
 
