@@ -1,6 +1,6 @@
 # this is stuff specific to this architecture
 ARCH_DIR = $(SRC_DIR)/arch/$(ARCH)
-INC_DIRS  = -I $(ARCH_DIR) \
+INC_DIRS  = -I $(ARCH_DIR)/../stm32f401_blackpill \
 	-I $(ARCH_DIR)/../stm32f401_blackpill/drivers \
 	-I $(ARCH_DIR)/../../common \
 	-I $(ARCH_DIR)/../../common/stm32/cmsis/core \
