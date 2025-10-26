@@ -89,8 +89,8 @@ static int uart_driver_init(const struct device_s *dev)
 	data->busy = 0;
 	
 	if (config->config_values.interrupt == INTENABLE) {
-		if (config->rx_buffer_size <= 32) {
-			static char uartbuf[32];
+		if (config->rx_buffer_size <= 128) {
+			static char uartbuf[128];
 			
 			data->rx_buffer = uartbuf;
 		} else {
@@ -173,18 +173,21 @@ static size_t uart_driver_read(const struct device_s *dev, void *buf, size_t cou
 	p = (char *)buf;
 	
 	if (config->config_values.interrupt == INTENABLE) {
-		if (count == 0)
+		if (count == 0) {
+			config->uart_poll();
 			return data->rx_size;
-			
+		}
+		
 		for (i = 0; i < count; i++) {
-			while (data->rx_size == 0);
+			while (data->rx_head == data->rx_tail);
 			p[i] = get_fifo(data);
 		}
 	} else {
 		if (count == 0)
 			return config->uart_poll();
-			
+
 		for (i = 0; i < count; i++) {
+			while (config->uart_poll() == 0);
 			val = config->uart_rx();
 			if (val < 0) break;
 			p[i] = val;
