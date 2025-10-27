@@ -301,6 +301,19 @@ vt100_term: rebuild
 vt100_term_ioctl: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/vt100_term_ioctl.o app/vt100_term_ioctl.c
 	@$(MAKE) --no-print-directory link
+	
+# network tunnel
+tuntap_host:
+	gcc -Wall app/tuntap_if_host.c -o tuntap_if_host
+
+# needs setcap to allow non root access
+# sudo apt-get install libcap2-bin
+tuntap_cap:
+	setcap cap_net_raw,cap_net_admin=eip tuntap_if_host
+	
+eth_up:
+	stty -F ${SERIAL_DEV} ${SERIAL_BR} raw cs8 -echo
+	./tuntap_if_host ${SERIAL_DEV}
 
 # clean and rebuild rules
 rebuild:
