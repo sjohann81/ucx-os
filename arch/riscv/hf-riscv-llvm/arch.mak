@@ -1,6 +1,7 @@
 # this is stuff specific to this architecture
 ARCH_DIR = $(SRC_DIR)/arch/$(ARCH)
-INC_DIRS = -I $(ARCH_DIR)
+INC_DIRS = -I $(ARCH_DIR)/../hf-riscv \
+	-I $(ARCH_DIR)/../hf-riscv/drivers
 
 # core speed
 F_CLK = 25000000
@@ -8,6 +9,8 @@ F_CLK = 25000000
 SERIAL_BAUDRATE=57600
 # timer interrupt frequency (100 -> 100 ints/s -> 10ms tick time. 0 -> timer0 fixed frequency)
 F_TICK = 0
+# fixed tick frequency
+F_TICK_FIXED = (${F_CLK} / 262144)
 
 #remove unreferenced functions
 CFLAGS_STRIP = -fdata-sections -ffunction-sections
@@ -15,7 +18,7 @@ LDFLAGS_STRIP = --gc-sections
 
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
 ASFLAGS = -march=rv32i -mabi=ilp32 #-fPIC
-CFLAGS = -Wall --target=riscv32 -march=rv32i -mabi=ilp32 -O2 -c -ffreestanding -nostdlib -ffixed-x26 -ffixed-x27 -fomit-frame-pointer $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) #-mrvc -fPIC -DDEBUG_PORT
+CFLAGS = -Wall --target=riscv32 -march=rv32i -mabi=ilp32 -O2 -c -ffreestanding -nostdlib -ffixed-x26 -ffixed-x27 -fomit-frame-pointer $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DF_TIMER_FIXED="${F_TICK_FIXED}" -DLITTLE_ENDIAN $(CFLAGS_STRIP) #-mrvc -fPIC -DDEBUG_PORT
 ARFLAGS = r
 
 LDFLAGS = -melf32lriscv $(LDFLAGS_STRIP)
@@ -37,4 +40,14 @@ hal:
 		$(ARCH_DIR)/../hf-riscv/interrupt.c \
 		$(ARCH_DIR)/../../common/muldiv.c \
 		$(ARCH_DIR)/../../common/ieee754.c \
-		$(ARCH_DIR)/../../common/math.c
+		$(ARCH_DIR)/../../common/math.c \
+		$(ARCH_DIR)/../hf-riscv/drivers/usart.c \
+		$(ARCH_DIR)/../hf-riscv/drivers/gpio_ll.c \
+		$(ARCH_DIR)/../hf-riscv/drivers/pwm_ll.c
+		
+loadbin: serial
+	echo "u" > ${SERIAL_DEVICE}
+	sleep 1
+	cat ${BUILD_TARGET_DIR}/image.bin > ${SERIAL_DEVICE}
+	sleep 5
+	echo "b" > ${SERIAL_DEVICE}
