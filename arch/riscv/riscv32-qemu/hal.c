@@ -217,7 +217,7 @@ void _interrupt_tick(void)
 		_ei();
 }
 
-extern void __dispatch_init(void);
+extern void __dispatch_init(jmp_buf env);
 
 void _dispatch_init(jmp_buf env)
 {
@@ -225,7 +225,7 @@ void _dispatch_init(jmp_buf env)
 		_timer_enable();
 	
 	_ei();
-	__dispatch_init();
+	__dispatch_init(env);
 }
 
 void _context_init(jmp_buf *ctx, size_t sp, size_t ss, size_t ra)
