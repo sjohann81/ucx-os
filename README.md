@@ -1,6 +1,6 @@
 # UCX/OS - Microcontroller Executive / OS
 
-UCX/OS is an experimental preemptive nanokernel for microcontrollers, aimed to be easily ported. The kernel implements a lightweight multitasking environment in a single address space (based on tasks and coroutines), using a minimum amount of resources.
+UCX/OS is a preemptive nanokernel RTOS for microcontrollers, aimed to be easily ported. The kernel implements a lightweight multitasking environment in a single address space (based on tasks and coroutines), using a minimum amount of resources.
 
 Currently, UCX/OS supports the following targets:
 
@@ -10,17 +10,17 @@ Currently, UCX/OS supports the following targets:
 - HF-RISCV (RV32E / RV32I)
 
 #### ARM (32 bit)
-- Versatilepb
-- STM32F401 / STM32F411 (Black Pill)
+- Versatilepb (Qemu)
+- STM32F401 / STM32F411 (BlackPill, Nucleo)
 - STM32F407 (Discovery)
 
 #### MIPS (32 bit)
 - HF-RISC
 
 #### AVR (8 bit)
-- ATMEGA328p
+- ATMEGA328p (Arduino Nano)
+- ATMEGA2560 (Arduino Mega)
 - ATMEGA32
-- ATMEGA2560
 
 
 ## Supported toolchains
@@ -36,6 +36,8 @@ Different toolchains based on GCC and LLVM can be used to build the kernel and a
 - Task synchronization and communication using semaphores, pipeline channels or message queues;
 - Software timers with callback execution;
 - Dynamic memory allocation;
+- Abstract device driver model for common busses and devices;
+- UDP/IP network stack;
 - Small C library, along with data structures library.
 
 
