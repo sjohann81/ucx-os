@@ -1,6 +1,7 @@
 # this is stuff specific to this architecture
 ARCH_DIR = $(SRC_DIR)/arch/$(ARCH)
-INC_DIRS  = -I $(ARCH_DIR)
+INC_DIRS  = -I $(ARCH_DIR) \
+	-I $(ARCH_DIR)/../riscv32-qemu
 
 # core speed
 F_CLK=10000000
