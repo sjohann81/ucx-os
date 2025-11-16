@@ -66,7 +66,7 @@ static void driver_set(const struct device_s *dev, unsigned channel, unsigned pu
 
 
 /* PWM device driver function mapping */
-struct pwm_api_s pwm_api = {
+const struct pwm_api_s pwm_api = {
 	.pwm_setup = driver_setup,
 	.pwm_get = driver_get,
 	.pwm_set = driver_set

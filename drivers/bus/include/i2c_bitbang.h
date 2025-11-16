@@ -28,4 +28,4 @@ struct i2c_data_s {
 	char busy;
 };
 
-extern struct device_api_s i2c_api;
+extern const struct device_api_s i2c_api;

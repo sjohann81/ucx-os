@@ -187,7 +187,7 @@ static int driver_edit(const struct device_s *dev, uint8_t cmd)
 }
 
 
-struct vt100_api_s vt100_api = {
+const struct vt100_api_s vt100_api = {
 	.term = driver_term,
 	.textattr = driver_textattr,
 	.cursor = driver_cursor,
@@ -233,6 +233,6 @@ static int driver_ioctl(const struct device_s *dev, unsigned int req, ...)
 }
 
 
-struct device_api_s vt100_api_generic = {
+const struct device_api_s vt100_api_generic = {
 	.dev_ioctl = driver_ioctl
 };

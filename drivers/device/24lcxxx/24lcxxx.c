@@ -337,7 +337,7 @@ static int eeprom_24lc_driver_seek(const struct device_s *dev, long pos, int whe
 
 
 /* device driver function mapping for generic API */
-struct device_api_s eeprom_24lc_api = {
+const struct device_api_s eeprom_24lc_api = {
 	.dev_init = eeprom_24lc_driver_init,
 	.dev_deinit = eeprom_24lc_driver_deinit,
 	.dev_open = eeprom_24lc_driver_open,

@@ -321,7 +321,7 @@ static size_t spi_driver_write(const struct device_s *dev, void *buf, size_t cou
 }
 
 /* device driver function mapping for generic API */
-struct device_api_s spi_api = {
+const struct device_api_s spi_api = {
 	.dev_init = spi_driver_init,
 	.dev_deinit = spi_driver_deinit,
 	.dev_open = spi_driver_open,

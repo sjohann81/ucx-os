@@ -494,7 +494,7 @@ static size_t eth_write(const struct device_s *dev, void *buf, size_t count)
 }
 
 /* device driver function mapping for generic API */
-struct device_api_s eth_enc28j60_api = {
+const struct device_api_s eth_enc28j60_api = {
 	.dev_init = eth_init,
 	.dev_open = eth_open,
 	.dev_close = eth_close,

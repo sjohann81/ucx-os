@@ -38,4 +38,4 @@ struct dht_data_s {
 	uint16_t humidity;
 };
 
-extern struct device_api_s dht_api;
+extern const struct device_api_s dht_api;

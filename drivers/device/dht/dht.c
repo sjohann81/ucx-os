@@ -257,7 +257,7 @@ static size_t dht_read(const struct device_s *dev, void *buf, size_t count)
 }
 
 /* device driver function mapping for generic API */
-struct device_api_s dht_api = {
+const struct device_api_s dht_api = {
 	.dev_init = dht_init,
 	.dev_open = dht_open,
 	.dev_close = dht_close,

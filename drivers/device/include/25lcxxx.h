@@ -41,4 +41,4 @@ struct eeprom_25lc_data_s {
 	long pos;
 };
 
-extern struct device_api_s eeprom_25lc_api;
+extern const struct device_api_s eeprom_25lc_api;

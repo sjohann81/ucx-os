@@ -68,4 +68,4 @@ struct gpio_config_s {
 	struct gpio_config_values_s config_values;
 };
 
-extern struct gpio_api_s gpio_api;
+extern const struct gpio_api_s gpio_api;

@@ -20,8 +20,8 @@ struct vt100_api_s {
 	int (*edit)(const struct device_s *dev, uint8_t cmd);
 };
 
-extern struct vt100_api_s vt100_api;
-extern struct device_api_s vt100_api_generic;
+extern const struct vt100_api_s vt100_api;
+extern const struct device_api_s vt100_api_generic;
 
 enum terminal_cmd {
 	TERM_RESET,

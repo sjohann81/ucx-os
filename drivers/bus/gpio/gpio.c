@@ -118,7 +118,7 @@ static int driver_int_attach(const struct device_s *dev, int pin, void (*callbac
 }
 
 /* GPIO device driver function mapping */
-struct gpio_api_s gpio_api = {
+const struct gpio_api_s gpio_api = {
 	.gpio_setup = driver_setup,
 	.gpio_get = driver_get,
 	.gpio_set = driver_set,

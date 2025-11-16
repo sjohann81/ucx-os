@@ -44,4 +44,4 @@ struct pwm_config_s {
 	struct pwm_config_values_s config_values;
 };
 
-extern struct pwm_api_s pwm_api;
+extern const struct pwm_api_s pwm_api;

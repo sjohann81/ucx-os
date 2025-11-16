@@ -276,4 +276,4 @@ struct eth_enc28j60_data_s {
 	char init;
 };
 
-extern struct device_api_s eth_enc28j60_api;
+extern const struct device_api_s eth_enc28j60_api;

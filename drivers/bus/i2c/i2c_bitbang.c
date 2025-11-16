@@ -347,7 +347,7 @@ static size_t i2c_driver_write(const struct device_s *dev, void *buf, size_t cou
 }
 
 /* device driver function mapping for generic API */
-struct device_api_s i2c_api = {
+const struct device_api_s i2c_api = {
 	.dev_init = i2c_driver_init,
 	.dev_deinit = i2c_driver_deinit,
 	.dev_open = i2c_driver_open,

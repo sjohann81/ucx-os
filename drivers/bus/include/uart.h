@@ -48,4 +48,4 @@ struct uart_data_s {
 	char busy;
 };
 
-extern struct device_api_s uart_api;
+extern const struct device_api_s uart_api;

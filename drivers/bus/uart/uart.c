@@ -215,7 +215,7 @@ static size_t uart_driver_write(const struct device_s *dev, void *buf, size_t co
 }
 
 /* device driver function mapping for generic API */
-struct device_api_s uart_api = {
+const struct device_api_s uart_api = {
 	.dev_init = uart_driver_init,
 	.dev_deinit = uart_driver_deinit,
 	.dev_open = uart_driver_open,

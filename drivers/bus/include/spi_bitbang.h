@@ -41,4 +41,4 @@ struct spi_data_s {
 	char busy;
 };
 
-extern struct device_api_s spi_api;
+extern const struct device_api_s spi_api;
