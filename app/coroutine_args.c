@@ -31,7 +31,7 @@ void *cr3(void *arg)
 }
 
 /* only coroutines in this application */
-int32_t app_main(void)
+int app_main(void)
 {
 	uint32_t data = 0;
 	

@@ -72,7 +72,7 @@ void idle(void)
 	}
 }
 
-int32_t app_main(void)
+int app_main(void)
 {
 	uint16_t id1, id2, id3, id4, id5;
 

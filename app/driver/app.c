@@ -72,7 +72,7 @@ void task1(void)
 
 
 /* application entry point */
-int32_t app_main(void)
+int app_main(void)
 {
 	const struct device_s *dev1 = &device1;
 	const struct device_s *dev2 = &device2;

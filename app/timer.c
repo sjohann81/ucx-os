@@ -47,7 +47,7 @@ void idle(void)
 	}
 }
 
-int32_t app_main(void)
+int app_main(void)
 {
 	ucx_task_spawn(timer1, DEFAULT_STACK_SIZE);
 	ucx_task_spawn(timer2, DEFAULT_STACK_SIZE);

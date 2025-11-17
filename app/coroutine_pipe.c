@@ -40,7 +40,7 @@ void *cr0(void *arg)
 	return 0;
 }
 
-int32_t app_main(void)
+int app_main(void)
 {
 	struct cgroup_s *cgroup;
 	

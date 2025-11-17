@@ -84,7 +84,7 @@ void task0(void)
 	}
 }
 
-int32_t app_main(void)
+int app_main(void)
 {
 	long val2, val3;
 	

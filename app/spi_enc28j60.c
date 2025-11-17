@@ -174,7 +174,7 @@ void task0(void)
 	dev_close(eth1);
 }
 
-int32_t app_main(void)
+int app_main(void)
 {
 	int val;
 	

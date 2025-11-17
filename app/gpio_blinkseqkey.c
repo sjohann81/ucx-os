@@ -57,7 +57,7 @@ void task_blink(void)
 	}
 }
 
-int32_t app_main(void)
+int app_main(void)
 {
 	ucx_task_spawn(task_blink, DEFAULT_STACK_SIZE);
 	ucx_task_spawn(task_idle, DEFAULT_STACK_SIZE);

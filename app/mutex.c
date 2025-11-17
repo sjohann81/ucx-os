@@ -22,7 +22,7 @@ void task_b(void)
 	}
 }
 
-int32_t app_main(void)
+int app_main(void)
 {
 	ucx_task_spawn(task_a, DEFAULT_STACK_SIZE);
 	ucx_task_spawn(task_b, DEFAULT_STACK_SIZE);

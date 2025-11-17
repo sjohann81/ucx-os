@@ -118,7 +118,7 @@ void task0(void)
 	}
 }
 
-int32_t app_main(void)
+int app_main(void)
 {
 	const struct device_s *spi1 = &spi_device1;
 	

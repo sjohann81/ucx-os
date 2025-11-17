@@ -114,7 +114,7 @@ int32_t our_sched(void)
 	return task->id;
 }
 
-int32_t app_main(void)
+int app_main(void)
 {
 	/* Define RT task priorities (3, 4 and 5 credits) */
 	struct our_priority_s priorities[3] = {

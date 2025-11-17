@@ -238,7 +238,7 @@ void task0()
 	for (;;);
 }
 
-int32_t app_main(void)
+int app_main(void)
 {
 	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
 

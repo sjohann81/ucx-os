@@ -31,7 +31,7 @@ void task(void)
 	}
 }
 
-int32_t app_main(void)
+int app_main(void)
 {
 	int32_t i;
 	
