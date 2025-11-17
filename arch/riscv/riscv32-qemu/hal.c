@@ -9,6 +9,7 @@
 #include <lib/libc.h>
 #include <lib/list.h>
 #include <kernel/kernel.h>
+#include <riscv.h>
 
 /* hardware platform dependent stuff */
 static int __putchar(int value)		// polled putchar()
@@ -97,11 +98,6 @@ static void uart_init(uint32_t baud)
 	NS16550A_UART0_CTRL_ADDR(NS16550A_LCR) = NS16550A_LCR_8BIT;
 }
 
-void _cpu_idle(void)
-{
-	asm volatile ("wfi");
-}
-
 void _panic(void)
 {
 	volatile int * const exit_device = (int* const)0x100000;
@@ -140,6 +136,16 @@ uint64_t _read_us(void)
 	timeref = ((uint64_t)tval2 << 32) + (uint64_t)_readcounter();
 
 	return (timeref / (F_CPU / 1000000));
+}
+
+void _cpu_idle(void)
+{
+	asm volatile ("wfi");
+}
+
+uint16_t _cpu_id(void)
+{
+	return r_mhartid();
 }
 
 // https://forums.sifive.com/t/timer-and-interrupt/3456/5

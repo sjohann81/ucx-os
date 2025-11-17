@@ -1,13 +1,28 @@
 	.global _entry
 	.section .text.prologue
 _entry:
-	la	a3, _sbss
-	la	a2, _ebss
+        la	sp, _stack
+        li	a0, 4096		# 4kB of stack for each core
+        csrr	a1, mhartid
+        mul	a0, a0, a1
+        sub	sp, sp, a0
 	la	gp, _gp
-	la	sp, _stack
 	la	tp, _end + 63
 	and	tp, tp, -64
 
+	# stop all harts (except 0)
+	csrr	t0, mhartid
+	beq	zero, t0, _boothart0
+
+	# jump to main1
+	jal	ra, main1
+L1:
+	wfi
+	beq	zero, zero, L1
+
+_boothart0:
+	la	a3, _sbss
+	la	a2, _ebss
 BSS_CLEAR:
 	# clear the .bss
 	sw	zero, 0(a3)
@@ -24,12 +39,6 @@ BSS_CLEAR:
 	csrw	mideleg, zero
 	csrw	medeleg, zero
 
-	# stop all harts (except 0)
-	csrr	t0, mhartid
-	beq	zero, t0, _boothart0
-	wfi
-_boothart0:
-
 	# setup trap vector
 	la	t0, _isr
 	csrw	mtvec, t0
@@ -42,9 +51,9 @@ _boothart0:
 	jal	ra, main
 
 	j	_panic
-L1:
+L0:
 	wfi
-	beq	zero, zero, L1
+	beq	zero, zero, L0
 
 # interrupt / exception service routine
 	.org 0x100
