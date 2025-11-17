@@ -1,4 +1,4 @@
-VERSION = 0.98
+VERSION = 1.00
 
 TARGET_LIST = \
 	'arm/stm32f401_blackpill' 'arm/stm32f401_nucleo' \
@@ -59,7 +59,7 @@ ucx: incl hal libs ddrivers network kernel
 	$(AR) $(ARFLAGS) $(BUILD_TARGET_DIR)/libucxos.a \
 		$(BUILD_KERNEL_DIR)/*.o
 
-kernel: timer.o message.o pipe.o semaphore.o ecodes.o syscall.o coroutine.o ucx.o main.o
+kernel: timer.o message.o pipe.o spinlock.o semaphore.o ecodes.o syscall.o coroutine.o ucx.o main.o
 
 main.o: $(SRC_DIR)/init/main.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/init/main.c
@@ -73,6 +73,8 @@ ecodes.o: $(SRC_DIR)/kernel/ecodes.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/ecodes.c
 semaphore.o: $(SRC_DIR)/kernel/semaphore.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/semaphore.c
+spinlock.o: $(SRC_DIR)/kernel/spinlock.c
+	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/spinlock.c
 pipe.o: $(SRC_DIR)/kernel/pipe.c
 	$(CC) $(CFLAGS) $(SRC_DIR)/kernel/pipe.c
 message.o: $(SRC_DIR)/kernel/message.c
@@ -168,6 +170,10 @@ gpio_int: rebuild
 
 hello: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/hello.o app/hello.c
+	@$(MAKE) --no-print-directory link
+
+hello_multicore: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/hello_multicore.o app/hello_multicore.c
 	@$(MAKE) --no-print-directory link
 
 hello_p: rebuild
