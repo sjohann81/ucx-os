@@ -87,10 +87,6 @@ static void uart_init(uint32_t baud)
 {
 }
 
-void _cpu_idle(void)
-{
-}
-
 uint32_t _readcounter(void)
 {
 	return ~TIMER3_VALUE;
@@ -151,6 +147,15 @@ uint64_t _read_us(void)
 	timeref = ((uint64_t)tval2 << 32) + (uint64_t)_readcounter();
 
 	return (timeref / (TIMCLK / 1000000));
+}
+
+void _cpu_idle(void)
+{
+}
+
+uint16_t _cpu_id(void)
+{
+	return 0;
 }
 
 void _panic(void)

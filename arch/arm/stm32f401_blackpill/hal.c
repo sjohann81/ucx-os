@@ -395,6 +395,12 @@ void SVC_Handler(void)
 
 void _cpu_idle(void)
 {
+	asm volatile ("wfi");
+}
+
+uint16_t _cpu_id(void)
+{
+	return 0;
 }
 
 static void _stack_check(void)
