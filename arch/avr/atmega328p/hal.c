@@ -79,6 +79,15 @@ uint64_t _read_us(void)
 	return (timer * (1000000 / IRQ_FREQ2));
 }
 
+void _cpu_idle(void)
+{
+}
+
+uint16_t _cpu_id(void)
+{
+	return 0;
+}
+
 /* kernel auxiliary routines */
 ISR(TIMER2_COMPA_vect)
 {

@@ -32,6 +32,8 @@ char _interrupt_set(char s);
 
 void delay_us(uint16_t);
 uint64_t _read_us(void);
+void _cpu_idle(void);
+uint16_t _cpu_id(void);
 
 void _hardware_init(void);
 void _timer_enable(void);
