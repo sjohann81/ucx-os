@@ -99,11 +99,6 @@ static void uart_init(uint32_t baud)
 	NS16550A_UART0_CTRL_ADDR(NS16550A_LCR) = NS16550A_LCR_8BIT;
 }
 
-void _cpu_idle(void)
-{
-	asm volatile ("wfi");
-}
-
 void _panic(void)
 {
 	volatile int * const exit_device = (int* const)0x100000;
@@ -138,6 +133,16 @@ uint64_t _read_us(void)
 	timeref = (uint64_t)MTIME_H << 32 | (uint64_t)MTIME_L;
 
 	return (timeref / (F_CPU / 1000000));
+}
+
+void _cpu_idle(void)
+{
+	asm volatile ("wfi");
+}
+
+uint16_t _cpu_id(void)
+{
+	return r_mhartid();
 }
 
 uint64_t mtime_r(void)
