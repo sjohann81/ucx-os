@@ -121,6 +121,15 @@ uint64_t _read_us(void)
 	return (timeref / (F_CPU / 1000000));
 }
 
+void _cpu_idle(void)
+{
+}
+
+uint16_t _cpu_id(void)
+{
+	return 0;
+}
+
 /* kernel auxiliary routines */
 
 #if F_TIMER > 0

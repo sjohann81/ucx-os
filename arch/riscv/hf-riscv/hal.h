@@ -413,6 +413,8 @@ void _dispatch_init(jmp_buf env);
 void _delay_ms(uint32_t msec);
 void _delay_us(uint32_t usec);
 uint64_t _read_us(void);
+void _cpu_idle(void);
+uint16_t _cpu_id(void);
 
 void _hardware_init(void);
 void _timer_enable(void);
