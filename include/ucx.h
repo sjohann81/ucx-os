@@ -15,5 +15,6 @@
 #include <kernel/stat.h>
 #include <kernel/ecodes.h>
 #include <kernel/syscall.h>
+#include <kernel/spinlock.h>
 #include <stdarg.h>
 
