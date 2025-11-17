@@ -5,8 +5,8 @@ UCX/OS is a preemptive nanokernel RTOS for microcontrollers, aimed to be easily 
 Currently, UCX/OS supports the following targets:
 
 #### RISC-V (32 / 64 bit)
-- RV32I (Qemu)
-- RV64I (Qemu)
+- RV32I (Qemu) / RV32IMA (SMP)
+- RV64I (Qemu) / RV64IMA (SMP)
 - HF-RISCV (RV32E / RV32I)
 
 #### ARM (32 bit)
@@ -33,7 +33,8 @@ Different toolchains based on GCC and LLVM can be used to build the kernel and a
 - Small footprint (6kB ~ 10kB) for the kernel.
 - Hybrid lightweight task model (taks and coroutines) where tasks share the same memory region;
 - Preemptive / cooperative scheduling based on a priority round robin (RR) scheduler and a user defined realtime scheduler;
-- Task synchronization and communication using semaphores, pipeline channels or message queues;
+- Task synchronization and communication using semaphores, pipeline channels, message queues and spinlocks;
+- SMP support
 - Software timers with callback execution;
 - Dynamic memory allocation;
 - Abstract device driver model for common busses and devices;
@@ -99,7 +100,7 @@ Device drivers are the way to enable portability, customization and hardware sup
 
 System calls are divided in several classes. The *task* class of system calls are used for task control and information. The *coroutine* class of system calls implement coroutine grouping and scheduling. The *system* class handle system information and control. The *semaphore* class of system calls are used for task synchronization, along with the *pipe* class which define a basic communication mechanism between tasks and coroutines and the more flexible *message queue*. The *timer* interface define system calls that can be used to create configurable and low overhead timers. At this moment, system calls are implemented as simple library calls, but this will change in the near future for architectures that suport hardware exceptions and different modes of operation. There is a system call wrapper in place that can be used for as a system call interface, which implements a software interrupt for syscalls and asynchronous callbacks.
 
-| Task			| Coroutine		| System		| Semaphore		| Pipe			| Message Queue		| Timer			|
+| Task			| Coroutine		| System		| Semaphore / Spinlock	| Pipe			| Message Queue		| Timer			|
 | :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- | :-------------------- |
 | ucx_task_spawn()	| ucx_cr_ginit()	| ucx_ticks()		| ucx_sem_create()	| ucx_pipe_create()	| ucx_mq_create()	| ucx_timer_create()	|
 | ucx_task_cancel()	| ucx_cr_gdestroy()	| ucx_uptime()		| ucx_sem_destroy()	| ucx_pipe_destroy()	| ucx_mq_destroy()	| ucx_timer_destroy()	|
@@ -107,9 +108,9 @@ System calls are divided in several classes. The *task* class of system calls ar
 | ucx_task_delay()	| ucx_cr_cancel()	| 			| ucx_sem_trywait()	| ucx_pipe_size()	| ucx_mq_dequeue()	| ucx_timer_cancel()	|
 | ucx_task_suspend()	| ucx_cr_schedule()	|			| ucx_sem_signal()	| ucx_pipe_read()	| ucx_mq_peek()		|			|
 | ucx_task_resume()	|			|			| 			| ucx_pipe_write()	| ucx_mq_items()	| 			|
-| ucx_task_priority()	|			| 			| 			| ucx_pipe_nbread()	|			|			|
-| ucx_task_rt_priority()|			| 			| 			| ucx_pipe_nbwrite()	|			|			|
-| ucx_task_id()		|			| 			|			| 			|			|			|
+| ucx_task_priority()	|			| 			| ucx_lock_init()	| ucx_pipe_nbread()	|			|			|
+| ucx_task_rt_priority()|			| 			| ucx_lock_acquire()	| ucx_pipe_nbwrite()	|			|			|
+| ucx_task_id()		|			| 			| ucx_lock_release()	| 			|			|			|
 | ucx_task_refid()	|			| 			| 			|			|			|			|
 | ucx_task_wfi()	|			|			| 			|			|			|			|
 | ucx_task_count()	|			|			| 			|			|			|			|
@@ -227,6 +228,19 @@ Semaphore is a basic task synchronization primitive, with Dijkstra's semantics. 
 ##### ucx_sem_signal()
 
 - Signals a semaphore. A task can either increment the semaphore value (semaphore value >= 0 before the call), or increment and unblock a waiting task (semaphore value is < 0 before the call).
+
+##### ucx_lock_init()
+
+- Initializes a spinlock. 
+
+##### ucx_lock_acquire()
+
+- (SMP only) Tries do acquire a lock, and spins (busy waits the core) while doing so.
+
+##### ucx_lock_release()
+
+- (SMP only) Releases a previously locked spinlock.
+
 
 #### Pipe
 
