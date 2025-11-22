@@ -122,7 +122,11 @@ endif
 coroutine_args: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/coroutine_args.o app/coroutine_args.c
 	@$(MAKE) --no-print-directory link
-	
+
+coroutine_multicore: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/coroutine_multicore.o app/coroutine_multicore.c
+	@$(MAKE) --no-print-directory link
+
 coroutine_mq: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/coroutine_mq.o app/coroutine_mq.c
 	@$(MAKE) --no-print-directory link
