@@ -56,18 +56,18 @@ int app_main(void)
 	
 	ucx_lock_init(&lock);
 
-	// start UCX/OS, preemptive mode
+	// start UCX/OS on core 0, preemptive mode
 	return 1;
 }
 
 int app_main1(void)
 {
-	while (1) {
-		ucx_lock_acquire(&lock);
-		printf("hello from core %d\n", _cpu_id());
-		ucx_lock_release(&lock);
-		_delay_ms(50);
-	}	
+	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task1, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task2, DEFAULT_STACK_SIZE);
+	
+	// start UCX/OS on core 1, preemptive mode
+	return 1;
 }
 
 int app_main2(void)
