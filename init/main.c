@@ -7,9 +7,10 @@
 
 #include <ucx.h>
 
-static volatile int boot = 0;
-
 /* main() function, called from the C runtime */
+#ifdef MULTICORE
+static volatile int boot = 0;
+#endif
 
 int main(void)
 {
