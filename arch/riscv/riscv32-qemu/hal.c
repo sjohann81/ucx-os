@@ -172,25 +172,34 @@ void mtime_w(uint64_t val)
 uint64_t mtimecmp_r(void)
 {
 	uint32_t hi, lo;
+	volatile uint32_t *addr_h;
+	volatile uint32_t *addr_l;
 	
-	hi = MTIMECMP_H;
-	lo = MTIMECMP_L;
+	addr_h = &MTIMECMP_H + (2 * _cpu_id());
+	addr_l = &MTIMECMP_L + (2 * _cpu_id());
+	
+	hi = *addr_h;
+	lo = *addr_l;
 	
 	return ((uint64_t) hi << 32) | lo;
 }
 
 void mtimecmp_w(uint64_t val)
 {
-	MTIMECMP_L = -1;
-	MTIMECMP_H = (uint32_t)((val >> 32) & 0xffffffff);
-	MTIMECMP_L = (uint32_t)(val & 0xffffffff);
+	volatile uint32_t *addr_h;
+	volatile uint32_t *addr_l;
+	
+	addr_h = &MTIMECMP_H + (2 * _cpu_id());
+	addr_l = &MTIMECMP_L + (2 * _cpu_id());
+
+	*addr_l = -1;
+	*addr_h = (uint32_t)((val >> 32) & 0xffffffff);
+	*addr_l = (uint32_t)(val & 0xffffffff);
 }
 
 void _hardware_init(void)
 {
 	uart_init(USART_BAUD);
-	mtimecmp_w(mtime_r() + (F_CPU / F_TIMER));
-	
 	_stdout_install(__putchar);
 	_stdin_install(__getchar);
 	_stdpoll_install(__kbhit);
@@ -216,7 +225,11 @@ void _timer_disable(void)
 
 void _interrupt_tick(void)
 {
+#ifndef MULTICORE
 	struct tcb_s *task = kcb->task_current->data;
+#else
+	struct tcb_s *task = kcb[_cpu_id()]->task_current->data;
+#endif
 	
 	/* task is run for the first time */
 	if ((uint32_t)task->task == task->context[CONTEXT_RA])
@@ -227,9 +240,25 @@ extern void __dispatch_init(jmp_buf env);
 
 void _dispatch_init(jmp_buf env)
 {
-	if (kcb->preemptive == 'y')
+	uint32_t mip;
+
+#ifndef MULTICORE
+	if (kcb->preemptive == 'y') {
+#else
+	if (kcb[_cpu_id()]->preemptive == 'y') {
+#endif
+		/* clear pending timer interrupts */
+		mip = r_mip();
+		mip &= ~0x80;
+		w_mip(mip);
+		
+		/* set timer to the future */
+		mtimecmp_w(mtime_r() + (F_CPU / F_TIMER));
+		
+		/* enable timer interrupts */
 		_timer_enable();
-	
+	}
+
 	_ei();
 	__dispatch_init(env);
 }
