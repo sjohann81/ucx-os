@@ -14,6 +14,10 @@ _entry:
 	csrr	t0, mhartid
 	beq	zero, t0, _boothart0
 
+	# setup trap vector
+	la	t0, _isr
+	csrw	mtvec, t0
+
 	# jump to main1
 	jal	ra, main1
 L1:

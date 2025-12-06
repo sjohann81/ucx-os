@@ -9,7 +9,6 @@
 #include <lib/libc.h>
 #include <lib/list.h>
 #include <kernel/kernel.h>
-#include <kernel/ecodes.h>
 #include <riscv.h>
 
 /* hardware platform dependent stuff */
@@ -157,17 +156,23 @@ void mtime_w(uint64_t val)
 
 uint64_t mtimecmp_r(void)
 {
-	return MTIMECMP;
+	volatile uint64_t *addr;
+	
+	addr = &MTIMECMP + _cpu_id();
+	
+	return *addr;
 }
 
 void mtimecmp_w(uint64_t val)
 {
-	MTIMECMP = val;
+	volatile uint64_t *addr;
+	
+	addr = &MTIMECMP + _cpu_id();
+	*addr = val;
 }
 
 void _hardware_init(void)
 {
-	_di();
 	uart_init(USART_BAUD);
 
 	_stdout_install(__putchar);
@@ -195,7 +200,11 @@ void _timer_disable(void)
 
 void _interrupt_tick(void)
 {
+#ifndef MULTICORE
 	struct tcb_s *task = kcb->task_current->data;
+#else
+	struct tcb_s *task = kcb[_cpu_id()]->task_current->data;
+#endif
 	
 	/* task is run for the first time */
 	if ((uint64_t)task->task == task->context[CONTEXT_RA])
@@ -208,7 +217,11 @@ void _dispatch_init(jmp_buf env)
 {
 	uint64_t mip;
 	
+#ifndef MULTICORE
 	if (kcb->preemptive == 'y') {
+#else
+	if (kcb[_cpu_id()]->preemptive == 'y') {
+#endif
 		/* clear pending timer interrupts */
 		mip = r_mip();
 		mip &= ~0x80;
