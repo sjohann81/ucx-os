@@ -1,4 +1,4 @@
-VERSION = 1.00
+VERSION = 1.1.0
 
 TARGET_LIST = \
 	'arm/stm32f401_blackpill' 'arm/stm32f401_nucleo' \
@@ -214,6 +214,10 @@ mutex: rebuild
 	
 pipes: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/pipes.o app/pipes.c
+	@$(MAKE) --no-print-directory link
+	
+pipes_multicore: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/pipes_multicore.o app/pipes_multicore.c
 	@$(MAKE) --no-print-directory link
 
 pipes_s: rebuild
