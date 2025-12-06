@@ -38,15 +38,28 @@ struct kcb_s {
 	char preemptive;
 };
 
+#ifndef MULTICORE
 extern struct kcb_s *kcb;
-
-#define KRNL_SCHED_IMAX		10000
 
 /* kernel API */
 #define CRITICAL_ENTER()({kcb->preemptive == 'y' ? _di() : 0; })	// shouln't be always _di()?
 #define CRITICAL_LEAVE()({kcb->preemptive == 'y' ? _ei() : 0; })	// shouln't be always _ei()?
 #define NOSCHED_ENTER()({kcb->preemptive == 'y' ? _timer_disable() : 0; })
 #define NOSCHED_LEAVE()({kcb->preemptive == 'y' ? _timer_enable() : 0; })
+
+#else
+
+#define MAX_CORES	8
+extern struct kcb_s *kcb[MAX_CORES];
+extern struct spinlock_s global_lock;
+
+/* kernel API */
+#define CRITICAL_ENTER()({kcb[_cpu_id()]->preemptive == 'y' ? _di(), ucx_lock_acquire(&global_lock) : 0; })
+#define CRITICAL_LEAVE()({kcb[_cpu_id()]->preemptive == 'y' ? ucx_lock_release(&global_lock), _ei() : 0; })
+#define NOSCHED_ENTER()({kcb[_cpu_id()]->preemptive == 'y' ? _timer_disable() : 0; })
+#define NOSCHED_LEAVE()({kcb[_cpu_id()]->preemptive == 'y' ? _timer_enable() : 0; })
+
+#endif
 
 void krnl_panic(uint32_t ecode);
 uint16_t krnl_schedule(void);

@@ -49,7 +49,11 @@ void ucx_sem_wait(struct sem_s *s)
 	CRITICAL_ENTER();
 	s->count--;
 	if (s->count < 0) {
+#ifndef MULTICORE
 		tcb_sem = kcb->task_current->data;
+#else
+		tcb_sem = kcb[_cpu_id()]->task_current->data;
+#endif
 		qs = queue_enqueue(s->sem_queue, tcb_sem);
 		if (qs)
 			krnl_panic(ERR_SEM_OPERATION);
@@ -69,7 +73,7 @@ int32_t ucx_sem_trywait(struct sem_s *s)
 	if (s->count <= 0)
 		val = -1;
 	else
-		s->count--;
+		s->count--;		// FIXME: is this ok?
 	CRITICAL_LEAVE();
 	
 	return val;

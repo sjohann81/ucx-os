@@ -1,10 +1,13 @@
 /* file:          ucx.c
  * description:   UCX/OS kernel
  * date:          04/2021
+ *                11/2025 (multicore)
  * author:        Sergio Johann Filho <sergio.johann@acad.pucrs.br>
  */
 
 #include <ucx.h>
+
+#ifndef MULTICORE
 
 struct kcb_s kernel_state = {
 	.tasks = 0,
@@ -17,12 +20,40 @@ struct kcb_s kernel_state = {
 	
 struct kcb_s *kcb = &kernel_state;
 
+#else
+
+struct kcb_s kernel_state[MAX_CORES] = {
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0},
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0},
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0},
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0},
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0},
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0},
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0},
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0}
+};
+	
+struct kcb_s *kcb[MAX_CORES] = {
+	&kernel_state[0], &kernel_state[1],
+	&kernel_state[2], &kernel_state[3],
+	&kernel_state[4], &kernel_state[5],
+	&kernel_state[6], &kernel_state[7]
+};
+
+struct spinlock_s global_lock;
+
+#endif
+
 
 /* kernel auxiliary functions */
 
 static void stack_check(void)
 {
+#ifndef MULTICORE
 	struct tcb_s *task = kcb->task_current->data;
+#else
+	struct tcb_s *task = kcb[_cpu_id()]->task_current->data;
+#endif
 	uint32_t check = 0x33333333;
 	uint32_t *stack_p = (uint32_t *)task->stack;
 
@@ -110,8 +141,14 @@ void _yield(void) __attribute__ ((weak, alias ("yield")));
 uint16_t krnl_schedule(void)
 {
 	int itcnt = 0;
+
+#ifndef MULTICORE
 	struct tcb_s *task = kcb->task_current->data;
 	struct node_s *node = kcb->task_current;
+#else
+	struct tcb_s *task = kcb[_cpu_id()]->task_current->data;
+	struct node_s *node = kcb[_cpp_id()]->task_current;
+#endif	
 	
 	if (task->state == TASK_RUNNING)
 		task->state = TASK_READY;
@@ -121,7 +158,7 @@ uint16_t krnl_schedule(void)
 			node = list_cnext(kcb->tasks, node);
 			task = node->data;
 
-			if (itcnt++ > KRNL_SCHED_IMAX)
+			if (itcnt++ > 10000)
 				krnl_panic(ERR_NO_TASKS);
 
 		} while (task->state != TASK_READY || task->rt_prio);
@@ -153,17 +190,27 @@ uint16_t krnl_schedule(void)
 
 uint16_t krnl_schedule(void)
 {
+#ifndef MULTICORE
 	struct tcb_s *task = kcb->task_current->data;
+#else
+	struct tcb_s *task = kcb[_cpu_id()]->task_current->data;
+#endif
 	struct node_s *node, *select;
 	struct tcb_s *tselect;
 	uint16_t priority;
 	
 	if (task->state == TASK_RUNNING)
 		task->state = TASK_READY;
-	
+
+#ifndef MULTICORE
 	select = kcb->tasks->head->next;
-	tselect = select->data;
 	node = kcb->tasks->head;
+#else
+	select = kcb[_cpu_id()]->tasks->head->next;
+	node = kcb[_cpu_id()]->tasks->head;
+#endif
+	tselect = select->data;
+
 	while ((node = list_next(node))) {
 		if (!node->next) break;
 		task = node->data;
@@ -180,15 +227,23 @@ uint16_t krnl_schedule(void)
 		krnl_panic(ERR_NO_TASKS);
 	
 	priority = tselect->priority;
+#ifndef MULTICORE
 	node = kcb->tasks->head;
+#else
+	node = kcb[_cpu_id()]->tasks->head;
+#endif
 	while ((node = list_next(node))) {
 		if (!node->next) break;
 		task = node->data;
 		if (task->state == TASK_READY && !task->rt_prio)
 			task->priority -= (priority & 0xff);
 	};
-	
+
+#ifndef MULTICORE
 	kcb->task_current = select;
+#else
+	kcb[_cpu_id()]->task_current = select;
+#endif
 	tselect->priority |= (tselect->priority >> 8) & 0xff;
 	tselect->state = TASK_RUNNING;
 
@@ -215,12 +270,17 @@ int32_t krnl_noop_rtsched(void)
 
 void krnl_dispatcher(void)
 {
+#ifndef MULTICORE
 	kcb->ticks++;
+#else
+	kcb[_cpu_id()]->ticks++;
+#endif
 	_dispatch();
 }
 
 void dispatch(void)
 {
+#ifndef MULTICORE
 	struct tcb_s *task = kcb->task_current->data;
 	
 	if (!kcb->tasks->length)
@@ -235,10 +295,27 @@ void dispatch(void)
 		_interrupt_tick();
 		longjmp(task->context, 1);
 	}
+#else
+	struct tcb_s *task = kcb[_cpu_id()]->task_current->data;
+	
+	if (!kcb[_cpu_id()]->tasks->length)
+		krnl_panic(ERR_NO_TASKS);
+	
+	if (!setjmp(task->context)) {
+		stack_check();
+		list_foreach(kcb[_cpu_id()]->tasks, delay_update, (void *)0);
+		if (kcb[_cpu_id()]->rt_sched() < 0)
+			krnl_schedule();
+		task = kcb[_cpu_id()]->task_current->data;
+		_interrupt_tick();
+		longjmp(task->context, 1);
+	}
+#endif
 }
 
 void yield(void)
 {
+#ifndef MULTICORE
 	struct tcb_s *task = kcb->task_current->data;
 	
 	if (!kcb->tasks->length)
@@ -252,6 +329,21 @@ void yield(void)
 		task = kcb->task_current->data;
 		longjmp(task->context, 1);
 	}
+#else
+	struct tcb_s *task = kcb[_cpu_id()]->task_current->data;
+	
+	if (!kcb[_cpu_id()]->tasks->length)
+		krnl_panic(ERR_NO_TASKS);
+	
+	if (!setjmp(task->context)) {
+		stack_check();
+		if (kcb[_cpu_id()]->preemptive == 'n')
+			list_foreach(kcb[_cpu_id()]->tasks, delay_update, (void *)0);
+		krnl_schedule();
+		task = kcb[_cpu_id()]->task_current->data;
+		longjmp(task->context, 1);
+	}
+#endif
 }
 
 
@@ -268,8 +360,12 @@ int32_t ucx_task_spawn(void *task, uint16_t stack_size)
 		krnl_panic(ERR_TCB_ALLOC);
 
 	CRITICAL_ENTER();
-	
+
+#ifndef MULTICORE
 	new_task = list_pushback(kcb->tasks, new_tcb);
+#else
+	new_task = list_pushback(kcb[_cpu_id()]->tasks, new_tcb);
+#endif
 	
 	if (!new_task)
 		krnl_panic(ERR_TCB_ALLOC);
@@ -279,7 +375,11 @@ int32_t ucx_task_spawn(void *task, uint16_t stack_size)
 	new_tcb->rt_prio = 0;
 	new_tcb->delay = 0;
 	new_tcb->stack_sz = stack_size;
+#ifndef MULTICORE
 	new_tcb->id = kcb->id_next++;
+#else
+	new_tcb->id = kcb[_cpu_id()]->id_next++;
+#endif
 	new_tcb->state = TASK_STOPPED;
 	new_tcb->priority = TASK_NORMAL_PRIO;
 	new_tcb->stack = malloc(stack_size);
@@ -296,8 +396,8 @@ int32_t ucx_task_spawn(void *task, uint16_t stack_size)
 	_context_init(&new_tcb->context, (size_t)new_tcb->stack,
 		stack_size, (size_t)task);
 
-	printf("task %d: 0x%p, stack: 0x%p, size %d\n", new_tcb->id,
-		new_tcb->task, new_tcb->stack, new_tcb->stack_sz);
+	printf("core %d, task %d: 0x%p, stack: 0x%p, size %d\n", _cpu_id(),
+		new_tcb->id, new_tcb->task, new_tcb->stack, new_tcb->stack_sz);
 
 	new_tcb->state = TASK_READY;
 
@@ -313,7 +413,11 @@ int32_t ucx_task_cancel(uint16_t id)
 		return ERR_TASK_CANT_REMOVE;
 
 	CRITICAL_ENTER();
+#ifndef MULTICORE
 	node = list_foreach(kcb->tasks, idcmp, (void *)(size_t)id);
+#else
+	node = list_foreach(kcb[_cpu_id()]->tasks, idcmp, (void *)(size_t)id);
+#endif
 	
 	if (!node) {
 		CRITICAL_LEAVE();
@@ -324,8 +428,12 @@ int32_t ucx_task_cancel(uint16_t id)
 	task = node->data;
 	free(task->stack);
 	free(task);
-	
+
+#ifndef MULTICORE
 	list_remove(kcb->tasks, node);
+#else
+	list_remove(kcb[_cpu_id()]->tasks, node);
+#endif
 	CRITICAL_LEAVE();
 	
 	return ERR_OK;
@@ -341,7 +449,11 @@ void ucx_task_delay(uint16_t ticks)		// FIXME: delay any task
 	struct tcb_s *task;
 	
 	CRITICAL_ENTER();
+#ifndef MULTICORE
 	task = kcb->task_current->data;
+#else
+	task = kcb[_cpu_id()]->task_current->data;
+#endif
 	task->delay = ticks;
 	task->state = TASK_BLOCKED;
 	CRITICAL_LEAVE();
@@ -354,7 +466,11 @@ int32_t ucx_task_suspend(uint16_t id)
 	struct tcb_s *task;
 
 	CRITICAL_ENTER();
+#ifndef MULTICORE
 	node = list_foreach(kcb->tasks, idcmp, (void *)(size_t)id);
+#else
+	node = list_foreach(kcb[_cpu_id()]->tasks, idcmp, (void *)(size_t)id);
+#endif
 	
 	if (!node) {
 		CRITICAL_LEAVE();
@@ -371,8 +487,12 @@ int32_t ucx_task_suspend(uint16_t id)
 		return ERR_TASK_CANT_SUSPEND;
 	}
 	CRITICAL_LEAVE();
-	
+
+#ifndef MULTICORE
 	if (kcb->task_current == node)
+#else
+	if (kcb[_cpu_id()]->task_current == node)
+#endif
 		ucx_task_yield();
 
 	return ERR_OK;
@@ -384,7 +504,11 @@ int32_t ucx_task_resume(uint16_t id)
 	struct tcb_s *task;
 
 	CRITICAL_ENTER();
+#ifndef MULTICORE
 	node = list_foreach(kcb->tasks, idcmp, (void *)(size_t)id);
+#else
+	node = list_foreach(kcb[_cpu_id()]->tasks, idcmp, (void *)(size_t)id);
+#endif
 	
 	if (!node) {
 		CRITICAL_LEAVE();
@@ -425,7 +549,11 @@ int32_t ucx_task_priority(uint16_t id, uint16_t priority)
 	}
 
 	CRITICAL_ENTER();
+#ifndef MULTICORE
 	node = list_foreach(kcb->tasks, idcmp, (void *)(size_t)id);
+#else
+	node = list_foreach(kcb[_cpu_id()]->tasks, idcmp, (void *)(size_t)id);
+#endif
 	
 	if (!node) {
 		CRITICAL_LEAVE();
@@ -449,7 +577,11 @@ int32_t ucx_task_rt_priority(uint16_t id, void *priority)
 		return ERR_TASK_INVALID_PRIO;
 
 	CRITICAL_ENTER();
+#ifndef MULTICORE
 	node = list_foreach(kcb->tasks, idcmp, (void *)(size_t)id);
+#else
+	node = list_foreach(kcb[_cpu_id()]->tasks, idcmp, (void *)(size_t)id);
+#endif
 	
 	if (!node) {
 		CRITICAL_LEAVE();
@@ -466,7 +598,11 @@ int32_t ucx_task_rt_priority(uint16_t id, void *priority)
 
 uint16_t ucx_task_id()
 {
+#ifndef MULTICORE
 	struct tcb_s *task = kcb->task_current->data;
+#else
+	struct tcb_s *task = kcb[_cpu_id()]->task_current->data;
+#endif
 	
 	return task->id;
 }
@@ -477,7 +613,11 @@ int32_t ucx_task_idref(void *task)
 	struct tcb_s *task_tcb;
 
 	CRITICAL_ENTER();
+#ifndef MULTICORE
 	node = list_foreach(kcb->tasks, refcmp, task);
+#else
+	node = list_foreach(kcb[_cpu_id()]->tasks, refcmp, task);
+#endif
 	
 	if (!node) {
 		CRITICAL_LEAVE();
@@ -494,22 +634,38 @@ int32_t ucx_task_idref(void *task)
 void ucx_task_wfi()
 {
 	volatile uint32_t s;
-	
+
+#ifndef MULTICORE
 	if (kcb->preemptive == 'n')
 		return;
 	
 	s = kcb->ticks;
 	while (s == kcb->ticks);
+#else
+	if (kcb[_cpu_id()]->preemptive == 'n')
+		return;
+	
+	s = kcb[_cpu_id()]->ticks;
+	while (s == kcb[_cpu_id()]->ticks);
+#endif
 }
 
 uint16_t ucx_task_count()
 {
+#ifndef MULTICORE
 	return kcb->tasks->length;
+#else
+	return kcb[_cpu_id()]->tasks->length;
+#endif
 }
 
 uint32_t ucx_ticks()
 {
+#ifndef MULTICORE
 	return kcb->ticks;
+#else
+	return kcb[_cpu_id()]->ticks;
+#endif
 }
 
 uint64_t ucx_uptime()

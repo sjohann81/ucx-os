@@ -67,6 +67,7 @@ void timer_handler_systick()
 	static uint32_t last_tick;
 	uint32_t tick_diff;
 	
+#ifndef MULTICORE
 	if (!last_tick) {
 		last_tick = kcb->ticks;
 		
@@ -78,6 +79,19 @@ void timer_handler_systick()
 		last_tick = kcb->ticks;
 		list_foreach(kcb->timer_lst, timer_update_systick, (void *)(size_t)tick_diff);
 	}
+#else
+	if (!last_tick) {
+		last_tick = kcb[_cpu_id()]->ticks;
+		
+		return;
+	}
+	
+	if (kcb[_cpu_id()]->ticks != last_tick) {
+		tick_diff = kcb[_cpu_id()]->ticks - last_tick;
+		last_tick = kcb[_cpu_id()]->ticks;
+		list_foreach(kcb[_cpu_id()]->timer_lst, timer_update_systick, (void *)(size_t)tick_diff);
+	}
+#endif
 	
 	ucx_task_yield();
 }
@@ -87,7 +101,11 @@ void timer_handler()
 	uint64_t time;
 	
 	time = ucx_uptime();
+#ifndef MULTICORE
 	list_foreach(kcb->timer_lst, timer_update, (void *)(size_t)time);
+#else
+	list_foreach(kcb[_cpu_id()]->timer_lst, timer_update, (void *)(size_t)time);
+#endif
 	
 	ucx_task_yield();
 }
@@ -105,6 +123,7 @@ int32_t ucx_timer_create(void *(*timer_cb)(void *arg), uint32_t time)
 	struct timer_s *timer;
 	static uint16_t timer_id = 0x6000;
 	
+#ifndef MULTICORE
 	if (!kcb->timer_lst)
 		kcb->timer_lst = list_create();
 
@@ -116,6 +135,19 @@ int32_t ucx_timer_create(void *(*timer_cb)(void *arg), uint32_t time)
 		return ERR_FAIL;
 		
 	node = list_pushback(kcb->timer_lst, timer);
+#else
+	if (!kcb[_cpu_id()]->timer_lst)
+		kcb[_cpu_id()]->timer_lst = list_create();
+
+	if (!kcb[_cpu_id()]->timer_lst)
+		return ERR_FAIL;
+		
+	timer = malloc(sizeof(struct timer_s));
+	if (!timer)
+		return ERR_FAIL;
+		
+	node = list_pushback(kcb[_cpu_id()]->timer_lst, timer);
+#endif
 	if (!node) {
 		free(timer);
 		return ERR_FAIL;
@@ -154,7 +186,8 @@ int32_t ucx_timer_destroy(uint16_t timer_id)
 {
 	struct node_s *node;
 	struct timer_s *timer;
-	
+
+#ifndef MULTICORE
 	if (!kcb->timer_lst)
 		return ERR_FAIL;
 		
@@ -165,6 +198,18 @@ int32_t ucx_timer_destroy(uint16_t timer_id)
 	timer = node->data;
 	free(timer);
 	list_remove(kcb->timer_lst, node);
+#else
+	if (!kcb[_cpu_id()]->timer_lst)
+		return ERR_FAIL;
+		
+	node = list_foreach(kcb[_cpu_id()]->timer_lst, timer_id_cmp, (void *)(size_t)timer_id);
+	if (!node)
+		return ERR_FAIL;
+	
+	timer = node->data;
+	free(timer);
+	list_remove(kcb[_cpu_id()]->timer_lst, node);
+#endif
 	
 	return ERR_OK;
 }
@@ -178,11 +223,18 @@ int32_t ucx_timer_start(uint16_t timer_id, uint8_t mode)
 {
 	struct node_s *node;
 	struct timer_s *timer;
-	
+
+#ifndef MULTICORE
 	if (!kcb->timer_lst)
 		return ERR_FAIL;
 		
 	node = list_foreach(kcb->timer_lst, timer_id_cmp, (void *)(size_t)timer_id);
+#else
+	if (!kcb[_cpu_id()]->timer_lst)
+		return ERR_FAIL;
+		
+	node = list_foreach(kcb[_cpu_id()]->timer_lst, timer_id_cmp, (void *)(size_t)timer_id);
+#endif
 	if (!node)
 		return ERR_FAIL;
 	
@@ -203,11 +255,18 @@ int32_t ucx_timer_cancel(uint16_t timer_id)
 {
 	struct node_s *node;
 	struct timer_s *timer;
-	
+
+#ifndef MULTICORE
 	if (!kcb->timer_lst)
 		return ERR_FAIL;
 		
 	node = list_foreach(kcb->timer_lst, timer_id_cmp, (void *)(size_t)timer_id);
+#else
+	if (!kcb[_cpu_id()]->timer_lst)
+		return ERR_FAIL;
+		
+	node = list_foreach(kcb[_cpu_id()]->timer_lst, timer_id_cmp, (void *)(size_t)timer_id);
+#endif
 	if (!node)
 		return ERR_FAIL;
 	
