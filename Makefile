@@ -291,6 +291,10 @@ test_fp: rebuild
 timer: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/timer.o app/timer.c
 	@$(MAKE) --no-print-directory link
+
+timer_multicore: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/timer_multicore.o app/timer_multicore.c
+	@$(MAKE) --no-print-directory link
 	
 timer_systick: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/timer_systick.o app/timer_systick.c
