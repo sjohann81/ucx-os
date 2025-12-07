@@ -203,6 +203,10 @@ messages: rebuild
 messages_alloc: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/messages_alloc.o app/messages_alloc.c
 	@$(MAKE) --no-print-directory link
+	
+messages_multicore: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/messages_multicore.o app/messages_multicore.c
+	@$(MAKE) --no-print-directory link
 
 messages_simple: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/messages_simple.o app/messages_simple.c
