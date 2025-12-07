@@ -64,13 +64,13 @@ The programming model is very simple and intented to be generic for the developm
 
 ### Tasks, the stack, execution context and coroutines
 
-Tasks are basic resources managed by the kernel. In this model, tasks are lightweight execution routines that run indefinitely (tasks never finish. unless canceled) and share the same memory region. During bootup, the kernel initializes all tasks and allocates stack memory for each task local storage. On most targets, context switches can be easily implemented by portable *setjmp()* and *longjmp()* library calls. This ensures very fast context switches, as less state storage is needed for each task and also allows the kernel to run even on severely memory constrained architectures.
+Tasks are basic resources managed by the kernel, and execute in a CPU core. In this model, tasks are lightweight execution routines that run indefinitely (tasks never finish. unless canceled) and share the same memory region. During bootup, the kernel initializes all tasks and allocates stack memory for each task local storage. On most targets, context switches can be easily implemented by portable *setjmp()* and *longjmp()* library calls. This ensures very fast context switches, as less state storage is needed for each task and also allows the kernel to run even on severely memory constrained architectures.
 
 Coroutines are lightweight, stackless scheduling resources. Coroutines can be used in separated groups of coroutines, where each group can be managed by a task. Another way to use coroutines is in an application where no tasks are scheduled and only coroutines are executed directly from the *app_main()* context. Coroutines should always return to yield execution to other coroutines (in contrast to tasks) and are scheduled by the application itself. The same stack is shared by all coroutines in the same group.
 
 ### Scheduling (cooperative / preemptive)
 
-There are two task scheduling modes in the kernel. An application can invoke the scheduler cooperatively by making a call to the *ucx_task_yield()* function. After initialization, this can happen at any moment inside the task loop. In preemptive mode, the kernel invokes the scheduler asynchronously using a periodic interrupt. Selection of the scheduling mode is performed according to the return value of the application *app_main()* function. When the application returns from this function with a value of 0, the kernel is configured in cooperative mode. If a value of 1 is returned, the kernel is configured in preemptive mode.
+There are two task scheduling modes in the kernel. Scheduling happens on a per core basis, so each core has its own list of tasks and schedule them according to either a preemptive or cooperative manner. An application can invoke the scheduler cooperatively by making a call to the *ucx_task_yield()* function. After initialization, this can happen at any moment inside the task loop. In preemptive mode, the kernel invokes the scheduler asynchronously using a periodic interrupt. Selection of the scheduling mode is performed according to the return value of the application *app_main()*, *app_main1()*, ... functions. When the application returns from this function with a value of 0, the kernel is configured in cooperative mode in that core. If a value of 1 is returned, the kernel is configured in preemptive mode.
 
 A priority round-robin algorithm performs the scheduling of tasks. By default, all tasks are configured with the same priority (TASK_NORMAL_PRIO), thus tasks share processor time proportionally. Priorities of each task can be changed after their inclusion in the system (in the *app_main()* function) by the *ucx_task_priority()* function, or configured dynamically (inside the body / during execution of a task) using the same function, according to the application needs. Each task can be configured in one of the following priorities: TASK_CRIT_PRIO (critical), TASK_REALTIME_PRIO (real time), TASK_HIGH_PRIO (high), TASK_ABOVE_PRIO (above normal), TASK_NORMAL_PRIO (normal), TASK_BELOW_PRIO (below normal), TASK_LOW_PRIO (low) and TASK_IDLE_PRIO (lowest).
 
@@ -85,9 +85,9 @@ Memory used for stack inside a task function is allocated from the heap. The *he
 
 Each architecture HAL defines a default value for the stack space in a macro (DEFAULT_STACK_SIZE). Memory constrained architectures, such as the ATMEGA328p have a very limited default stack space of 256 bytes, but other architectures have more (2kB for example). Different tasks may have different stack space sizes, and it is up to the user to specify such value according to the application needs.
 
-### Task synchronization (semaphores, pipes, message queues, event queues)
+### Task synchronization (semaphores, pipes, message queues, event queues, spinlocks)
 
-In real world applications, tasks of the same application have some kind of interaction (synchronization / communication). To support this behavior, two basic abstractions are implemented in the kernel - *pipelines* and *semaphores*. Pipes are character oriented communication channels and semaphores are traditional counting semaphores with atomic semantics.
+In real world applications, tasks of the same application have some kind of interaction (synchronization / communication). To support this behavior, two basic abstractions are implemented in the kernel - *pipelines* and *semaphores*. Pipes are character oriented communication channels and semaphores are traditional counting semaphores with atomic semantics. The kernel also supports spinlocks in order to synchronize data accesses on a multicore system.
 
 ### Device driver interface
 
@@ -118,7 +118,7 @@ System calls are divided in several classes. The *task* class of system calls ar
 
 #### Task
 
-Tasks are the basic scheduling resource. An application in UCX/OS is composed of one or more tasks, which are scheduled according to their priorities. Tasks communicate using shared memory and are synchronized by exchanging data through pipes (using blocking and non-blocking calls) or event queues.
+Tasks are the basic scheduling resource. An application in UCX/OS is composed of one or more tasks, which are scheduled according to their priorities. Tasks communicate using shared memory and are synchronized by exchanging data through high level primitives such as pipes (using blocking and non-blocking calls) and message queues or with lower level primitives such as semaphores or spinlocks.
 
 ##### ucx_task_spawn()
 
@@ -162,11 +162,11 @@ Tasks are the basic scheduling resource. An application in UCX/OS is composed of
 
 ##### ucx_task_wfi()
 
-- Blocks the current task in a busy wait, until its scheduling quantum expires.
+- Blocks the current task, and puts the core in low power mode until its scheduling quantum expires. If the CPU does not support power down or sleep states, the core busy waits for the next scheduling quantum.
 
 ##### ucx_task_count()
 
-- Returns the number of tasks in the system.
+- Returns the number of tasks in the current CPU core.
 
 
 #### Coroutine
@@ -205,9 +205,9 @@ Coroutines are lightweight, stackless scheduling resources. An application in UC
 - Returns the system uptime since boot with microsecond resolution.
 
 
-#### Semaphore
+#### Semaphore / Spinlock
 
-Semaphore is a basic task synchronization primitive, with Dijkstra's semantics. The implementation of semaphores in the kernel associates a counter and queue for each semaphore instance.
+Semaphore is a basic task synchronization primitive, with Dijkstra's semantics. The implementation of semaphores in the kernel associates a counter and queue for each semaphore instance. Spinlock is a basic lock primitive that supports data synchronization using memory barriers on multicore systems.
 
 ##### ucx_sem_create()
 
@@ -235,11 +235,11 @@ Semaphore is a basic task synchronization primitive, with Dijkstra's semantics. 
 
 ##### ucx_lock_acquire()
 
-- (SMP only) Tries do acquire a lock, and spins (busy waits the core) while doing so.
+- Tries do acquire a lock, and spins (busy waits the core) while doing so. The lock is tied to a core, until released.
 
 ##### ucx_lock_release()
 
-- (SMP only) Releases a previously locked spinlock.
+- Releases a previously locked spinlock.
 
 
 #### Pipe
