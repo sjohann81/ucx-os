@@ -236,6 +236,10 @@ prodcons: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/prodcons.o app/prodcons.c
 	@$(MAKE) --no-print-directory link
 
+prodcons_multicore: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/prodcons_multicore.o app/prodcons_multicore.c
+	@$(MAKE) --no-print-directory link
+
 progress: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/progress.o app/progress.c
 	@$(MAKE) --no-print-directory link
