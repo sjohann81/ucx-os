@@ -64,10 +64,11 @@ static struct node_s *timer_update(struct node_s *node, void *arg)
 
 void timer_handler_systick()
 {
-	static uint32_t last_tick;
 	uint32_t tick_diff;
 	
 #ifndef MULTICORE
+	static uint32_t last_tick;
+	
 	if (!last_tick) {
 		last_tick = kcb->ticks;
 		
@@ -80,15 +81,17 @@ void timer_handler_systick()
 		list_foreach(kcb->timer_lst, timer_update_systick, (void *)(size_t)tick_diff);
 	}
 #else
-	if (!last_tick) {
-		last_tick = kcb[_cpu_id()]->ticks;
+	static uint32_t last_tick[MAX_CORES];
+
+	if (!last_tick[_cpu_id()]) {
+		last_tick[_cpu_id()] = kcb[_cpu_id()]->ticks;
 		
 		return;
 	}
 	
-	if (kcb[_cpu_id()]->ticks != last_tick) {
-		tick_diff = kcb[_cpu_id()]->ticks - last_tick;
-		last_tick = kcb[_cpu_id()]->ticks;
+	if (kcb[_cpu_id()]->ticks != last_tick[_cpu_id()]) {
+		tick_diff = kcb[_cpu_id()]->ticks - last_tick[_cpu_id()];
+		last_tick[_cpu_id()] = kcb[_cpu_id()]->ticks;
 		list_foreach(kcb[_cpu_id()]->timer_lst, timer_update_systick, (void *)(size_t)tick_diff);
 	}
 #endif
