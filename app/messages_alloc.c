@@ -71,6 +71,8 @@ void task2(void)
 				printf("%s\n", str);
 				free(str);
 			}
+		} else {
+			ucx_task_wfi();
 		}
 	}
 }
@@ -104,13 +106,17 @@ void task3(void)
 				printf("recv str: %s converted value: %s\n", str, str2);
 				free(str);
 			}
+		} else {
+			ucx_task_wfi();
 		}
 	}
 }
 
 void idle(void)
 {
-	while (1);
+	while (1) {
+		ucx_task_wfi();
+	}
 }
 
 int app_main(void)
