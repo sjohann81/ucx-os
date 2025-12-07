@@ -640,12 +640,14 @@ void ucx_task_wfi()
 		return;
 	
 	s = kcb->ticks;
+	_cpu_idle();
 	while (s == kcb->ticks);
 #else
 	if (kcb[_cpu_id()]->preemptive == 'n')
 		return;
 	
 	s = kcb[_cpu_id()]->ticks;
+	_cpu_idle();
 	while (s == kcb[_cpu_id()]->ticks);
 #endif
 }
