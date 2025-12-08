@@ -39,7 +39,7 @@ static int _uptime(void);
 
 
 /* syscall table */
-
+// https://fisop.github.io/apunte/sisop_sys_calls/unix-v6-system-calls.html
 static int (*const syscall_tbl[])() = {
 	/* UNIX syscalls */
 	[SYS_FORK] = _fork,
@@ -146,7 +146,11 @@ int _getpid(void)
 
 int _sbrk(int incr)
 {
+#ifndef UNKNOWN_HEAP
 	extern uint32_t _end, _stack;
+#else
+	extern uint32_t _end, __stack;
+#endif
 	static char *heap_end;
 	char *prev_heap_end;
 
@@ -155,7 +159,11 @@ int _sbrk(int incr)
 
 	prev_heap_end = heap_end;
 
+#ifndef UNKNOWN_HEAP
 	if (heap_end + incr > (char *)_stack) {
+#else
+	if (heap_end + incr > (char *)__stack) {
+#endif
 		errno = ENOMEM;
 		return -1;
 	}
