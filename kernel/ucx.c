@@ -316,7 +316,10 @@ void dispatch(void)
 void yield(void)
 {
 #ifndef MULTICORE
-	struct tcb_s *task = kcb->task_current->data;
+	struct tcb_s *task;
+	
+	CRITICAL_ENTER();
+	task = kcb->task_current->data;
 	
 	if (!kcb->tasks->length)
 		krnl_panic(ERR_NO_TASKS);
@@ -327,10 +330,15 @@ void yield(void)
 			list_foreach(kcb->tasks, delay_update, (void *)0);
 		krnl_schedule();
 		task = kcb->task_current->data;
+		CRITICAL_LEAVE();
 		longjmp(task->context, 1);
 	}
+	CRITICAL_LEAVE();
 #else
-	struct tcb_s *task = kcb[_cpu_id()]->task_current->data;
+	struct tcb_s *task;
+
+	CRITICAL_ENTER();
+	task = kcb[_cpu_id()]->task_current->data;
 	
 	if (!kcb[_cpu_id()]->tasks->length)
 		krnl_panic(ERR_NO_TASKS);
@@ -341,8 +349,10 @@ void yield(void)
 			list_foreach(kcb[_cpu_id()]->tasks, delay_update, (void *)0);
 		krnl_schedule();
 		task = kcb[_cpu_id()]->task_current->data;
+		CRITICAL_LEAVE();
 		longjmp(task->context, 1);
 	}
+	CRITICAL_LEAVE();
 #endif
 }
 
@@ -487,13 +497,6 @@ int32_t ucx_task_suspend(uint16_t id)
 		return ERR_TASK_CANT_SUSPEND;
 	}
 	CRITICAL_LEAVE();
-
-#ifndef MULTICORE
-	if (kcb->task_current == node)
-#else
-	if (kcb[_cpu_id()]->task_current == node)
-#endif
-		ucx_task_yield();
 
 	return ERR_OK;
 }
