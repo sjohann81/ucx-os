@@ -130,12 +130,6 @@ setjmp:
 	sd    tp, 104(a0)
 	sd    sp, 112(a0)
 	sd    ra, 120(a0)
-
-	csrr    tp, mcause
-	sd	tp, 128(a0)
-	csrr    tp, mepc
-	sd	tp, 136(a0)
-
 	ori   a0, zero, 0
 	ret
 
@@ -157,12 +151,6 @@ longjmp:
 	ld    tp, 104(a0)
 	ld    sp, 112(a0)
 	ld    ra, 120(a0)
-	
-	ld	tp, 128(a0)
-	csrw	mepc, tp
-	ld	tp, 136(a0)
-	csrw	mcause, tp	
-	
 	ori   a0, a1, 0
 	ret
 	

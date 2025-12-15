@@ -205,7 +205,7 @@ void _interrupt_tick(void)
 #else
 	struct tcb_s *task = kcb[_cpu_id()]->task_current->data;
 #endif
-	
+	_read_us();
 	/* task is run for the first time */
 	if ((uint64_t)task->task == task->context[CONTEXT_RA])
 		_ei();

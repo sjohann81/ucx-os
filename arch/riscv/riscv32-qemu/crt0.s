@@ -130,12 +130,6 @@ setjmp:
 	sw    tp, 52(a0)
 	sw    sp, 56(a0)
 	sw    ra, 60(a0)
-	
-	csrr    tp, mcause
-	sw	tp, 64(a0)
-	csrr    tp, mepc
-	sw	tp, 68(a0)
-	
 	ori   a0, zero, 0
 	ret
 
@@ -157,12 +151,6 @@ longjmp:
 	lw    tp, 52(a0)
 	lw    sp, 56(a0)
 	lw    ra, 60(a0)
-	
-	lw	tp, 64(a0)
-	csrw	mepc, tp
-	lw	tp, 68(a0)
-	csrw	mcause, tp	
-
 	ori   a0, a1, 0
 	ret
 
