@@ -68,6 +68,15 @@ extern uint32_t _end;			/* Start address of the heap memory, defined in linker s
 #define TIMER_32BIT			0x02
 //#define TIMER_ONESHOT			0x01
 
+#define GPIO0_BASE			0x101e4000
+#define GPIO1_BASE			0x101e5000
+#define GPIO2_BASE			0x101e6000
+#define GPIO3_BASE			0x101e7000
+
+#define GPIO_DIR0			(*(volatile uint32_t *)(GPIO_BASE0 + 0x400))
+#define GPIO_DATA0(mask)		(*(volatile uint32_t *)(GPIO_BASE0 + ((mask) << 2)))
+
+
 #define TIMCLK				1000000
 
 /* interrupt controller */
