@@ -8,6 +8,9 @@
 #include <console.h>
 #include <lib/libc.h>
 #include <kernel/kernel.h>
+#include <device.h>
+#include <uart.h>
+#include <uart_ll.h>
 
 
 /* hardware platform dependent stuff */
@@ -45,27 +48,31 @@ void _irq_handler(void)
 	} while(irq);
 }
 
-static int __putchar(int value)		// polled putchar()
+
+const struct device_s *usart0 = &usart0_dev;
+
+static int __putchar(int value)
 {
-	while (UART0FR & UARTFR_TXFF);
-	UART0DR = value;
+	usart0->api->dev_write(usart0, &value, 1);
 	
 	return value;
 }
 
 static int __kbhit(void)
 {
-	if (UART0FR & UARTFR_RXFF)
+	if (usart0->api->dev_read(usart0, 0, 0))
 		return 1;
 	else
 		return 0;
 }
 
-static int __getchar(void)			// polled getch()
+static int __getchar(void)
 {
-	while (~(UART0FR & UARTFR_RXFF));
+	char buf[2];
 	
-	return UART0DR;
+	usart0->api->dev_read(usart0, buf, 1);
+	
+	return buf[0];
 }
 
 int32_t _interrupt_set(int32_t s)
@@ -83,9 +90,6 @@ int32_t _interrupt_set(int32_t s)
 	return int_status;
 }
 
-static void uart_init(uint32_t baud)
-{
-}
 
 uint32_t _readcounter(void)
 {
@@ -167,7 +171,8 @@ void _panic(void)
 
 void _hardware_init(void)
 {
-	uart_init(USART_BAUD);
+	usart0->api->dev_init(usart0);
+	usart0->api->dev_open(usart0, 0);
 	
 	_stdout_install(__putchar);
 	_stdin_install(__getchar);
@@ -197,6 +202,7 @@ void _timer_disable(void)
 
 void _interrupt_tick(void)
 {
+	_read_us();
 	if (TIMER0_MIS)
 		TIMER0_INTCLR = 1;
 }
