@@ -438,7 +438,8 @@ void _dispatch(void)
 		
 	_stack_check();
 	list_foreach(kcb->tasks, _delay_update, (void *)0);
-	krnl_schedule();
+	if (kcb->rt_sched() < 0)
+		krnl_schedule();
 }
 
 /* used on yield */
@@ -465,6 +466,15 @@ void SysTick_Handler2(void)
 void _yield(void)
 {
 	void (*sysfunc)(void *) = (void *)(void *)SysTick_Handler2;
+	volatile uint32_t s;
+	
+	if (kcb->preemptive == 'y') {
+		s = kcb->ticks;
+		_cpu_idle();
+		while (s == kcb->ticks);
+		
+		return;
+	}
 
 	syscall(sysfunc, 0);
 }

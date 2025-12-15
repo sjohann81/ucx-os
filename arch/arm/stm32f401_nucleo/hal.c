@@ -465,6 +465,15 @@ void SysTick_Handler2(void)
 void _yield(void)
 {
 	void (*sysfunc)(void *) = (void *)(void *)SysTick_Handler2;
+	volatile uint32_t s;
+	
+	if (kcb->preemptive == 'y') {
+		s = kcb->ticks;
+		_cpu_idle();
+		while (s == kcb->ticks);
+		
+		return;
+	}
 
 	syscall(sysfunc, 0);
 }
