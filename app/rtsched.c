@@ -67,7 +67,11 @@ int32_t our_sched(void)
 {
 	static struct node_s *task_node = 0;
 	struct our_priority_s *priority;
+#ifndef MULTICORE
 	struct tcb_s *task = kcb->task_current->data;
+#else
+	struct tcb_s *task = kcb[_cpu_id()]->task_current->data;
+#endif
 
 	/* if the current preempted task is not blocked or suspended, it is ready */
 	if (task->state == TASK_RUNNING)
@@ -75,7 +79,11 @@ int32_t our_sched(void)
 	
 	/* first run of this scheduler after the default scheduler */
 	if (!task_node) {
+#ifndef MULTICORE
 		task_node = kcb->tasks->head;
+#else
+		task_node = kcb[_cpu_id()]->tasks->head;
+#endif
 		
 		do {
 			task_node = list_next(task_node);
@@ -108,7 +116,11 @@ int32_t our_sched(void)
 	}
 
 	/* put the scheduled task in the running state and return its id */
+#ifndef MULTICORE
 	kcb->task_current = task_node;
+#else
+	kcb[_cpu_id()]->task_current = task_node;
+#endif
 	task->state = TASK_RUNNING;
 	
 	return task->id;
@@ -117,21 +129,26 @@ int32_t our_sched(void)
 int app_main(void)
 {
 	/* Define RT task priorities (3, 4 and 5 credits) */
-	struct our_priority_s priorities[3] = {
+	static struct our_priority_s priorities[3] = {
 		{.credits = 3, .remaining = 3},
 		{.credits = 4, .remaining = 4},
 		{.credits = 5, .remaining = 5}
 	};
-	
+
 	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
 	ucx_task_spawn(task1, DEFAULT_STACK_SIZE);
 	ucx_task_spawn(task2, DEFAULT_STACK_SIZE);
 	ucx_task_spawn(task3, DEFAULT_STACK_SIZE);
 	ucx_task_spawn(task4, DEFAULT_STACK_SIZE);
 
-	/* Setup our custom scheduler and set RT priorities to three
-	 * tasks of the set */ 
+	/* Setup our custom scheduler */
+#ifndef MULTICORE
 	kcb->rt_sched = our_sched;
+#else
+	kcb[_cpu_id()]->rt_sched = our_sched;
+#endif
+
+	/* Set RT priorities to three tasks of the set */
 	ucx_task_rt_priority(0, &priorities[0]);
 	ucx_task_rt_priority(1, &priorities[1]);
 	ucx_task_rt_priority(2, &priorities[2]);
