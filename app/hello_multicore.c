@@ -14,7 +14,7 @@ void task2(void)
 		ucx_lock_acquire(&lock);
 		printf("[core %d, task %d %ld - sys uptime: %ld.%03lds]\n", _cpu_id(), ucx_task_id(), cnt++, secs, msecs);
 		ucx_lock_release(&lock);
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 
@@ -26,7 +26,7 @@ void task1(void)
 		ucx_lock_acquire(&lock);
 		printf("[core %d, task %d %ld]\n", _cpu_id(), ucx_task_id(), cnt++);
 		ucx_lock_release(&lock);
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 
@@ -38,7 +38,7 @@ void task0(void)
 		ucx_lock_acquire(&lock);
 		printf("[core %d, task %d %ld]\n", _cpu_id(), ucx_task_id(), cnt++);
 		ucx_lock_release(&lock);
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 

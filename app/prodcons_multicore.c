@@ -39,7 +39,7 @@ void consumer(void)
 void idle(void)
 {
 	while (1) {
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 

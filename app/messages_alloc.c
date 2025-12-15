@@ -72,7 +72,7 @@ void task2(void)
 				free(str);
 			}
 		} else {
-			ucx_task_wfi();
+			ucx_task_yield();
 		}
 	}
 }
@@ -107,7 +107,7 @@ void task3(void)
 				free(str);
 			}
 		} else {
-			ucx_task_wfi();
+			ucx_task_yield();
 		}
 	}
 }
@@ -115,7 +115,7 @@ void task3(void)
 void idle(void)
 {
 	while (1) {
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 

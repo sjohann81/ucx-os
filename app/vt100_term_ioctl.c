@@ -18,7 +18,7 @@ void task2(void)
 		vt100->api->dev_ioctl(vt100, TEXTATTR, TEXT_RESET);
 		vt100->api->dev_ioctl(vt100, TEXTATTR, TEXT_GREEN);
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 
@@ -30,7 +30,7 @@ void task1(void)
 		vt100->api->dev_ioctl(vt100, TEXTATTR, TEXT_RESET);
 		vt100->api->dev_ioctl(vt100, TEXTATTR, TEXT_CYAN);
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 
@@ -42,7 +42,7 @@ void task0(void)
 		vt100->api->dev_ioctl(vt100, TEXTATTR, TEXT_RESET);
 		vt100->api->dev_ioctl(vt100, TEXTATTR, TEXT_MAGENTA);
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 

@@ -5,7 +5,7 @@ void task4(void)
 {
 	while (1) {
 		printf("Now I run too!\n");
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 
@@ -13,7 +13,7 @@ void task3(void)
 {
 	while (1) {
 		printf("Now I run\n");
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 
@@ -23,7 +23,7 @@ void task2(void)
 
 	while (1) {
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 
@@ -33,7 +33,7 @@ void task1(void)
 
 	while (1) {
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 
@@ -43,7 +43,7 @@ void task0(void)
 
 	while (1) {
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 

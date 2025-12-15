@@ -48,7 +48,7 @@ void task0(void)
 		if (cnt == 5000) {
 			printf("TRYING TO SUSPEND SELF...");
 			ucx_task_suspend(ucx_task_id());
-			ucx_task_wfi();
+			ucx_task_yield();
 		}
 	}
 }

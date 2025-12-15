@@ -33,7 +33,7 @@ void task1(void)
 		secs = time / 1000;
 		msecs = time - secs * 1000;
 		printf("[task %d %ld - sys uptime: %ld.%03lds]\n", ucx_task_id(), cnt++, secs, msecs);
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 
@@ -44,7 +44,7 @@ void task0(void)
 	while (1) {
 		printf("[task %d %ld]\n", ucx_task_id(), cnt++);
 		ucx_cr_schedule(cgroup, (void *)0);
-		ucx_task_wfi();
+		ucx_task_yield();
 	}
 }
 
