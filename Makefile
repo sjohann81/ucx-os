@@ -152,6 +152,10 @@ driver: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/app.o app/driver/app.c
 	@$(MAKE) --no-print-directory link
 
+dynamic_arrays: rebuild
+	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/dynamic_arrays.o app/dynamic_arrays.c
+	@$(MAKE) --no-print-directory link
+
 echo: rebuild
 	$(CC) $(CFLAGS) -o $(BUILD_APP_DIR)/echo.o app/echo.c
 	@$(MAKE) --no-print-directory link
