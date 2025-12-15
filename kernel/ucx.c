@@ -488,7 +488,7 @@ void ucx_task_delay(uint16_t ticks)		// FIXME: delay any task
 	task->delay = ticks;
 	task->state = TASK_BLOCKED;
 	CRITICAL_LEAVE();
-	ucx_task_yield();
+	_yield();
 }
 
 int32_t ucx_task_suspend(uint16_t id)
@@ -524,7 +524,7 @@ int32_t ucx_task_suspend(uint16_t id)
 #else
 	if (kcb[_cpu_id()]->task_current == node)
 #endif
-		ucx_task_yield();
+		_yield();
 
 	return ERR_OK;
 }

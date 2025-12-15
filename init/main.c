@@ -96,6 +96,8 @@ static int (*const app_vector[])(void) = {
 
 int dummy_app(void)
 {
+	printf("core %d off.\n", _cpu_id());
+	
 	while (1) {
 		_cpu_idle();
 	}

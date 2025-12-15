@@ -119,8 +119,10 @@ int32_t ucx_pipe_read(struct pipe_s *pipe, char *data, uint16_t size)
 		byte = ucx_pipe_get(pipe);
 		CRITICAL_LEAVE();
 
-		if (byte == -1)
+		if (byte == -1) {
+			ucx_task_yield();
 			continue;
+		}
 
 		data[i] = byte;
 		i++;
@@ -141,8 +143,10 @@ int32_t ucx_pipe_write(struct pipe_s *pipe, char *data, uint16_t size)
 		res = ucx_pipe_put(pipe, data[i]);
 		CRITICAL_LEAVE();
 	
-		if (res == -1)
+		if (res == -1) {
+			ucx_task_yield();
 			continue;
+		}
 
 		i++;
 	}
