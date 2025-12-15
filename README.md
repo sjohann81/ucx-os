@@ -31,7 +31,7 @@ Different toolchains based on GCC and LLVM can be used to build the kernel and a
 ## Features
 
 - Small footprint (6kB ~ 10kB) for the kernel.
-- Hybrid lightweight task model (taks and coroutines) where tasks share the same memory region;
+- Hybrid lightweight task model (tasks and coroutines) where tasks share the same memory region;
 - Preemptive / cooperative scheduling based on a priority round robin (RR) scheduler and a user defined realtime scheduler;
 - Task synchronization and communication using semaphores, pipeline channels, message queues and spinlocks;
 - SMP support
@@ -112,7 +112,6 @@ System calls are divided in several classes. The *task* class of system calls ar
 | ucx_task_rt_priority()|			| 			| ucx_lock_acquire()	| ucx_pipe_nbwrite()	|			|			|
 | ucx_task_id()		|			| 			| ucx_lock_release()	| 			|			|			|
 | ucx_task_refid()	|			| 			| 			|			|			|			|
-| ucx_task_wfi()	|			|			| 			|			|			|			|
 | ucx_task_count()	|			|			| 			|			|			|			|
 
 
@@ -130,7 +129,7 @@ Tasks are the basic scheduling resource. An application in UCX/OS is composed of
 
 ##### ucx_task_yield()
 
-- Yields que processor voluntarily (non-preemptive task reschedule), changing its state TASK_RUNNING to TASK_READY. A task invoking this function gives up execution and calls the scheduler. As a consequence, it is rescheduled to run again in the future.
+- On preemptive mode, blocks the current task, and puts the core in low power mode until its scheduling quantum expires. If the CPU does not support power down or sleep states, the core busy waits for the next scheduling quantum. On cooperative mode, yields que processor (non-preemptive task reschedule), changing its state TASK_RUNNING to TASK_READY. A task invoking this function gives up execution. As a consequence, it is rescheduled to run again in the future.
 
 ##### ucx_task_delay()
 
@@ -159,10 +158,6 @@ Tasks are the basic scheduling resource. An application in UCX/OS is composed of
 ##### ucx_task_idref()
 
 - Returns the task id of the referenced task pointer.
-
-##### ucx_task_wfi()
-
-- Blocks the current task, and puts the core in low power mode until its scheduling quantum expires. If the CPU does not support power down or sleep states, the core busy waits for the next scheduling quantum.
 
 ##### ucx_task_count()
 

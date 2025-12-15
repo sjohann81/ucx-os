@@ -147,7 +147,7 @@ uint16_t krnl_schedule(void)
 	struct node_s *node = kcb->task_current;
 #else
 	struct tcb_s *task = kcb[_cpu_id()]->task_current->data;
-	struct node_s *node = kcb[_cpp_id()]->task_current;
+	struct node_s *node = kcb[_cpu_id()]->task_current;
 #endif	
 	
 	if (task->state == TASK_RUNNING)
@@ -155,7 +155,11 @@ uint16_t krnl_schedule(void)
 	
 	do {
 		do {
+#ifndef MULTICORE
 			node = list_cnext(kcb->tasks, node);
+#else
+			node = list_cnext(kcb[_cpu_id()]->tasks, node);
+#endif
 			task = node->data;
 
 			if (itcnt++ > 10000)
@@ -163,8 +167,12 @@ uint16_t krnl_schedule(void)
 
 		} while (task->state != TASK_READY || task->rt_prio);
 	} while (--task->priority & 0xff);
-	
+
+#ifndef MULTICORE	
 	kcb->task_current = node;
+#else
+	kcb[_cpu_id()]->task_current = node;
+#endif
 	task->priority |= (task->priority >> 8) & 0xff;
 	task->state = TASK_RUNNING;
 	
@@ -315,9 +323,18 @@ void dispatch(void)
 
 void yield(void)
 {
-#ifndef MULTICORE
+	volatile uint32_t s;
 	struct tcb_s *task;
 	
+#ifndef MULTICORE
+	if (kcb->preemptive == 'y') {
+		s = kcb->ticks;
+		_cpu_idle();
+		while (s == kcb->ticks);
+		
+		return;
+	}
+
 	CRITICAL_ENTER();
 	task = kcb->task_current->data;
 	
@@ -326,8 +343,7 @@ void yield(void)
 	
 	if (!setjmp(task->context)) {
 		stack_check();
-		if (kcb->preemptive == 'n')
-			list_foreach(kcb->tasks, delay_update, (void *)0);
+		list_foreach(kcb->tasks, delay_update, (void *)0);
 		krnl_schedule();
 		task = kcb->task_current->data;
 		CRITICAL_LEAVE();
@@ -335,8 +351,14 @@ void yield(void)
 	}
 	CRITICAL_LEAVE();
 #else
-	struct tcb_s *task;
-
+	if (kcb[_cpu_id()]->preemptive == 'y') {
+		s = kcb[_cpu_id()]->ticks;
+		_cpu_idle();
+		while (s == kcb[_cpu_id()]->ticks);
+		
+		return;
+	}
+	
 	CRITICAL_ENTER();
 	task = kcb[_cpu_id()]->task_current->data;
 	
@@ -345,8 +367,7 @@ void yield(void)
 	
 	if (!setjmp(task->context)) {
 		stack_check();
-		if (kcb[_cpu_id()]->preemptive == 'n')
-			list_foreach(kcb[_cpu_id()]->tasks, delay_update, (void *)0);
+		list_foreach(kcb[_cpu_id()]->tasks, delay_update, (void *)0);
 		krnl_schedule();
 		task = kcb[_cpu_id()]->task_current->data;
 		CRITICAL_LEAVE();
@@ -498,6 +519,13 @@ int32_t ucx_task_suspend(uint16_t id)
 	}
 	CRITICAL_LEAVE();
 
+#ifndef MULTICORE
+	if (kcb->task_current == node)
+#else
+	if (kcb[_cpu_id()]->task_current == node)
+#endif
+		ucx_task_yield();
+
 	return ERR_OK;
 }
 
@@ -632,27 +660,6 @@ int32_t ucx_task_idref(void *task)
 	CRITICAL_LEAVE();
 	
 	return task_tcb->id;	
-}
-
-void ucx_task_wfi()
-{
-	volatile uint32_t s;
-
-#ifndef MULTICORE
-	if (kcb->preemptive == 'n')
-		return;
-	
-	s = kcb->ticks;
-	_cpu_idle();
-	while (s == kcb->ticks);
-#else
-	if (kcb[_cpu_id()]->preemptive == 'n')
-		return;
-	
-	s = kcb[_cpu_id()]->ticks;
-	_cpu_idle();
-	while (s == kcb[_cpu_id()]->ticks);
-#endif
 }
 
 uint16_t ucx_task_count()

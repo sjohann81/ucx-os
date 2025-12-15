@@ -32,7 +32,6 @@ static int _tsuspend(int id);
 static int _tresume(int id);
 static int _tpriority(int id, int priority);
 static int _tid(void);
-static int _twfi(void);
 static int _tcount(void);
 static int _ticks(void);
 static int _uptime(void);
@@ -71,7 +70,6 @@ static int (*const syscall_tbl[])() = {
 	[SYS_TRESUME] = _tresume,
 	[SYS_TPRIORITY] = _tpriority,
 	[SYS_TID] = _tid,
-	[SYS_TWFI] = _twfi,
 	[SYS_TCOUNT] = _tcount,
 	[SYS_TICKS] = _ticks,
 	[SYS_UPTIME] = _uptime
@@ -340,21 +338,6 @@ int _tid(void)
 int sys_task_id(void)
 {
 	return _syscall(SYS_TID, 0, 0, 0);
-}
-
-
-int _twfi(void)
-{
-	ucx_task_wfi();
-	
-	return 0;
-}
-
-int sys_task_wfi(void)
-{
-	_syscall(SYS_TWFI, 0, 0, 0);
-	
-	return 0;
 }
 
 

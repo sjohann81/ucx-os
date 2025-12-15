@@ -59,7 +59,7 @@ void ucx_sem_wait(struct sem_s *s)
 			krnl_panic(ERR_SEM_OPERATION);
 		tcb_sem->state = TASK_BLOCKED;
 		CRITICAL_LEAVE();
-		ucx_task_wfi();
+		ucx_task_yield();
 	} else {
 		CRITICAL_LEAVE();
 	}
