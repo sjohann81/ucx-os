@@ -405,12 +405,15 @@ static int eth_init(const struct device_s *dev)
 	NOSCHED_ENTER();
 	pdata = (struct eth_enc28j60_data_s *)dev->data;
 	pdata->mode = 0;
-	pdata->busy = 0;
+	pdata->busy = 1;
 	sel_dev = (struct device_s *)dev;
 	pdata->init = enc28j60_init();
 	if (pdata->init > -1)
 		enc28j60_id();
+	NOSCHED_LEAVE();
 	_delay_ms(100);
+	NOSCHED_ENTER();
+	pdata->busy = 0;
 	if (enc28j60_linkup())
 		printf("ENC28J60: link up\n");
 	else
