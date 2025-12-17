@@ -14,8 +14,9 @@ struct kcb_s kernel_state = {
 	.task_current = 0,
 	.rt_sched = krnl_noop_rtsched,
 	.timer_lst = 0,
+	.ticks = 0,
 	.id_next = 0,
-	.ticks = 0
+	.preemptive = 'n'
 };
 	
 struct kcb_s *kcb = &kernel_state;
@@ -23,14 +24,14 @@ struct kcb_s *kcb = &kernel_state;
 #else
 
 struct kcb_s kernel_state[MAX_CORES] = {
-	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0},
-	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0},
-	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0},
-	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0},
-	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0},
-	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0},
-	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0},
-	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .id_next = 0, .ticks = 0}
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .ticks = 0, .id_next = 0, .preemptive = 'n'},
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .ticks = 0, .id_next = 0, .preemptive = 'n'},
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .ticks = 0, .id_next = 0, .preemptive = 'n'},
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .ticks = 0, .id_next = 0, .preemptive = 'n'},
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .ticks = 0, .id_next = 0, .preemptive = 'n'},
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .ticks = 0, .id_next = 0, .preemptive = 'n'},
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .ticks = 0, .id_next = 0, .preemptive = 'n'},
+	{.tasks = 0, .task_current = 0, .rt_sched = krnl_noop_rtsched, .timer_lst = 0, .ticks = 0, .id_next = 0, .preemptive = 'n'}
 };
 	
 struct kcb_s *kcb[MAX_CORES] = {
@@ -40,7 +41,7 @@ struct kcb_s *kcb[MAX_CORES] = {
 	&kernel_state[6], &kernel_state[7]
 };
 
-struct spinlock_s global_lock;
+struct spinlock_s global_lock = { .locked = 0, .cpu = -1 };
 
 #endif
 
