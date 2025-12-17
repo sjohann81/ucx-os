@@ -79,3 +79,15 @@ int app_main2(void)
 		_delay_ms(50);
 	}	
 }
+
+int app_main3(void)
+{
+	ucx_task_spawn(task0, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task1, DEFAULT_STACK_SIZE);
+	ucx_task_spawn(task2, DEFAULT_STACK_SIZE);
+	
+	ucx_task_priority(0, TASK_IDLE_PRIO);
+	
+	// start UCX/OS on core 1, preemptive mode
+	return 1;
+}
