@@ -63,6 +63,7 @@ int main(void)
 	task = kcb[0]->task_current->data;
 
 	printf("core %d ready (%s).\n", _cpu_id(), pr ? "preempt" : "coop");
+	
 	boot = 1;
 #endif
 	_dispatch_init(task->context);
@@ -113,6 +114,8 @@ int main1(void)
 	
 	while (!boot);
 	
+	_delay_ms(50 * _cpu_id());
+	
 	if (_cpu_id() < sizeof(app_vector) / sizeof(int *)) {
 		kcb[_cpu_id()]->tasks = list_create();
 		
@@ -130,7 +133,7 @@ int main1(void)
 		task = kcb[_cpu_id()]->task_current->data;
 		
 		printf("core %d ready (%s).\n", _cpu_id(), pr ? "preempt" : "coop");
-
+		
 		_dispatch_init(task->context);
 	} else {
 		dummy_app();
