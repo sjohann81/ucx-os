@@ -1,4 +1,4 @@
-VERSION = 1.1.0
+VERSION = 1.1.1
 
 TARGET_LIST = \
 	'arm/stm32f401_blackpill' 'arm/stm32f401_nucleo' \
