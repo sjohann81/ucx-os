@@ -41,4 +41,4 @@ hal:
 run_riscv32:
 	echo "hit Ctrl+a x to quit"
 #	qemu-system-riscv32 -machine virt -nographic -bios $(BUILD_TARGET_DIR)/image.bin -serial mon:stdio
-	qemu-system-riscv32 -smp 2 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic
+	qemu-system-riscv32 -smp 4 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic
