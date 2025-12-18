@@ -47,29 +47,6 @@ _isr:
 	
 	rfefd	sp!
 
-	.global _enable_interrupts
-_enable_interrupts:
-	mrs	r0, cpsr
-	bic	r0, r0, #0x80
-	msr	cpsr_c, r0
-	mov	pc, lr
-
-/*	.global _di	
-_di:
-	mrs	r0, cpsr
-	mov	r1, r0
-	orr	r1, r1, #0x80
-	msr	cpsr, r1
-	mov	pc, lr
-
-	.global _ei
-_ei:
-	mrs	r1, cpsr
-	bic	r0, r1, r0
-	msr	cpsr, r0
-	mov	pc, lr
-*/
-
 	.global setjmp
 setjmp:
 	stmia	r0, {r4, r5, r6, r7, r8, r9, r10, fp, sp, lr}

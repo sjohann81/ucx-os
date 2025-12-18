@@ -34,11 +34,12 @@ extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Cloc
 #define CONTEXT_SP	9
 #define CONTEXT_PSP	10
 
+#define _di()				_interrupt_set(0)
+#define _ei()				_interrupt_set(1)
+
 typedef uint32_t jmp_buf[20];
 
-void _enable_interrupts(void);
-void _ei(void);
-void _di(void);
+int32_t _interrupt_set(int32_t s);
 int32_t setjmp(jmp_buf env);
 void longjmp(jmp_buf env, int32_t val);
 void _dispatch_init(jmp_buf env);

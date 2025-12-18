@@ -75,21 +75,25 @@ static int __getchar(void)
 	return buf[0];
 }
 
-int32_t _interrupt_set(int32_t s)
+void __di(void)
 {
-	static char int_status = 1;
-	
-	if (s) {
-		int_status = 1;
-		_timer_enable();
-	} else {
-		int_status = 0;
-		_timer_disable();
-	}
-
-	return int_status;
+	asm volatile (	"cpsid i\n\t");
 }
 
+void __ei(void)
+{
+	asm volatile (	"cpsie i\n\t");
+}
+
+int32_t _interrupt_set(int32_t s)
+{
+	static int int_status = 0;
+
+	(!s) ? int_status-- : int_status++;
+	(int_status < 0) ? _timer_disable() : _timer_enable();
+	
+	return int_status;
+}
 
 uint32_t _readcounter(void)
 {
@@ -187,7 +191,6 @@ void _hardware_init(void)
 	TIMER3_CONTROL = TIMER_EN | TIMER_32BIT;
 	
 	_irq_register(INTMASK_TIMERINT0_1, krnl_dispatcher);
-	_timer_disable();
 }
 
 void _timer_enable(void)
@@ -197,7 +200,7 @@ void _timer_enable(void)
 
 void _timer_disable(void)
 {
-	VIC_IRQENABLE &= ~INTMASK_TIMERINT0_1;
+	VIC_IRQENCLEAR = INTMASK_TIMERINT0_1;
 }
 
 void _interrupt_tick(void)

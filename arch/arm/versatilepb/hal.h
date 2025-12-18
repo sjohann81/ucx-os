@@ -68,14 +68,19 @@ extern uint32_t _end;			/* Start address of the heap memory, defined in linker s
 #define TIMER_32BIT			0x02
 //#define TIMER_ONESHOT			0x01
 
-#define GPIO0_BASE			0x101e4000
-#define GPIO1_BASE			0x101e5000
-#define GPIO2_BASE			0x101e6000
-#define GPIO3_BASE			0x101e7000
+#define GPIO_BASE0			0x101e4000
+#define GPIO_BASE1			0x101e5000
+#define GPIO_BASE2			0x101e6000
+#define GPIO_BASE3			0x101e7000
 
 #define GPIO_DIR0			(*(volatile uint32_t *)(GPIO_BASE0 + 0x400))
 #define GPIO_DATA0(mask)		(*(volatile uint32_t *)(GPIO_BASE0 + ((mask) << 2)))
-
+#define GPIO_DIR1			(*(volatile uint32_t *)(GPIO_BASE1 + 0x400))
+#define GPIO_DATA1(mask)		(*(volatile uint32_t *)(GPIO_BASE1 + ((mask) << 2)))
+#define GPIO_DIR2			(*(volatile uint32_t *)(GPIO_BASE2 + 0x400))
+#define GPIO_DATA2(mask)		(*(volatile uint32_t *)(GPIO_BASE2 + ((mask) << 2)))
+#define GPIO_DIR3			(*(volatile uint32_t *)(GPIO_BASE3 + 0x400))
+#define GPIO_DATA3(mask)		(*(volatile uint32_t *)(GPIO_BASE3 + ((mask) << 2)))
 
 #define TIMCLK				1000000
 
@@ -149,6 +154,7 @@ https://github.com/Luminger/Alice-1121-Modem/blob/master/kernel/linux/include/as
 typedef uint32_t jmp_buf[20];
 
 int32_t _interrupt_set(int32_t s);
+void _irq_set(int32_t s);
 int32_t setjmp(jmp_buf env);
 void longjmp(jmp_buf env, int32_t val);
 void _dispatch_init(jmp_buf env);

@@ -513,15 +513,25 @@ void _hardware_init(void)
 #endif
 }
 
-void _di(void)
+void __di(void)
 {
 	asm volatile (	"cpsid i\n\t");
 }
 
-void _ei(void)
+void __ei(void)
 {
 	asm volatile (	"cpsie i\n\t"
 			"isb\n\t");
+}
+
+int32_t _interrupt_set(int32_t s)
+{
+	static int int_status = 0;
+
+	(!s) ? int_status-- : int_status++;
+	(int_status < 0) ? _timer_disable() : _timer_enable();
+	
+	return int_status;
 }
 
 static void timer_enable(void)
