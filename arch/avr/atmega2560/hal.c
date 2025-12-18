@@ -41,18 +41,16 @@ static int __getchar(void)			// polled getch()
 	return buf[0];
 }
 
-char _interrupt_set(char s)
+int _interrupt_set(int s)
 {
-	static char int_status = 1;
-	
-	if (s) {
-		int_status = 1;
-		sei();
-	} else {
-		int_status = 0;
-		cli();
-	}
+	static int int_status = 0;
 
+	(!s) ? int_status-- : int_status++;
+	if (int_status < 0)
+		cli();
+	else
+		sei();
+	
 	return int_status;
 }
 

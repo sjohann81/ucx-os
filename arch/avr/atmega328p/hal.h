@@ -22,13 +22,12 @@ extern uint32_t __stack;
 /* disable interrupts, return previous int status / enable interrupts */
 #define _di()				_interrupt_set(0)
 #define _ei()				_interrupt_set(1)
-#define _enable_interrupts()		_interrupt_set(1)
 
 #define CONTEXT_SP	18
 #define CONTEXT_SR	20
 #define CONTEXT_RA	21
 
-char _interrupt_set(char s);
+int _interrupt_set(int s);
 
 void delay_us(uint16_t);
 uint64_t _read_us(void);
