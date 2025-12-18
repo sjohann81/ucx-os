@@ -31,9 +31,8 @@ extern uint32_t _end;			/* Start address of the heap memory, defined in linker s
 #define __ARCH__	"RV32I (HF-RISCV)"
 
 /* disable interrupts, return previous int status / enable interrupts */
-#define _di()				_interrupt_set(0)
-#define _ei()				_interrupt_set(1)
-#define _enable_interrupts()		_interrupt_set(1)
+#define _di()				_int_set(0)
+#define _ei()				_int_set(1)
 
 /* memory address map */
 #define ROM_BASE			0x00000000
@@ -405,6 +404,7 @@ extern uint32_t _end;			/* Start address of the heap memory, defined in linker s
 
 typedef uint32_t jmp_buf[20];
 
+int _int_set(int s);
 int32_t _interrupt_set(int32_t s);
 int32_t setjmp(jmp_buf env);
 void longjmp(jmp_buf env, int32_t val);

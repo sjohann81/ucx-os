@@ -7,6 +7,7 @@
 #include <hal.h>
 #include <console.h>
 #include <lib/libc.h>
+#include <lib/list.h>
 #include <kernel/kernel.h>
 #include <device.h>
 #include <uart.h>
@@ -148,7 +149,7 @@ void timer0b_handler(void)
 
 void _hardware_init(void)
 {
-	_di();
+	_interrupt_set(0);
 	
 #ifndef DEBUG_PORT
 	usart0->api->dev_init(usart0);
@@ -166,6 +167,16 @@ void _hardware_init(void)
 	/* TIMER1 frequency: 100 interrupts/s (every 250000 cycles, 10ms timer @ 25MHz) */
 	TIMER1CTC = (F_CPU / F_TIMER) / 16;
 #endif
+}
+
+int _int_set(int s)
+{
+	static int int_status = 0;
+
+	(!s) ? int_status-- : int_status++;
+	(int_status < 0) ? _interrupt_set(0) : _interrupt_set(1);
+
+	return int_status;
 }
 
 void _timer_enable(void)
@@ -188,8 +199,12 @@ void _timer_disable(void)
 
 void _interrupt_tick(void)
 {
+	struct tcb_s *task = kcb->task_current->data;
+	
 	_read_us();
-	_ei();
+	/* task is run for the first time */
+	if ((uint32_t)task->task == task->context[CONTEXT_RA])
+		_interrupt_set(1);
 }
 
 extern void __dispatch_init(jmp_buf env);
