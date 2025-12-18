@@ -32,16 +32,15 @@ static int __getchar(void)
 
 int32_t _interrupt_set(int32_t s)
 {
-	volatile int32_t val;
-	
-	val = read_csr(mstatus) & 0x8;
-	if (s) {
-		asm volatile ("csrs mstatus, 8");
-	} else {
-		asm volatile ("csrc mstatus, 8");
-	}
+	static int int_status = 0;
 
-	return val;
+	(!s) ? int_status-- : int_status++;
+	if (int_status < 0)
+		asm volatile ("csrc mstatus, 8");
+	else
+		asm volatile ("csrs mstatus, 8");
+	
+	return int_status;
 }
 
 void _delay_ms(uint32_t msec)
@@ -208,7 +207,7 @@ void _interrupt_tick(void)
 	_read_us();
 	/* task is run for the first time */
 	if ((uint64_t)task->task == task->context[CONTEXT_RA])
-		_ei();
+		asm volatile ("csrs mstatus, 8");
 }
 
 extern void __dispatch_init(jmp_buf env);
@@ -233,8 +232,7 @@ void _dispatch_init(jmp_buf env)
 		/* enable timer interrupts */
 		_timer_enable();
 	}
-	
-	_ei();
+
 	__dispatch_init(env);
 }
 

@@ -172,8 +172,7 @@ __dispatch_init:
 	lw    tp, 52(a0)
 	lw    sp, 56(a0)
 	lw    ra, 60(a0)
-#	addi  a5, zero, 128
-#	csrw  mie, a5
+	csrs  mstatus, 8
 	ret
 
 	.text
