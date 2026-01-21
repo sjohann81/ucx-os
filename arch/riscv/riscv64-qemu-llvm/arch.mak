@@ -16,9 +16,10 @@ LDFLAGS_STRIP = --gc-sections
 
 # this is stuff used everywhere - compiler and flags should be declared (ASFLAGS, CFLAGS, LDFLAGS, LD_SCRIPT, CC, AS, LD, DUMP, READ, OBJ and SIZE).
 ASFLAGS = -march=rv64imzicsr -mabi=lp64 #-fPIC
-CFLAGS = -Wall --target=riscv64 -march=rv64ima -mabi=lp64 -O2 -c -ffreestanding -nostdlib -fomit-frame-pointer -mcmodel=medany $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) -DMULTICORE
+CFLAGS_BUILD = -Wall --target=riscv64 -march=rv64ima -mabi=lp64 -O2 -c -ffreestanding -nostdlib -fomit-frame-pointer -mcmodel=medany $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) -DMULTICORE
+CFLAGS_DEBUG = -Wall --target=riscv64 -march=rv64ima -mabi=lp64 -O0 -g -c -ffreestanding -nostdlib -fomit-frame-pointer -mcmodel=medany $(INC_DIRS) -DF_CPU=${F_CLK} -D USART_BAUD=$(SERIAL_BAUDRATE) -DF_TIMER=${F_TICK} -DLITTLE_ENDIAN $(CFLAGS_STRIP) -DMULTICORE
+CFLAGS = $(CFLAGS_BUILD)
 ARFLAGS = r
-
 LDFLAGS = -melf64lriscv $(LDFLAGS_STRIP)
 LDSCRIPT = $(ARCH_DIR)/../riscv64-qemu/riscv64-qemu.ld
 
@@ -30,6 +31,7 @@ READ = riscv64-unknown-elf-readelf
 OBJ = riscv64-unknown-elf-objcopy
 SIZE = riscv64-unknown-elf-size
 AR = riscv64-unknown-elf-ar
+GDB = riscv64-unknown-elf-gdb
 
 hal:
 	$(AS) $(ASFLAGS) -o crt0.o $(ARCH_DIR)/../riscv64-qemu/crt0.s
@@ -43,3 +45,10 @@ run_riscv64:
 	echo "hit Ctrl+a x to quit"
 #	qemu-system-riscv64 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic
 	qemu-system-riscv64 -smp 4 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic
+
+debug_riscv64:
+	echo "hit Ctrl+a x to quit"
+	qemu-system-riscv64 -machine virt -bios none -kernel $(BUILD_TARGET_DIR)/image.elf -nographic -S -s
+
+gdb_riscv64:
+	$(GDB) $(BUILD_TARGET_DIR)/image.elf -ex "target remote : 1234"
